@@ -1,0 +1,6 @@
+@gstok_api_HostAddress = http://localhost:5268
+
+GET {{gstok_api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
