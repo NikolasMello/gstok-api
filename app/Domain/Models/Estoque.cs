@@ -5,14 +5,14 @@ using gstok_api.Enums;
 namespace gstok_api.Models;
 
 [Table("estoque")]
-public class Estoque
+public class EstoqueModel
 {
     [Column("id")]
     public Guid Id { get; set; }
 
     [Column("produto_id")]
     public Guid ProdutoId { get; set; }
-    public Produto Produto { get; set; } = null!;
+    public ProdutoModel Produto { get; set; } = null!;
 
     [Required]
     [Range(0, int.MaxValue)]
@@ -27,4 +27,10 @@ public class Estoque
     [MaxLength(50)]
     [Column("nm_cor")]
     public string NmCor { get; set; } = string.Empty;
+
+    [Column("ts_criacao")]
+    public DateTime TsCriacao { get; set; }
+
+    [Column("ts_edicao")]
+    public DateTime? TsEdicao { get; set; }
 }

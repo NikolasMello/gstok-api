@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace gstok_api.Models;
 
 [Table("produto")]
-public class Produto
+public class ProdutoModel
 {
     [Column("id")]
     public Guid Id { get; set; }
@@ -40,11 +40,11 @@ public class Produto
     [Column("fl_ativo")]
     public bool FlAtivo { get; set; } = true;
 
-    [Column("dt_criacao")]
-    public DateOnly DtCriacao { get; set; }
+    [Column("ts_criacao")]
+    public DateTime TsCriacao { get; set; }
 
-    [Column("dt_edicao")]
-    public DateOnly? DtEdicao { get; set; }
+    [Column("ts_edicao")]
+    public DateTime? TsEdicao { get; set; }
 
-    public ICollection<Estoque> Estoques { get; set; } = [];
+    public ICollection<EstoqueModel> Estoques { get; set; } = [];
 }

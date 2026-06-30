@@ -1,0 +1,7 @@
+root = true
+
+[*.cs]
+# Desabilita IDE0130: namespace não precisa refletir estrutura de pastas.
+# A pasta app/ é usada apenas para organização física — os namespaces
+# seguem a convenção gstok_api.<Camada> sem o segmento app.
+dotnet_diagnostic.IDE0130.severity = none

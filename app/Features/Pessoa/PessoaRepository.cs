@@ -1,26 +1,43 @@
 using Microsoft.EntityFrameworkCore;
 using gstok_api.Database;
-using gstok_api.Interfaces;
+using gstok_api.DTOs;
+using gstok_api.Features.Pessoa;
 using gstok_api.Models;
 
 namespace gstok_api.Repositories;
 
 public class PessoaRepository(AppDbContext context) : IPessoaRepository
 {
-    public async Task<IEnumerable<Pessoa>> GetAllAsync() =>
-        await context.Pessoas.ToListAsync();
+    public async Task<PagedResult<PessoaModel>> GetAllAsync(PaginationParams pagination)
+    {
+        var query = context.Pessoas.AsQueryable();
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .OrderBy(p => p.NmPessoa)
+            .Skip((pagination.Page - 1) * pagination.PageSize)
+            .Take(pagination.PageSize)
+            .ToListAsync();
 
-    public async Task<Pessoa?> GetByIdAsync(Guid id) =>
+        return new PagedResult<PessoaModel>
+        {
+            Items = items,
+            Page = pagination.Page,
+            PageSize = pagination.PageSize,
+            TotalCount = totalCount
+        };
+    }
+
+    public async Task<PessoaModel?> GetByIdAsync(Guid id) =>
         await context.Pessoas.FindAsync(id);
 
-    public async Task<Pessoa> CreateAsync(Pessoa pessoa)
+    public async Task<PessoaModel> CreateAsync(PessoaModel pessoa)
     {
         context.Pessoas.Add(pessoa);
         await context.SaveChangesAsync();
         return pessoa;
     }
 
-    public async Task<Pessoa?> UpdateAsync(Guid id, Pessoa pessoa)
+    public async Task<PessoaModel?> UpdateAsync(Guid id, PessoaModel pessoa)
     {
         var existing = await context.Pessoas.FindAsync(id);
         if (existing is null) return null;

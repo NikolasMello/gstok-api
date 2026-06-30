@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using gstok_api.Database;
@@ -11,9 +12,11 @@ using gstok_api.Database;
 namespace gstok_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260630231641_RenameProdutoTimestampsAddEstoqueTimestamps")]
+    partial class RenameProdutoTimestampsAddEstoqueTimestamps
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -47,6 +50,14 @@ namespace gstok_api.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("tp_tamanho");
+
+                    b.Property<DateTime>("TsCriacao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ts_criacao");
+
+                    b.Property<DateTime?>("TsEdicao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ts_edicao");
 
                     b.HasKey("Id");
 
@@ -115,14 +126,6 @@ namespace gstok_api.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("ds_produto");
 
-                    b.Property<DateOnly>("DtCriacao")
-                        .HasColumnType("date")
-                        .HasColumnName("dt_criacao");
-
-                    b.Property<DateOnly?>("DtEdicao")
-                        .HasColumnType("date")
-                        .HasColumnName("dt_edicao");
-
                     b.Property<bool>("FlAtivo")
                         .HasColumnType("boolean")
                         .HasColumnName("fl_ativo");
@@ -138,6 +141,14 @@ namespace gstok_api.Migrations
                         .HasColumnType("character varying(150)")
                         .HasColumnName("nm_produto");
 
+                    b.Property<DateTime>("TsCriacao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ts_criacao");
+
+                    b.Property<DateTime?>("TsEdicao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ts_edicao");
+
                     b.Property<decimal>("VlPreco")
                         .HasColumnType("numeric")
                         .HasColumnName("vl_preco");
@@ -151,6 +162,82 @@ namespace gstok_api.Migrations
                     b.ToTable("produto");
                 });
 
+            modelBuilder.Entity("gstok_api.Models.Sessao", b =>
+                {
+                    b.Property<Guid>("IdSessao")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id_sessao");
+
+                    b.Property<string>("CdRefreshToken")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("cd_refresh_token");
+
+                    b.Property<DateTime>("TsCriacao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ts_criacao");
+
+                    b.Property<DateTime>("TsExpiracao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ts_expiracao");
+
+                    b.Property<Guid>("UsuarioId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("usuario_id");
+
+                    b.HasKey("IdSessao");
+
+                    b.HasIndex("CdRefreshToken")
+                        .IsUnique();
+
+                    b.HasIndex("UsuarioId");
+
+                    b.ToTable("sessao");
+                });
+
+            modelBuilder.Entity("gstok_api.Models.Usuario", b =>
+                {
+                    b.Property<Guid>("IdUsuario")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id_usuario");
+
+                    b.Property<string>("DsSenha")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("ds_senha");
+
+                    b.Property<string>("NmEmail")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)")
+                        .HasColumnName("nm_email");
+
+                    b.Property<Guid?>("PessoaId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("pessoa_id");
+
+                    b.Property<DateTime>("TsCriacao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ts_criacao");
+
+                    b.Property<DateTime?>("TsEdicao")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("ts_edicao");
+
+                    b.HasKey("IdUsuario");
+
+                    b.HasIndex("NmEmail")
+                        .IsUnique();
+
+                    b.HasIndex("PessoaId")
+                        .IsUnique()
+                        .HasFilter("pessoa_id IS NOT NULL");
+
+                    b.ToTable("usuario");
+                });
+
             modelBuilder.Entity("gstok_api.Models.Estoque", b =>
                 {
                     b.HasOne("gstok_api.Models.Produto", "Produto")
@@ -160,6 +247,27 @@ namespace gstok_api.Migrations
                         .IsRequired();
 
                     b.Navigation("Produto");
+                });
+
+            modelBuilder.Entity("gstok_api.Models.Sessao", b =>
+                {
+                    b.HasOne("gstok_api.Models.Usuario", "Usuario")
+                        .WithMany()
+                        .HasForeignKey("UsuarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Usuario");
+                });
+
+            modelBuilder.Entity("gstok_api.Models.Usuario", b =>
+                {
+                    b.HasOne("gstok_api.Models.Pessoa", "Pessoa")
+                        .WithOne()
+                        .HasForeignKey("gstok_api.Models.Usuario", "PessoaId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.Navigation("Pessoa");
                 });
 
             modelBuilder.Entity("gstok_api.Models.Produto", b =>

@@ -4,6 +4,54 @@ API REST em ASP.NET Core 10 para o sistema GSTOK.
 
 ---
 
+## EF Core — Migrations e Banco de Dados
+
+### Aplicar migrations pendentes ao banco
+
+```bash
+dotnet ef database update
+```
+
+### Criar uma nova migration
+
+```bash
+dotnet ef migrations add <NomeDaMigration>
+```
+
+> Use nomes descritivos no imperativo: `AddSessaoTable`, `RenameUsuarioEmail`, `AddProdutoIndex`.
+
+### Remover a última migration (não aplicada ao banco)
+
+```bash
+dotnet ef migrations remove
+```
+
+### Reverter o banco para uma migration específica
+
+```bash
+dotnet ef database update <NomeDaMigration>
+```
+
+### Reverter todas as migrations (banco vazio)
+
+```bash
+dotnet ef database update 0
+```
+
+### Listar migrations e seus status
+
+```bash
+dotnet ef migrations list
+```
+
+### Gerar SQL sem executar (dry-run)
+
+```bash
+dotnet ef migrations script
+```
+
+---
+
 ## Convenção de Prefixos de Propriedades em Entidades
 
 Todas as propriedades de entidades (Models) seguem um prefixo de 2 letras que identifica semanticamente o tipo do dado. Em C#, o prefixo é parte do nome PascalCase da propriedade.

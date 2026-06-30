@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs;
-using gstok_api.Interfaces;
+using gstok_api.Features.Pessoa;
 
 namespace gstok_api.Controllers;
 
@@ -9,9 +9,9 @@ namespace gstok_api.Controllers;
 public class PessoaController(IPessoaService pessoaService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetAll([FromQuery] PaginationParams pagination)
     {
-        var pessoas = await pessoaService.GetAllAsync();
+        var pessoas = await pessoaService.GetAllAsync(pagination);
         return Ok(pessoas);
     }
 

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace gstok_api.Models;
 
 [Table("pessoa")]
-public class Pessoa
+public class PessoaModel
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -38,4 +38,10 @@ public class Pessoa
     [MaxLength(150)]
     [Column("nm_email")]
     public string NmEmail { get; set; } = string.Empty;
+
+    [Column("ts_criacao")]
+    public DateTime TsCriacao { get; set; }
+
+    [Column("ts_edicao")]
+    public DateTime? TsEdicao { get; set; }
 }
