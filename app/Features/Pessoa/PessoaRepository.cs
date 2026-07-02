@@ -42,7 +42,8 @@ public class PessoaRepository(AppDbContext context) : IPessoaRepository
         var existing = await context.Pessoas.FindAsync(id);
         if (existing is null) return null;
 
-        existing.NrCpf = pessoa.NrCpf;
+        existing.TpPessoa = pessoa.TpPessoa;
+        existing.CdInscricaoNacional = pessoa.CdInscricaoNacional;
         existing.NmPessoa = pessoa.NmPessoa;
         existing.NmSobrenome = pessoa.NmSobrenome;
         existing.NmTelefone = pessoa.NmTelefone;

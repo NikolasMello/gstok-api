@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using gstok_api.Enums;
 
 namespace gstok_api.Models;
 
@@ -12,10 +13,13 @@ public class PessoaModel
     public Guid IdPessoa { get; set; }
 
     [Required]
-    [StringLength(11, MinimumLength = 11)]
-    [RegularExpression(@"^\d{11}$", ErrorMessage = "CPF deve conter 11 dígitos numéricos.")]
-    [Column("nr_cpf")]
-    public string NrCpf { get; set; } = string.Empty;
+    [MaxLength(14)]
+    [Column("cd_inscricao_nacional")]
+    public string CdInscricaoNacional { get; set; } = string.Empty;
+
+    [Required]
+    [Column("tp_pessoa")]
+    public TipoPessoa TpPessoa { get; set; }
 
     [Required]
     [MaxLength(100)]
@@ -44,4 +48,7 @@ public class PessoaModel
 
     [Column("ts_edicao")]
     public DateTime? TsEdicao { get; set; }
+
+    public FotoPessoaModel? Foto { get; set; }
+    public ClienteModel? Cliente { get; set; }
 }

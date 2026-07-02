@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using gstok_api.Enums;
 
 namespace gstok_api.Models;
 
@@ -39,6 +40,10 @@ public class ProdutoModel
 
     [Column("tipo_produto_id")]
     public Guid? TipoProdutoId { get; set; }
+
+    [Required]
+    [Column("tp_estacao")]
+    public Estacao TpEstacao { get; set; }
 
     [Column("fl_ativo")]
     public bool FlAtivo { get; set; } = true;

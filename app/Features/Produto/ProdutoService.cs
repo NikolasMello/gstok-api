@@ -1,0 +1,150 @@
+using gstok_api.Common.Services;
+using gstok_api.DTOs;
+using gstok_api.Exceptions;
+using gstok_api.Features.Produto;
+using gstok_api.Models;
+
+namespace gstok_api.Services;
+
+public class ProdutoService(
+    IProdutoRepository produtoRepository,
+    IImageProcessingService imageProcessingService) : IProdutoService
+{
+    public async Task<PagedResult<ProdutoResponseDto>> GetAllAsync(PaginationParams pagination)
+    {
+        var result = await produtoRepository.GetAllAsync(pagination);
+        return new PagedResult<ProdutoResponseDto>
+        {
+            Items = result.Items.Select(ToResponseDto),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalCount = result.TotalCount
+        };
+    }
+
+    public async Task<ProdutoResponseDto?> GetByIdAsync(Guid id)
+    {
+        var produto = await produtoRepository.GetByIdAsync(id);
+        return produto is null ? null : ToResponseDto(produto);
+    }
+
+    public async Task<ProdutoResponseDto> CreateAsync(ProdutoCreateDto dto)
+    {
+        if (dto.Imagens.Count == 0)
+            throw new BusinessException("Pelo menos uma imagem é obrigatória.");
+
+        // Process all images first — fail fast before any DB writes
+        var imagensProcessadas = new List<(ImageVariantesResult Variantes, string? Caption, bool FlPrincipal, int Ordem)>();
+
+        for (int i = 0; i < dto.Imagens.Count; i++)
+        {
+            await using var stream = dto.Imagens[i].OpenReadStream();
+            var variantes = await imageProcessingService.ProcessarAsync(stream, "produtos");
+            imagensProcessadas.Add((variantes, dto.Captions.ElementAtOrDefault(i), i == dto.IndiceImagemPrincipal, i));
+        }
+
+        var produto = new ProdutoModel
+        {
+            Id = Guid.CreateVersion7(),
+            CdSku = dto.CdSku,
+            NmProduto = dto.NmProduto,
+            DsProduto = dto.DsProduto,
+            NmMarca = dto.NmMarca,
+            VlPreco = dto.VlPreco,
+            VlVenda = dto.VlVenda,
+            TipoProdutoId = dto.TipoProdutoId,
+            TpEstacao = dto.TpEstacao,
+            FlAtivo = true,
+            TsCriacao = DateTime.UtcNow
+        };
+
+        foreach (var (variantes, caption, flPrincipal, ordem) in imagensProcessadas)
+        {
+            produto.Imagens.Add(new ImagemProdutoModel
+            {
+                IdImagemProduto = Guid.CreateVersion7(),
+                ProdutoId = produto.Id,
+                NmCaption = caption,
+                SqOrdem = ordem,
+                FlPrincipal = flPrincipal,
+                UrAvatar    = variantes.Avatar.Url,
+                NrLarguraAvatar = variantes.Avatar.Largura,
+                NrAlturaAvatar  = variantes.Avatar.Altura,
+                UrThumbnail    = variantes.Thumbnail.Url,
+                NrLarguraThumbnail = variantes.Thumbnail.Largura,
+                NrAlturaThumbnail  = variantes.Thumbnail.Altura,
+                UrMobile    = variantes.Mobile.Url,
+                NrLarguraMobile = variantes.Mobile.Largura,
+                NrAlturaMobile  = variantes.Mobile.Altura,
+                UrTablet    = variantes.Tablet.Url,
+                NrLarguraTablet = variantes.Tablet.Largura,
+                NrAlturaTablet  = variantes.Tablet.Altura,
+                UrDesktop    = variantes.Desktop.Url,
+                NrLarguraDesktop = variantes.Desktop.Largura,
+                NrAlturaDesktop  = variantes.Desktop.Altura,
+                TsCriacao = DateTime.UtcNow
+            });
+        }
+
+        // Produto + imagens salvos em uma única transação via cascade do EF Core
+        await produtoRepository.CreateAsync(produto);
+
+        // Recarrega para popular TipoProduto.NmTipo se houver FK
+        var produtoCompleto = await produtoRepository.GetByIdAsync(produto.Id);
+        return ToResponseDto(produtoCompleto!);
+    }
+
+    public async Task<ProdutoResponseDto?> UpdateAsync(Guid id, ProdutoUpdateDto dto)
+    {
+        var produto = new ProdutoModel
+        {
+            CdSku = dto.CdSku,
+            NmProduto = dto.NmProduto,
+            DsProduto = dto.DsProduto,
+            NmMarca = dto.NmMarca,
+            VlPreco = dto.VlPreco,
+            VlVenda = dto.VlVenda,
+            TipoProdutoId = dto.TipoProdutoId,
+            TpEstacao = dto.TpEstacao,
+            FlAtivo = dto.FlAtivo
+        };
+
+        var updated = await produtoRepository.UpdateAsync(id, produto);
+        return updated is null ? null : ToResponseDto(updated);
+    }
+
+    public async Task<bool> DeleteAsync(Guid id) =>
+        await produtoRepository.DeleteAsync(id);
+
+    private static ProdutoResponseDto ToResponseDto(ProdutoModel p) => new()
+    {
+        Id = p.Id,
+        CdSku = p.CdSku,
+        NmProduto = p.NmProduto,
+        DsProduto = p.DsProduto,
+        NmMarca = p.NmMarca,
+        VlPreco = p.VlPreco,
+        VlVenda = p.VlVenda,
+        TipoProdutoId = p.TipoProdutoId,
+        NmTipo = p.TipoProduto?.NmTipo,
+        TpEstacao = p.TpEstacao,
+        FlAtivo = p.FlAtivo,
+        TsCriacao = p.TsCriacao,
+        TsEdicao = p.TsEdicao,
+        Imagens = p.Imagens
+            .OrderBy(i => i.SqOrdem)
+            .Select(i => new ImagemProdutoResponseDto
+            {
+                IdImagemProduto = i.IdImagemProduto,
+                NmCaption  = i.NmCaption,
+                SqOrdem    = i.SqOrdem,
+                FlPrincipal = i.FlPrincipal,
+                Avatar    = new ImageVariante { Url = i.UrAvatar,   Largura = i.NrLarguraAvatar,   Altura = i.NrAlturaAvatar },
+                Thumbnail = new ImageVariante { Url = i.UrThumbnail, Largura = i.NrLarguraThumbnail, Altura = i.NrAlturaThumbnail },
+                Mobile    = new ImageVariante { Url = i.UrMobile,   Largura = i.NrLarguraMobile,   Altura = i.NrAlturaMobile },
+                Tablet    = new ImageVariante { Url = i.UrTablet,   Largura = i.NrLarguraTablet,   Altura = i.NrAlturaTablet },
+                Desktop   = new ImageVariante { Url = i.UrDesktop,  Largura = i.NrLarguraDesktop,  Altura = i.NrAlturaDesktop }
+            })
+            .ToList()
+    };
+}

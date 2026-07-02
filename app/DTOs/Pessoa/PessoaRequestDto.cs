@@ -1,13 +1,18 @@
 using System.ComponentModel.DataAnnotations;
+using gstok_api.Enums;
+using gstok_api.Common.Validators;
 
 namespace gstok_api.DTOs;
 
 public class PessoaRequestDto
 {
     [Required]
-    [StringLength(11, MinimumLength = 11)]
-    [RegularExpression(@"^\d{11}$", ErrorMessage = "CPF deve conter 11 dígitos numéricos.")]
-    public string NrCpf { get; set; } = string.Empty;
+    public TipoPessoa TpPessoa { get; set; }
+
+    [Required]
+    [MaxLength(14)]
+    [InscricaoNacional]
+    public string CdInscricaoNacional { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(100)]

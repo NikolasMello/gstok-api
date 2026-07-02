@@ -18,8 +18,8 @@ public class ImagemProdutoModel
     [Column("nm_caption")]
     public string? NmCaption { get; set; }
 
-    [Column("nr_ordem")]
-    public int NrOrdem { get; set; }
+    [Column("sq_ordem")]
+    public int SqOrdem { get; set; }
 
     [Column("fl_principal")]
     public bool FlPrincipal { get; set; }
@@ -65,14 +65,14 @@ public class ImagemProdutoModel
     public int NrAlturaDesktop { get; set; }
 
     [Required]
-    [Column("ur_full")]
-    public string UrFull { get; set; } = string.Empty;
+    [Column("ur_avatar")]
+    public string UrAvatar { get; set; } = string.Empty;
 
-    [Column("nr_largura_full")]
-    public int NrLarguraFull { get; set; }
+    [Column("nr_largura_avatar")]
+    public int NrLarguraAvatar { get; set; }
 
-    [Column("nr_altura_full")]
-    public int NrAlturaFull { get; set; }
+    [Column("nr_altura_avatar")]
+    public int NrAlturaAvatar { get; set; }
 
     [Column("ts_criacao")]
     public DateTime TsCriacao { get; set; }

@@ -84,6 +84,8 @@ All entity properties use a 2-letter semantic prefix (PascalCase). See [README.m
 | `Tp` | Type/category | `string`/`enum` |
 | `Fl`/`In` | Boolean flag | `bool` |
 | `Cd` | Business code | `string` |
+| `Nr` | Numeric measurement (dimensions, counts) | `int` |
+| `Sq` | Sequence/ordering position | `int` |
 
 Primary keys use `Id` without a prefix. Foreign keys use `<EntityName>Id`. Navigation properties have no prefix.
 

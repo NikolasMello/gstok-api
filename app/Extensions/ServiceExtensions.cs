@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -10,6 +11,9 @@ using Microsoft.IdentityModel.Tokens;
 using gstok_api.Database;
 using gstok_api.Features.Auth;
 using gstok_api.Features.Pessoa;
+using gstok_api.Features.ImagemProduto;
+using gstok_api.Features.Produto;
+using gstok_api.Common.Services;
 using gstok_api.Repositories;
 using gstok_api.Services;
 using gstok_api.Settings;
@@ -28,15 +32,24 @@ public static class ServiceExtensions
     public static IServiceCollection AddApiControllers(this IServiceCollection services)
     {
         services.AddControllers(o => o.Conventions.Add(new RoutePrefixConvention("api/v1")))
-                .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower);
+                .AddJsonOptions(o =>
+                {
+                    o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+                    o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                });
         return services;
     }
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<StorageSettings>(configuration.GetSection("Storage"));
+        services.AddSingleton<IImageProcessingService, ImageProcessingService>();
         services.AddScoped<IPessoaRepository, PessoaRepository>();
         services.AddScoped<IPessoaService, PessoaService>();
+        services.AddScoped<IProdutoRepository, ProdutoRepository>();
+        services.AddScoped<IProdutoService, ProdutoService>();
+        services.AddScoped<IImagemProdutoRepository, ImagemProdutoRepository>();
+        services.AddScoped<IImagemProdutoService, ImagemProdutoService>();
         return services;
     }
 
