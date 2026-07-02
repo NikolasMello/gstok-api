@@ -25,6 +25,7 @@ public class AuthService(
 
         var usuario = new UsuarioModel
         {
+            IdUsuario = Guid.CreateVersion7(),
             NmEmail = email,
             DsSenha = BCrypt.Net.BCrypt.HashPassword(dto.DsSenha, workFactor: 12),
             TsCriacao = DateTime.UtcNow
@@ -70,6 +71,7 @@ public class AuthService(
 
         await authRepository.CreateSessionAsync(new SessaoModel
         {
+            IdSessao = Guid.CreateVersion7(),
             UsuarioId = idUsuario,
             CdRefreshToken = refreshToken,
             TsExpiracao = expiracao,

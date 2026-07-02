@@ -10,6 +10,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<EstoqueModel> Estoques { get; set; }
     public DbSet<UsuarioModel> Usuarios { get; set; }
     public DbSet<SessaoModel> Sessoes { get; set; }
+    public DbSet<ImagemProdutoModel> ImagensProduto { get; set; }
+    public DbSet<TipoProdutoModel> TiposProduto { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -44,5 +46,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany()
             .HasForeignKey(s => s.UsuarioId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ImagemProdutoModel>()
+            .HasOne(i => i.Produto)
+            .WithMany(p => p.Imagens)
+            .HasForeignKey(i => i.ProdutoId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TipoProdutoModel>()
+            .HasIndex(t => t.NmTipo)
+            .IsUnique();
+
+        modelBuilder.Entity<ProdutoModel>()
+            .HasOne(p => p.TipoProduto)
+            .WithMany(t => t.Produtos)
+            .HasForeignKey(p => p.TipoProdutoId)
+            .IsRequired(false)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }

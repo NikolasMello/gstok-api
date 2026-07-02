@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using gstok_api.Database;
@@ -11,9 +12,11 @@ using gstok_api.Database;
 namespace gstok_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260701230601_AddImagemProduto")]
+    partial class AddImagemProduto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -250,10 +253,6 @@ namespace gstok_api.Migrations
                         .HasColumnType("character varying(150)")
                         .HasColumnName("nm_produto");
 
-                    b.Property<Guid?>("TipoProdutoId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("tipo_produto_id");
-
                     b.Property<DateTime>("TsCriacao")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("ts_criacao");
@@ -271,8 +270,6 @@ namespace gstok_api.Migrations
                         .HasColumnName("vl_venda");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("TipoProdutoId");
 
                     b.ToTable("produto");
                 });
@@ -309,34 +306,6 @@ namespace gstok_api.Migrations
                     b.HasIndex("UsuarioId");
 
                     b.ToTable("sessao");
-                });
-
-            modelBuilder.Entity("gstok_api.Models.TipoProdutoModel", b =>
-                {
-                    b.Property<Guid>("IdTipoProduto")
-                        .HasColumnType("uuid")
-                        .HasColumnName("id_tipo_produto");
-
-                    b.Property<string>("NmTipo")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("nm_tipo");
-
-                    b.Property<DateTime>("TsCriacao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ts_criacao");
-
-                    b.Property<DateTime?>("TsEdicao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ts_edicao");
-
-                    b.HasKey("IdTipoProduto");
-
-                    b.HasIndex("NmTipo")
-                        .IsUnique();
-
-                    b.ToTable("tipo_produto");
                 });
 
             modelBuilder.Entity("gstok_api.Models.UsuarioModel", b =>
@@ -403,16 +372,6 @@ namespace gstok_api.Migrations
                     b.Navigation("Produto");
                 });
 
-            modelBuilder.Entity("gstok_api.Models.ProdutoModel", b =>
-                {
-                    b.HasOne("gstok_api.Models.TipoProdutoModel", "TipoProduto")
-                        .WithMany("Produtos")
-                        .HasForeignKey("TipoProdutoId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("TipoProduto");
-                });
-
             modelBuilder.Entity("gstok_api.Models.SessaoModel", b =>
                 {
                     b.HasOne("gstok_api.Models.UsuarioModel", "Usuario")
@@ -439,11 +398,6 @@ namespace gstok_api.Migrations
                     b.Navigation("Estoques");
 
                     b.Navigation("Imagens");
-                });
-
-            modelBuilder.Entity("gstok_api.Models.TipoProdutoModel", b =>
-                {
-                    b.Navigation("Produtos");
                 });
 #pragma warning restore 612, 618
         }

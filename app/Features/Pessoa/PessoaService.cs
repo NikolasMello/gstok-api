@@ -16,6 +16,7 @@ public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
     {
         var pessoa = new PessoaModel
         {
+            IdPessoa = Guid.CreateVersion7(),
             NrCpf = dto.NrCpf,
             NmPessoa = dto.NmPessoa,
             NmSobrenome = dto.NmSobrenome,

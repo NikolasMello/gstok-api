@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using gstok_api.Database;
@@ -11,9 +12,11 @@ using gstok_api.Database;
 namespace gstok_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260702002213_AddTipoProduto")]
+    partial class AddTipoProduto
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -322,14 +325,6 @@ namespace gstok_api.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)")
                         .HasColumnName("nm_tipo");
-
-                    b.Property<DateTime>("TsCriacao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ts_criacao");
-
-                    b.Property<DateTime?>("TsEdicao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ts_edicao");
 
                     b.HasKey("IdTipoProduto");
 

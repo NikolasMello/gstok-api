@@ -37,6 +37,9 @@ public class ProdutoModel
     [Column("vl_venda")]
     public decimal VlVenda { get; set; }
 
+    [Column("tipo_produto_id")]
+    public Guid? TipoProdutoId { get; set; }
+
     [Column("fl_ativo")]
     public bool FlAtivo { get; set; } = true;
 
@@ -46,5 +49,7 @@ public class ProdutoModel
     [Column("ts_edicao")]
     public DateTime? TsEdicao { get; set; }
 
+    public TipoProdutoModel? TipoProduto { get; set; }
     public ICollection<EstoqueModel> Estoques { get; set; } = [];
+    public ICollection<ImagemProdutoModel> Imagens { get; set; } = [];
 }
