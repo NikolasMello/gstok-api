@@ -46,3 +46,8 @@ Thumbs.db
 
 # dotnet tools
 .config/dotnet-tools.json
+
+# Node (acidental)
+node_modules/
+package-lock.json
+package.json

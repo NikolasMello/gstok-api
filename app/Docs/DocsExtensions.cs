@@ -1,0 +1,55 @@
+using Microsoft.OpenApi;
+using Scalar.AspNetCore;
+
+namespace gstok_api.Docs;
+
+public static class DocsExtensions
+{
+    public static IServiceCollection AddDocs(this IServiceCollection services)
+    {
+        services.AddOpenApi(options =>
+        {
+            options.AddDocumentTransformer((document, _, _) =>
+            {
+                document.Info.Title = "GSTOK API";
+                document.Info.Version = "v1";
+                document.Components ??= new();
+                document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+                document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Description = "Insira o access token JWT"
+                };
+                document.Security ??= [];
+                document.Security.Add(new OpenApiSecurityRequirement
+                {
+                    [new OpenApiSecuritySchemeReference("Bearer")] = []
+                });
+                return Task.CompletedTask;
+            });
+        });
+
+        return services;
+    }
+
+    public static WebApplication MapDocs(this WebApplication app)
+    {
+        if (!app.Environment.IsDevelopment()) return app;
+
+        app.MapOpenApi();
+        app.MapScalarApiReference(options =>
+        {
+            options.Title = "GSTOK API";
+            options.Theme = ScalarTheme.DeepSpace;
+            options.DefaultHttpClient = new(ScalarTarget.JavaScript, ScalarClient.Fetch);
+            options.Authentication = new ScalarAuthenticationOptions
+            {
+                PreferredSecuritySchemes = ["Bearer"]
+            };
+        });
+
+        return app;
+    }
+}

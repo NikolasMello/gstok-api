@@ -21,11 +21,20 @@ public class ExceptionHandlingMiddleware(RequestDelegate next, ILogger<Exception
         }
         catch (AppException ex)
         {
+            if (ex.StatusCode >= 500)
+                logger.LogError(ex, "{StatusCode} {Method} {Path}: {Mensagem}",
+                    ex.StatusCode, context.Request.Method, context.Request.Path, ex.Message);
+            else
+                logger.LogWarning("{StatusCode} {Method} {Path}: {Mensagem}",
+                    ex.StatusCode, context.Request.Method, context.Request.Path, ex.Message);
+
             await WriteAsync(context, ex.StatusCode, ex.Severidade, ex.Message);
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "Exceção não tratada");
+            logger.LogError(ex, "Exceção não tratada: {Method} {Path}",
+                context.Request.Method, context.Request.Path);
+
             await WriteAsync(
                 context,
                 StatusCodes.Status500InternalServerError,

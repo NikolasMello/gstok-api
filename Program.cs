@@ -1,26 +1,28 @@
+using gstok_api.Docs;
 using gstok_api.Extensions;
 using gstok_api.Middleware;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, config) =>
+    config.ReadFrom.Configuration(context.Configuration));
 
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddRateLimiting();
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddApiControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddDocs();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-    app.MapOpenApi();
-
+app.MapDocs();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
-app.MapControllers();
+app.MapControllers().RequireAuthorization();
 app.Run();
-
-public partial class Program { }

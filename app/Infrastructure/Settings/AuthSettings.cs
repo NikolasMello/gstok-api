@@ -4,6 +4,7 @@ public class AuthSettings
 {
     public JwtSettings Jwt { get; set; } = new();
     public SessionSettings Session { get; set; } = new();
+    public CookieSettings Cookie { get; set; } = new();
 }
 
 public class JwtSettings
@@ -17,4 +18,11 @@ public class JwtSettings
 public class SessionSettings
 {
     public int RefreshTokenExpirationDays { get; set; } = 7;
+}
+
+public class CookieSettings
+{
+    public string? Domain { get; set; }
+    public bool Secure { get; set; } = true;
+    public string SameSite { get; set; } = "None";
 }

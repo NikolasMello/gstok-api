@@ -68,6 +68,14 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 - Return DTOs from controller endpoints, never raw EF entities.
 - Use `[ApiController]` and `[Route("api/[controller]")]` on all controllers.
 
+### JSON serialization
+
+All request/response JSON keys are automatically converted to `snake_case` via a global `JsonNamingPolicy.SnakeCaseLower` policy (configured in `ServiceExtensions.cs`). DTOs follow the same prefix convention as entities (`NmEmail` → `nm_email`, `VlTotal` → `vl_total`).
+
+- **Never add `[JsonPropertyName]` attributes** — the global policy handles all mapping.
+- **Enums serialize as strings** via a global `JsonStringEnumConverter` — never as integers.
+- See [README.md](README.md) for the full serialization convention and examples.
+
 ### Entity property naming
 
 All entity properties use a 2-letter semantic prefix (PascalCase). See [README.md](README.md) for the full prefix table. Key prefixes:

@@ -1,6 +1,8 @@
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using gstok_api.DTOs;
+using gstok_api.Exceptions;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +15,9 @@ using gstok_api.Features.Auth;
 using gstok_api.Features.Pessoa;
 using gstok_api.Features.ImagemProduto;
 using gstok_api.Features.Produto;
+using gstok_api.Features.Usuario;
+using gstok_api.Features.Estoque;
+using gstok_api.Features.Pedido;
 using gstok_api.Common.Services;
 using gstok_api.Repositories;
 using gstok_api.Services;
@@ -31,12 +36,35 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddApiControllers(this IServiceCollection services)
     {
+        services.ConfigureHttpJsonOptions(o =>
+        {
+            o.SerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
+            o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        });
+
         services.AddControllers(o => o.Conventions.Add(new RoutePrefixConvention("api/v1")))
                 .AddJsonOptions(o =>
                 {
                     o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
                     o.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
                 });
+
+        services.Configure<ApiBehaviorOptions>(o =>
+        {
+            o.InvalidModelStateResponseFactory = context =>
+            {
+                var mensagem = string.Join(" | ", context.ModelState
+                    .Where(e => e.Value?.Errors.Count > 0)
+                    .SelectMany(e => e.Value!.Errors.Select(err => err.ErrorMessage)));
+
+                return new BadRequestObjectResult(new ErrorResponseDto
+                {
+                    Severidade = Severidade.Alerta,
+                    Mensagem = mensagem
+                });
+            };
+        });
+
         return services;
     }
 
@@ -50,6 +78,12 @@ public static class ServiceExtensions
         services.AddScoped<IProdutoService, ProdutoService>();
         services.AddScoped<IImagemProdutoRepository, ImagemProdutoRepository>();
         services.AddScoped<IImagemProdutoService, ImagemProdutoService>();
+        services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+        services.AddScoped<IUsuarioService, UsuarioService>();
+        services.AddScoped<IEstoqueRepository, EstoqueRepository>();
+        services.AddScoped<IEstoqueService, EstoqueService>();
+        services.AddScoped<IPedidoRepository, PedidoRepository>();
+        services.AddScoped<IPedidoService, PedidoService>();
         return services;
     }
 

@@ -12,47 +12,60 @@ namespace gstok_api.Services;
 
 public class AuthService(
     IAuthRepository authRepository,
-    IOptions<AuthSettings> authOptions) : IAuthService
+    IOptions<AuthSettings> authOptions,
+    ILogger<AuthService> logger) : IAuthService
 {
     private readonly AuthSettings _settings = authOptions.Value;
 
-    public async Task<AuthResponseDto?> RegisterAsync(RegisterRequestDto dto)
+    public async Task<RegisterResponseDto?> RegisterAsync(RegisterRequestDto dto)
     {
         var email = dto.NmEmail.ToLowerInvariant();
 
         if (await authRepository.EmailExistsAsync(email))
+        {
+            logger.LogWarning("Tentativa de registro com e-mail já cadastrado: {Email}", email);
             return null;
+        }
 
-        var usuario = new UsuarioModel
+        await authRepository.CreateAsync(new UsuarioModel
         {
             IdUsuario = Guid.CreateVersion7(),
             NmEmail = email,
             DsSenha = BCrypt.Net.BCrypt.HashPassword(dto.DsSenha, workFactor: 12),
             TsCriacao = DateTime.UtcNow
-        };
+        });
 
-        var created = await authRepository.CreateAsync(usuario);
-        return await CreateSessionAsync(created.IdUsuario);
+        logger.LogInformation("Novo usuário registrado: {Email}", email);
+        return new RegisterResponseDto { NmEmail = email };
     }
 
-    public async Task<AuthResponseDto?> LoginAsync(LoginRequestDto dto)
+    public async Task<AuthSessionResult?> LoginAsync(LoginRequestDto dto)
     {
-        var usuario = await authRepository.FindByEmailAsync(dto.NmEmail.ToLowerInvariant());
+        var email = dto.NmEmail.ToLowerInvariant();
+        var usuario = await authRepository.FindByEmailAsync(email);
 
         if (usuario is null || !BCrypt.Net.BCrypt.Verify(dto.DsSenha, usuario.DsSenha))
+        {
+            logger.LogWarning("Falha de autenticação para: {Email}", email);
             return null;
+        }
 
+        logger.LogInformation("Login bem-sucedido: {Email} ({UserId})", email, usuario.IdUsuario);
         return await CreateSessionAsync(usuario.IdUsuario);
     }
 
-    public async Task<AuthResponseDto?> RefreshAsync(string refreshToken)
+    public async Task<AuthSessionResult?> RefreshAsync(string refreshToken)
     {
         var sessao = await authRepository.FindSessionByTokenAsync(refreshToken);
 
         if (sessao is null || sessao.TsExpiracao <= DateTime.UtcNow)
+        {
+            logger.LogWarning("Tentativa de refresh com token inválido ou expirado");
             return null;
+        }
 
         await authRepository.DeleteSessionAsync(sessao);
+        logger.LogInformation("Token renovado para usuário {UserId}", sessao.UsuarioId);
         return await CreateSessionAsync(sessao.UsuarioId);
     }
 
@@ -61,10 +74,13 @@ public class AuthService(
         var sessao = await authRepository.FindSessionByTokenAsync(refreshToken);
 
         if (sessao is not null)
+        {
             await authRepository.DeleteSessionAsync(sessao);
+            logger.LogInformation("Logout: sessão encerrada para usuário {UserId}", sessao.UsuarioId);
+        }
     }
 
-    private async Task<AuthResponseDto> CreateSessionAsync(Guid idUsuario)
+    private async Task<AuthSessionResult> CreateSessionAsync(Guid idUsuario)
     {
         var refreshToken = Guid.NewGuid().ToString();
         var expiracao = DateTime.UtcNow.AddDays(_settings.Session.RefreshTokenExpirationDays);
@@ -78,12 +94,12 @@ public class AuthService(
             TsCriacao = DateTime.UtcNow
         });
 
-        return new AuthResponseDto
-        {
-            AccessToken = GenerateAccessToken(idUsuario),
-            ExpiresIn = _settings.Jwt.AccessTokenExpirationMinutes * 60,
-            RefreshToken = refreshToken
-        };
+        return new AuthSessionResult(
+            AccessToken: GenerateAccessToken(idUsuario),
+            ExpiresIn: _settings.Jwt.AccessTokenExpirationMinutes * 60,
+            RefreshToken: refreshToken,
+            RefreshTokenExpires: expiracao
+        );
     }
 
     private string GenerateAccessToken(Guid idUsuario)
