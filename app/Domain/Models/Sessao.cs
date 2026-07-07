@@ -15,8 +15,8 @@ public class SessaoModel
     public Guid UsuarioId { get; set; }
 
     [Required]
-    [Column("cd_refresh_token")]
-    public string CdRefreshToken { get; set; } = string.Empty;
+    [Column("cd_token")]
+    public string CdToken { get; set; } = string.Empty;
 
     [Column("ts_expiracao")]
     public DateTime TsExpiracao { get; set; }

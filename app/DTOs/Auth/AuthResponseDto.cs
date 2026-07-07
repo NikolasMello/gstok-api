@@ -2,6 +2,8 @@ namespace gstok_api.DTOs.Auth;
 
 public class AuthResponseDto
 {
-    public string AccessToken { get; set; } = string.Empty;
-    public int ExpiresIn { get; set; }
+    public string NmEmail { get; set; } = string.Empty;
+    public string? NmPessoa { get; set; }
+    public string? NmSobrenome { get; set; }
+    public string? UrAvatar { get; set; }
 }

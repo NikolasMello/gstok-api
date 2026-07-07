@@ -1,8 +1,6 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using System.Security.Cryptography;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using gstok_api.DTOs.Auth;
 using gstok_api.Features.Auth;
 using gstok_api.Models;
@@ -13,6 +11,7 @@ namespace gstok_api.Services;
 public class AuthService(
     IAuthRepository authRepository,
     IOptions<AuthSettings> authOptions,
+    IMemoryCache cache,
     ILogger<AuthService> logger) : IAuthService
 {
     private readonly AuthSettings _settings = authOptions.Value;
@@ -51,74 +50,42 @@ public class AuthService(
         }
 
         logger.LogInformation("Login bem-sucedido: {Email} ({UserId})", email, usuario.IdUsuario);
-        return await CreateSessionAsync(usuario.IdUsuario);
+        return await CreateSessionAsync(usuario);
     }
 
-    public async Task<AuthSessionResult?> RefreshAsync(string refreshToken)
+    public async Task LogoutAsync(string token)
     {
-        var sessao = await authRepository.FindSessionByTokenAsync(refreshToken);
-
-        if (sessao is null || sessao.TsExpiracao <= DateTime.UtcNow)
-        {
-            logger.LogWarning("Tentativa de refresh com token inválido ou expirado");
-            return null;
-        }
-
-        await authRepository.DeleteSessionAsync(sessao);
-        logger.LogInformation("Token renovado para usuário {UserId}", sessao.UsuarioId);
-        return await CreateSessionAsync(sessao.UsuarioId);
-    }
-
-    public async Task LogoutAsync(string refreshToken)
-    {
-        var sessao = await authRepository.FindSessionByTokenAsync(refreshToken);
+        var sessao = await authRepository.FindSessionByTokenAsync(token);
 
         if (sessao is not null)
         {
             await authRepository.DeleteSessionAsync(sessao);
+            cache.Remove(token);
             logger.LogInformation("Logout: sessão encerrada para usuário {UserId}", sessao.UsuarioId);
         }
     }
 
-    private async Task<AuthSessionResult> CreateSessionAsync(Guid idUsuario)
+    private async Task<AuthSessionResult> CreateSessionAsync(UsuarioModel usuario)
     {
-        var refreshToken = Guid.NewGuid().ToString();
-        var expiracao = DateTime.UtcNow.AddDays(_settings.Session.RefreshTokenExpirationDays);
+        var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+        var expires = DateTime.UtcNow.AddDays(_settings.Session.ExpirationDays);
 
         await authRepository.CreateSessionAsync(new SessaoModel
         {
             IdSessao = Guid.CreateVersion7(),
-            UsuarioId = idUsuario,
-            CdRefreshToken = refreshToken,
-            TsExpiracao = expiracao,
+            UsuarioId = usuario.IdUsuario,
+            CdToken = token,
+            TsExpiracao = expires,
             TsCriacao = DateTime.UtcNow
         });
 
         return new AuthSessionResult(
-            AccessToken: GenerateAccessToken(idUsuario),
-            ExpiresIn: _settings.Jwt.AccessTokenExpirationMinutes * 60,
-            RefreshToken: refreshToken,
-            RefreshTokenExpires: expiracao
+            Token: token,
+            Expires: expires,
+            NmEmail: usuario.NmEmail,
+            NmPessoa: usuario.Pessoa?.NmPessoa,
+            NmSobrenome: usuario.Pessoa?.NmSobrenome,
+            UrAvatar: usuario.Pessoa?.Foto?.UrImagem
         );
-    }
-
-    private string GenerateAccessToken(Guid idUsuario)
-    {
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, idUsuario.ToString()),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_settings.Jwt.SecretKey));
-        var token = new JwtSecurityToken(
-            issuer: _settings.Jwt.Issuer,
-            audience: _settings.Jwt.Audience,
-            claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(_settings.Jwt.AccessTokenExpirationMinutes),
-            signingCredentials: new SigningCredentials(key, SecurityAlgorithms.HmacSha256)
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(token);
     }
 }

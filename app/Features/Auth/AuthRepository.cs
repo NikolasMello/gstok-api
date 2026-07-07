@@ -11,7 +11,10 @@ public class AuthRepository(AppDbContext context) : IAuthRepository
         context.Usuarios.AnyAsync(u => u.NmEmail == email);
 
     public Task<UsuarioModel?> FindByEmailAsync(string email) =>
-        context.Usuarios.FirstOrDefaultAsync(u => u.NmEmail == email);
+        context.Usuarios
+            .Include(u => u.Pessoa)
+                .ThenInclude(p => p!.Foto)
+            .FirstOrDefaultAsync(u => u.NmEmail == email);
 
     public async Task<UsuarioModel> CreateAsync(UsuarioModel usuario)
     {
@@ -27,8 +30,8 @@ public class AuthRepository(AppDbContext context) : IAuthRepository
         return sessao;
     }
 
-    public Task<SessaoModel?> FindSessionByTokenAsync(string refreshToken) =>
-        context.Sessoes.FirstOrDefaultAsync(s => s.CdRefreshToken == refreshToken);
+    public Task<SessaoModel?> FindSessionByTokenAsync(string token) =>
+        context.Sessoes.FirstOrDefaultAsync(s => s.CdToken == token);
 
     public async Task DeleteSessionAsync(SessaoModel sessao)
     {

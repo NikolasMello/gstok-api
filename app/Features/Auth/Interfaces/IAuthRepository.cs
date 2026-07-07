@@ -8,6 +8,6 @@ public interface IAuthRepository
     Task<UsuarioModel?> FindByEmailAsync(string email);
     Task<UsuarioModel> CreateAsync(UsuarioModel usuario);
     Task<SessaoModel> CreateSessionAsync(SessaoModel sessao);
-    Task<SessaoModel?> FindSessionByTokenAsync(string refreshToken);
+    Task<SessaoModel?> FindSessionByTokenAsync(string token);
     Task DeleteSessionAsync(SessaoModel sessao);
 }

@@ -1,8 +1,8 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Usuario;
 using gstok_api.Features.Usuario;
+using gstok_api.Middleware;
 
 namespace gstok_api.Controllers;
 
@@ -20,7 +20,7 @@ public class UsuarioController(IUsuarioService usuarioService) : ControllerBase
     [HttpGet("me")]
     public async Task<IActionResult> GetMe()
     {
-        var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+        var userId = (Guid)HttpContext.Items[SessionMiddleware.UserIdKey]!;
         var result = await usuarioService.GetMeAsync(userId);
         if (result is null) return NotFound();
         return Ok(result);

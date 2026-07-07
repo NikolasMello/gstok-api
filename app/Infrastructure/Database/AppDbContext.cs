@@ -52,7 +52,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasFilter("pessoa_id IS NOT NULL");
 
         modelBuilder.Entity<SessaoModel>()
-            .HasIndex(s => s.CdRefreshToken)
+            .HasIndex(s => s.CdToken)
             .IsUnique();
 
         modelBuilder.Entity<SessaoModel>()

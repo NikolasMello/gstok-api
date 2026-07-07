@@ -76,19 +76,102 @@ Todos os erros — de validação, regra de negócio ou falha interna — retorn
 
 ## Autenticação
 
-A autenticação usa **JWT + refresh token via cookie HttpOnly**.
+A autenticação é baseada em **sessão server-side com cookie HttpOnly**. Não há JWT nem token no cliente — o identificador de sessão trafega exclusivamente via cookie gerenciado pelo browser.
 
-- `POST /api/v1/auth/login` — retorna `{ access_token, expires_in }` no body. O refresh token é setado automaticamente como cookie `HttpOnly; Secure; SameSite`.
-- `POST /api/v1/auth/refresh` — lê o cookie, rotaciona o token e devolve um novo `access_token`. O cookie é atualizado automaticamente.
-- `POST /api/v1/auth/logout` — invalida a sessão no banco e expira o cookie.
+### Endpoints
 
-O `access_token` deve ser enviado pelo cliente no header de todas as rotas protegidas:
+| Método | Rota | Acesso |
+|---|---|---|
+| `POST` | `/api/v1/auth/register` | Público |
+| `POST` | `/api/v1/auth/login` | Público |
+| `POST` | `/api/v1/auth/logout` | Autenticado |
+
+Todas as demais rotas exigem sessão ativa.
+
+### Fluxo de login
 
 ```
-Authorization: Bearer <access_token>
+Cliente                          Servidor
+  │                                  │
+  │── POST /auth/login ─────────────►│
+  │   { nm_email, ds_senha }         │  1. Verifica credenciais
+  │                                  │  2. Gera token criptográfico (256 bits)
+  │                                  │  3. Persiste sessão no banco (cd_token, ts_expiracao)
+  │◄── 200 OK ───────────────────────│
+  │    Set-Cookie: sid=<token>        │  4. Cookie HttpOnly setado automaticamente
+  │    { nm_email, nm_pessoa,         │
+  │      nm_sobrenome, ur_avatar }    │  5. Body retorna apenas dados de exibição
 ```
 
-Todas as rotas fora de `/auth` exigem autenticação.
+O token de sessão **nunca é exposto no body**. O browser gerencia o cookie e o reenvia automaticamente em todas as requisições subsequentes.
+
+### Validação de sessão por requisição
+
+Cada request para uma rota protegida passa pelo `SessionMiddleware`:
+
+```
+Request chega
+  │
+  ├─ Endpoint tem [AllowAnonymous]? → passa direto
+  │
+  ├─ Cookie sid ausente? → 401
+  │
+  ├─ Token no IMemoryCache? → extrai UsuarioId → continua
+  │
+  └─ Cache miss → consulta banco
+       ├─ Sessão não encontrada ou expirada? → 401
+       └─ Sessão válida → armazena no cache → continua
+```
+
+O `IMemoryCache` evita consulta ao banco em requests consecutivos. O cache é invalidado imediatamente no logout.
+
+### Cookie de sessão
+
+| Atributo | Valor | Finalidade |
+|---|---|---|
+| Nome | `sid` | Identificador da sessão |
+| `HttpOnly` | `true` | Inacessível via JavaScript — previne XSS |
+| `Secure` | `true` em prod | Transmitido apenas via HTTPS |
+| `SameSite` | `None` em prod | Permite requisições cross-origin (frontend separado) |
+| `Path` | `/` | Enviado em todas as rotas |
+| Expiração | 7 dias | Absoluta a partir do login |
+
+Em desenvolvimento, `Secure` e `SameSite` podem ser ajustados em `appsettings.Development.json`.
+
+### Logout
+
+```
+Cliente                          Servidor
+  │                                  │
+  │── POST /auth/logout ────────────►│  1. Lê cookie sid
+  │                                  │  2. Remove sessão do banco
+  │                                  │  3. Remove do IMemoryCache
+  │◄── 204 No Content ───────────────│
+  │    Set-Cookie: sid=; Expires=... │  4. Cookie expirado pelo servidor
+```
+
+### Response de login
+
+```json
+{
+  "nm_email": "joao@email.com",
+  "nm_pessoa": "João",
+  "nm_sobrenome": "Silva",
+  "ur_avatar": "https://..."
+}
+```
+
+`nm_pessoa`, `nm_sobrenome` e `ur_avatar` são `null` até o usuário vincular seus dados pessoais. O frontend deve tratar esses campos como opcionais.
+
+### Verificação de sessão no frontend
+
+Como o cookie é HttpOnly, o JavaScript não consegue lê-lo diretamente. O padrão recomendado:
+
+1. **Após login:** armazena o response (`nm_email`, `nm_pessoa` etc.) em estado global persistido no `localStorage`
+2. **Ao carregar o app:** se há dados no `localStorage`, valida com `GET /api/v1/usuario/me`
+   - `200` → sessão ativa, libera rotas privadas
+   - `401` → sessão expirada, limpa `localStorage` e redireciona para login
+3. **Durante o uso:** qualquer `401` de qualquer endpoint deve limpar o estado e redirecionar para login (interceptor global)
 
 ---
 

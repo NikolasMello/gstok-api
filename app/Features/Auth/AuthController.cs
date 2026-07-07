@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using gstok_api.DTOs.Auth;
 using gstok_api.Features.Auth;
+using gstok_api.Middleware;
 using gstok_api.Settings;
 
 namespace gstok_api.Controllers;
@@ -15,7 +16,6 @@ public class AuthController(
     IAuthService authService,
     IOptions<AuthSettings> authOptions) : ControllerBase
 {
-    private const string RefreshTokenCookie = "refresh_token";
     private readonly CookieSettings _cookieSettings = authOptions.Value.Cookie;
 
     [HttpPost("register")]
@@ -32,34 +32,28 @@ public class AuthController(
     {
         var result = await authService.LoginAsync(dto);
         if (result is null) return Unauthorized();
-        SetRefreshTokenCookie(result.RefreshToken, result.RefreshTokenExpires);
-        return Ok(ToResponse(result));
-    }
-
-    [HttpPost("refresh")]
-    public async Task<IActionResult> Refresh()
-    {
-        var token = Request.Cookies[RefreshTokenCookie];
-        if (string.IsNullOrEmpty(token)) return Unauthorized();
-
-        var result = await authService.RefreshAsync(token);
-        if (result is null) return Unauthorized();
-        SetRefreshTokenCookie(result.RefreshToken, result.RefreshTokenExpires);
-        return Ok(ToResponse(result));
+        SetSessionCookie(result.Token, result.Expires);
+        return Ok(new AuthResponseDto
+        {
+            NmEmail = result.NmEmail,
+            NmPessoa = result.NmPessoa,
+            NmSobrenome = result.NmSobrenome,
+            UrAvatar = result.UrAvatar
+        });
     }
 
     [HttpPost("logout")]
     public async Task<IActionResult> Logout()
     {
-        var token = Request.Cookies[RefreshTokenCookie];
+        var token = Request.Cookies[SessionMiddleware.CookieName];
         if (!string.IsNullOrEmpty(token))
             await authService.LogoutAsync(token);
 
-        ClearRefreshTokenCookie();
+        ClearSessionCookie();
         return NoContent();
     }
 
-    private void SetRefreshTokenCookie(string token, DateTime expires)
+    private void SetSessionCookie(string token, DateTime expires)
     {
         var options = new CookieOptions
         {
@@ -67,16 +61,16 @@ public class AuthController(
             Secure = _cookieSettings.Secure,
             SameSite = Enum.Parse<SameSiteMode>(_cookieSettings.SameSite),
             Expires = expires,
-            Path = "/api/v1/auth"
+            Path = "/"
         };
 
         if (!string.IsNullOrEmpty(_cookieSettings.Domain))
             options.Domain = _cookieSettings.Domain;
 
-        Response.Cookies.Append(RefreshTokenCookie, token, options);
+        Response.Cookies.Append(SessionMiddleware.CookieName, token, options);
     }
 
-    private void ClearRefreshTokenCookie()
+    private void ClearSessionCookie()
     {
         var options = new CookieOptions
         {
@@ -84,18 +78,12 @@ public class AuthController(
             Secure = _cookieSettings.Secure,
             SameSite = Enum.Parse<SameSiteMode>(_cookieSettings.SameSite),
             Expires = DateTime.UtcNow.AddDays(-1),
-            Path = "/api/v1/auth"
+            Path = "/"
         };
 
         if (!string.IsNullOrEmpty(_cookieSettings.Domain))
             options.Domain = _cookieSettings.Domain;
 
-        Response.Cookies.Append(RefreshTokenCookie, string.Empty, options);
+        Response.Cookies.Append(SessionMiddleware.CookieName, string.Empty, options);
     }
-
-    private static AuthResponseDto ToResponse(AuthSessionResult result) => new()
-    {
-        AccessToken = result.AccessToken,
-        ExpiresIn = result.ExpiresIn
-    };
 }

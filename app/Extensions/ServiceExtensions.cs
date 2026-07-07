@@ -1,15 +1,12 @@
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using gstok_api.DTOs;
 using gstok_api.Exceptions;
 using System.Threading.RateLimiting;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using gstok_api.Database;
 using gstok_api.Features.Auth;
 using gstok_api.Features.Pessoa;
@@ -111,25 +108,7 @@ public static class ServiceExtensions
         services.Configure<AuthSettings>(configuration.GetSection("Auth"));
         services.AddScoped<IAuthRepository, AuthRepository>();
         services.AddScoped<IAuthService, AuthService>();
-
-        var jwt = configuration.GetSection("Auth:Jwt").Get<JwtSettings>()!;
-
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SecretKey)),
-                    ValidateIssuer = true,
-                    ValidIssuer = jwt.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = jwt.Audience,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                };
-            });
-
+        services.AddMemoryCache();
         return services;
     }
 
