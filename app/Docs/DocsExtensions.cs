@@ -15,17 +15,17 @@ public static class DocsExtensions
                 document.Info.Version = "v1";
                 document.Components ??= new();
                 document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
-                document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme
+                document.Components.SecuritySchemes["CookieAuth"] = new OpenApiSecurityScheme
                 {
-                    Type = SecuritySchemeType.Http,
-                    Scheme = "bearer",
-                    BearerFormat = "JWT",
-                    Description = "Insira o access token JWT"
+                    Type = SecuritySchemeType.ApiKey,
+                    In = ParameterLocation.Cookie,
+                    Name = "sid",
+                    Description = "Cookie de sessão HttpOnly setado automaticamente pelo servidor no login. Gerenciado pelo browser — não requer inserção manual."
                 };
                 document.Security ??= [];
                 document.Security.Add(new OpenApiSecurityRequirement
                 {
-                    [new OpenApiSecuritySchemeReference("Bearer")] = []
+                    [new OpenApiSecuritySchemeReference("CookieAuth")] = []
                 });
                 return Task.CompletedTask;
             });
@@ -44,10 +44,6 @@ public static class DocsExtensions
             options.Title = "GSTOK API";
             options.Theme = ScalarTheme.DeepSpace;
             options.DefaultHttpClient = new(ScalarTarget.JavaScript, ScalarClient.Fetch);
-            options.Authentication = new ScalarAuthenticationOptions
-            {
-                PreferredSecuritySchemes = ["Bearer"]
-            };
         });
 
         return app;

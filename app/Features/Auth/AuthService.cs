@@ -30,6 +30,7 @@ public class AuthService(
         {
             IdUsuario = Guid.CreateVersion7(),
             NmEmail = email,
+            NmPessoa = dto.NmPessoa.Trim(),
             DsSenha = BCrypt.Net.BCrypt.HashPassword(dto.DsSenha, workFactor: 12),
             TsCriacao = DateTime.UtcNow
         });
@@ -83,7 +84,7 @@ public class AuthService(
             Token: token,
             Expires: expires,
             NmEmail: usuario.NmEmail,
-            NmPessoa: usuario.Pessoa?.NmPessoa,
+            NmPessoa: usuario.NmPessoa,
             NmSobrenome: usuario.Pessoa?.NmSobrenome,
             UrAvatar: usuario.Pessoa?.Foto?.UrImagem
         );

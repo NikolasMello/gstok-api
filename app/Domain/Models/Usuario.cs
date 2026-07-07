@@ -17,6 +17,11 @@ public class UsuarioModel
     public string NmEmail { get; set; } = string.Empty;
 
     [Required]
+    [MaxLength(100)]
+    [Column("nm_pessoa")]
+    public string NmPessoa { get; set; } = string.Empty;
+
+    [Required]
     [Column("ds_senha")]
     public string DsSenha { get; set; } = string.Empty;
 
