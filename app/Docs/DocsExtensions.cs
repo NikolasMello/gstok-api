@@ -38,13 +38,13 @@ public static class DocsExtensions
     {
         if (!app.Environment.IsDevelopment()) return app;
 
-        app.MapOpenApi();
+        app.MapOpenApi().AllowAnonymous();
         app.MapScalarApiReference(options =>
         {
             options.Title = "GSTOK API";
             options.Theme = ScalarTheme.DeepSpace;
             options.DefaultHttpClient = new(ScalarTarget.JavaScript, ScalarClient.Fetch);
-        });
+        }).AllowAnonymous();
 
         return app;
     }
