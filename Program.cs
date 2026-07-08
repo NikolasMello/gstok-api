@@ -11,6 +11,7 @@ builder.Host.UseSerilog((context, config) =>
 builder.Services.AddDatabase(builder.Configuration);
 builder.Services.AddAuth(builder.Configuration);
 builder.Services.AddRateLimiting();
+builder.Services.AddCorsPolicy(builder.Configuration);
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddApiControllers();
 builder.Services.AddDocs();
@@ -23,6 +24,7 @@ app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseRouting();
+app.UseCors();
 app.UseMiddleware<SessionMiddleware>();
 app.MapControllers();
 app.Run();

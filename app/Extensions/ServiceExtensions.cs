@@ -84,6 +84,20 @@ public static class ServiceExtensions
         return services;
     }
 
+    public static IServiceCollection AddCorsPolicy(this IServiceCollection services, IConfiguration configuration)
+    {
+        var origins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+
+        services.AddCors(options =>
+            options.AddDefaultPolicy(policy =>
+                policy.WithOrigins(origins)
+                      .AllowAnyHeader()
+                      .AllowAnyMethod()
+                      .AllowCredentials()));
+
+        return services;
+    }
+
     public static IServiceCollection AddRateLimiting(this IServiceCollection services)
     {
         services.AddRateLimiter(options =>
