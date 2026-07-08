@@ -7,9 +7,9 @@ namespace gstok_api.Features.Usuario;
 
 public class UsuarioService(IUsuarioRepository usuarioRepository) : IUsuarioService
 {
-    public async Task<PagedResult<UsuarioResponseDto>> GetAllAsync(PaginationParams pagination)
+    public async Task<PagedResult<UsuarioResponseDto>> ObterTodosAsync(PaginationParams pagination)
     {
-        var result = await usuarioRepository.GetAllAsync(pagination);
+        var result = await usuarioRepository.ObterTodosAsync(pagination);
         return new PagedResult<UsuarioResponseDto>
         {
             Items = result.Items.Select(ToResponse).ToList(),
@@ -19,15 +19,15 @@ public class UsuarioService(IUsuarioRepository usuarioRepository) : IUsuarioServ
         };
     }
 
-    public async Task<UsuarioResponseDto?> GetByIdAsync(Guid id)
+    public async Task<UsuarioResponseDto?> ObterPorIdAsync(Guid id)
     {
-        var usuario = await usuarioRepository.GetByIdAsync(id);
+        var usuario = await usuarioRepository.ObterPorIdAsync(id);
         return usuario is null ? null : ToResponse(usuario);
     }
 
-    public async Task<UsuarioMeDto?> GetMeAsync(Guid userId)
+    public async Task<UsuarioMeDto?> ObterMeAsync(Guid userId)
     {
-        var usuario = await usuarioRepository.GetByIdAsync(userId);
+        var usuario = await usuarioRepository.ObterPorIdAsync(userId);
         if (usuario is null) return null;
 
         return new UsuarioMeDto
@@ -39,12 +39,12 @@ public class UsuarioService(IUsuarioRepository usuarioRepository) : IUsuarioServ
         };
     }
 
-    public async Task<UsuarioResponseDto> CreateAsync(UsuarioCreateDto dto)
+    public async Task<UsuarioResponseDto> CriarAsync(UsuarioCreateDto dto)
     {
         var email = dto.NmEmail.ToLowerInvariant();
 
-        if (await usuarioRepository.EmailExistsAsync(email))
-            throw new ConflictException("E-mail já cadastrado.");
+        if (await usuarioRepository.EmailExisteAsync(email))
+            throw new ConflitoException("E-mail já cadastrado.");
 
         var usuario = new UsuarioModel
         {
@@ -55,23 +55,23 @@ public class UsuarioService(IUsuarioRepository usuarioRepository) : IUsuarioServ
             TsCriacao = DateTime.UtcNow
         };
 
-        var created = await usuarioRepository.CreateAsync(usuario);
+        var created = await usuarioRepository.CriarAsync(usuario);
         return ToResponse(created);
     }
 
-    public async Task<UsuarioResponseDto?> UpdateAsync(Guid id, UsuarioUpdateDto dto)
+    public async Task<UsuarioResponseDto?> AtualizarAsync(Guid id, UsuarioUpdateDto dto)
     {
         var email = dto.NmEmail.ToLowerInvariant();
 
-        if (await usuarioRepository.EmailExistsAsync(email, excludeId: id))
-            throw new ConflictException("E-mail já cadastrado.");
+        if (await usuarioRepository.EmailExisteAsync(email, excludeId: id))
+            throw new ConflitoException("E-mail já cadastrado.");
 
-        var updated = await usuarioRepository.UpdateAsync(id, email, dto.PessoaId);
+        var updated = await usuarioRepository.AtualizarAsync(id, email, dto.PessoaId);
         return updated is null ? null : ToResponse(updated);
     }
 
-    public Task<bool> DeleteAsync(Guid id) =>
-        usuarioRepository.DeleteAsync(id);
+    public Task<bool> ExcluirAsync(Guid id) =>
+        usuarioRepository.ExcluirAsync(id);
 
     private static UsuarioResponseDto ToResponse(UsuarioModel u) => new()
     {

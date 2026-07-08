@@ -9,37 +9,37 @@ namespace gstok_api.Controllers;
 public class EstoqueController(IEstoqueService estoqueService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetByProduto(Guid produtoId)
+    public async Task<IActionResult> ObterPorProduto(Guid produtoId)
     {
-        var result = await estoqueService.GetByProdutoIdAsync(produtoId);
+        var result = await estoqueService.ObterPorProdutoIdAsync(produtoId);
         return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid produtoId, Guid id)
+    public async Task<IActionResult> ObterPorId(Guid produtoId, Guid id)
     {
-        var result = await estoqueService.GetByIdAsync(id, produtoId);
+        var result = await estoqueService.ObterPorIdAsync(id, produtoId);
         return result is null ? NotFound() : Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(Guid produtoId, [FromBody] EstoqueCreateDto dto)
+    public async Task<IActionResult> Criar(Guid produtoId, [FromBody] EstoqueCreateDto dto)
     {
-        var result = await estoqueService.CreateAsync(produtoId, dto);
-        return CreatedAtAction(nameof(GetById), new { produtoId, id = result.Id }, result);
+        var result = await estoqueService.CriarAsync(produtoId, dto);
+        return CreatedAtAction(nameof(ObterPorId), new { produtoId, id = result.Id }, result);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid produtoId, Guid id, [FromBody] EstoqueUpdateDto dto)
+    public async Task<IActionResult> Atualizar(Guid produtoId, Guid id, [FromBody] EstoqueUpdateDto dto)
     {
-        var result = await estoqueService.UpdateAsync(id, produtoId, dto);
+        var result = await estoqueService.AtualizarAsync(id, produtoId, dto);
         return result is null ? NotFound() : Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid produtoId, Guid id)
+    public async Task<IActionResult> Excluir(Guid produtoId, Guid id)
     {
-        var deleted = await estoqueService.DeleteAsync(id, produtoId);
+        var deleted = await estoqueService.ExcluirAsync(id, produtoId);
         return deleted ? NoContent() : NotFound();
     }
 }

@@ -8,7 +8,7 @@ namespace gstok_api.Repositories;
 
 public class ProdutoRepository(AppDbContext context) : IProdutoRepository
 {
-    public async Task<PagedResult<ProdutoModel>> GetAllAsync(PaginationParams pagination)
+    public async Task<PagedResult<ProdutoModel>> ObterTodosAsync(PaginationParams pagination)
     {
         var query = context.Produtos
             .Include(p => p.TipoProduto)
@@ -31,20 +31,20 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
         };
     }
 
-    public async Task<ProdutoModel?> GetByIdAsync(Guid id) =>
+    public async Task<ProdutoModel?> ObterPorIdAsync(Guid id) =>
         await context.Produtos
             .Include(p => p.TipoProduto)
             .Include(p => p.Imagens)
             .FirstOrDefaultAsync(p => p.Id == id);
 
-    public async Task<ProdutoModel> CreateAsync(ProdutoModel produto)
+    public async Task<ProdutoModel> CriarAsync(ProdutoModel produto)
     {
         context.Produtos.Add(produto);
         await context.SaveChangesAsync();
         return produto;
     }
 
-    public async Task<ProdutoModel?> UpdateAsync(Guid id, ProdutoModel produto)
+    public async Task<ProdutoModel?> AtualizarAsync(Guid id, ProdutoModel produto)
     {
         var existing = await context.Produtos
             .Include(p => p.TipoProduto)
@@ -68,7 +68,7 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
         return existing;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> ExcluirAsync(Guid id)
     {
         var existing = await context.Produtos.FindAsync(id);
         if (existing is null) return false;

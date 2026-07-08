@@ -5,9 +5,9 @@ namespace gstok_api.Features.Produto;
 
 public interface IProdutoRepository
 {
-    Task<PagedResult<ProdutoModel>> GetAllAsync(PaginationParams pagination);
-    Task<ProdutoModel?> GetByIdAsync(Guid id);
-    Task<ProdutoModel> CreateAsync(ProdutoModel produto);
-    Task<ProdutoModel?> UpdateAsync(Guid id, ProdutoModel produto);
-    Task<bool> DeleteAsync(Guid id);
+    Task<PagedResult<ProdutoModel>> ObterTodosAsync(PaginationParams pagination);
+    Task<ProdutoModel?> ObterPorIdAsync(Guid id);
+    Task<ProdutoModel> CriarAsync(ProdutoModel produto);
+    Task<ProdutoModel?> AtualizarAsync(Guid id, ProdutoModel produto);
+    Task<bool> ExcluirAsync(Guid id);
 }

@@ -6,22 +6,22 @@ namespace gstok_api.Features.Estoque;
 
 public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueService
 {
-    public async Task<List<EstoqueResponseDto>> GetByProdutoIdAsync(Guid produtoId) =>
-        (await estoqueRepository.GetByProdutoIdAsync(produtoId))
+    public async Task<List<EstoqueResponseDto>> ObterPorProdutoIdAsync(Guid produtoId) =>
+        (await estoqueRepository.ObterPorProdutoIdAsync(produtoId))
             .Select(ToResponse)
             .ToList();
 
-    public async Task<EstoqueResponseDto?> GetByIdAsync(Guid id, Guid produtoId)
+    public async Task<EstoqueResponseDto?> ObterPorIdAsync(Guid id, Guid produtoId)
     {
-        var estoque = await estoqueRepository.GetByIdAsync(id);
+        var estoque = await estoqueRepository.ObterPorIdAsync(id);
         if (estoque is null || estoque.ProdutoId != produtoId) return null;
         return ToResponse(estoque);
     }
 
-    public async Task<EstoqueResponseDto> CreateAsync(Guid produtoId, EstoqueCreateDto dto)
+    public async Task<EstoqueResponseDto> CriarAsync(Guid produtoId, EstoqueCreateDto dto)
     {
         if (!await estoqueRepository.ProdutoExisteAsync(produtoId))
-            throw new NotFoundException("Produto não encontrado.");
+            throw new NaoEncontradoException("Produto não encontrado.");
 
         var estoque = new EstoqueModel
         {
@@ -33,17 +33,17 @@ public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueServ
             TsCriacao = DateTime.UtcNow
         };
 
-        return ToResponse(await estoqueRepository.CreateAsync(estoque));
+        return ToResponse(await estoqueRepository.CriarAsync(estoque));
     }
 
-    public async Task<EstoqueResponseDto?> UpdateAsync(Guid id, Guid produtoId, EstoqueUpdateDto dto)
+    public async Task<EstoqueResponseDto?> AtualizarAsync(Guid id, Guid produtoId, EstoqueUpdateDto dto)
     {
-        var updated = await estoqueRepository.UpdateAsync(id, produtoId, dto.QtEstoque, dto.TpTamanho, dto.NmCor.Trim());
+        var updated = await estoqueRepository.AtualizarAsync(id, produtoId, dto.QtEstoque, dto.TpTamanho, dto.NmCor.Trim());
         return updated is null ? null : ToResponse(updated);
     }
 
-    public Task<bool> DeleteAsync(Guid id, Guid produtoId) =>
-        estoqueRepository.DeleteAsync(id, produtoId);
+    public Task<bool> ExcluirAsync(Guid id, Guid produtoId) =>
+        estoqueRepository.ExcluirAsync(id, produtoId);
 
     private static EstoqueResponseDto ToResponse(EstoqueModel e) => new()
     {

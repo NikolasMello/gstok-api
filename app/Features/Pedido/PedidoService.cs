@@ -8,9 +8,9 @@ namespace gstok_api.Features.Pedido;
 
 public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoService> logger) : IPedidoService
 {
-    public async Task<PagedResult<PedidoResponseDto>> GetAllAsync(PaginationParams pagination)
+    public async Task<PagedResult<PedidoResponseDto>> ObterTodosAsync(PaginationParams pagination)
     {
-        var result = await pedidoRepository.GetAllAsync(pagination);
+        var result = await pedidoRepository.ObterTodosAsync(pagination);
         return new PagedResult<PedidoResponseDto>
         {
             Items = result.Items.Select(p => ToResponse(p, [])).ToList(),
@@ -20,26 +20,26 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         };
     }
 
-    public async Task<PedidoResponseDto?> GetByIdAsync(Guid id)
+    public async Task<PedidoResponseDto?> ObterPorIdAsync(Guid id)
     {
-        var pedido = await pedidoRepository.GetByIdAsync(id);
+        var pedido = await pedidoRepository.ObterPorIdAsync(id);
         return pedido is null ? null : ToResponse(pedido, pedido.Itens.Select(ToItemResponse).ToList());
     }
 
-    public async Task<PedidoResponseDto> CreateAsync(PedidoCreateDto dto)
+    public async Task<PedidoResponseDto> CriarAsync(PedidoCreateDto dto)
     {
         if (!await pedidoRepository.ClienteExisteAsync(dto.ClienteId))
-            throw new NotFoundException("Cliente não encontrado.");
+            throw new NaoEncontradoException("Cliente não encontrado.");
 
         var itensModel = new List<ItemPedidoModel>();
 
         foreach (var itemDto in dto.Itens)
         {
-            var estoque = await pedidoRepository.GetEstoqueWithProdutoAsync(itemDto.EstoqueId)
-                ?? throw new NotFoundException($"Estoque '{itemDto.EstoqueId}' não encontrado.");
+            var estoque = await pedidoRepository.ObterEstoqueComProdutoAsync(itemDto.EstoqueId)
+                ?? throw new NaoEncontradoException($"Estoque '{itemDto.EstoqueId}' não encontrado.");
 
             if (estoque.QtEstoque < itemDto.QtQuantidade)
-                throw new ConflictException(
+                throw new ConflitoException(
                     $"Estoque insuficiente para '{estoque.Produto.NmProduto}' ({estoque.TpTamanho}/{estoque.NmCor}). " +
                     $"Disponível: {estoque.QtEstoque}, Solicitado: {itemDto.QtQuantidade}.");
 
@@ -74,7 +74,7 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
             Itens = itensModel
         };
 
-        await pedidoRepository.CreateAsync(pedido);
+        await pedidoRepository.CriarAsync(pedido);
 
         logger.LogInformation(
             "Pedido criado: {PedidoId} | Cliente: {ClienteId} | Itens: {QtItens} | Total: {VlTotal:C}",
@@ -83,9 +83,9 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         return ToResponse(pedido, itensModel.Select(ToItemResponse).ToList());
     }
 
-    public async Task<PedidoResponseDto?> UpdateAsync(Guid id, PedidoUpdateDto dto)
+    public async Task<PedidoResponseDto?> AtualizarAsync(Guid id, PedidoUpdateDto dto)
     {
-        var pedido = await pedidoRepository.GetByIdAsync(id);
+        var pedido = await pedidoRepository.ObterPorIdAsync(id);
         if (pedido is null) return null;
 
         pedido.StPedido = dto.StPedido;
@@ -96,26 +96,26 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         pedido.VlTotal = pedido.VlSubtotal + dto.VlFrete - dto.VlDesconto;
         pedido.TsEdicao = DateTime.UtcNow;
 
-        await pedidoRepository.SaveAsync();
+        await pedidoRepository.SalvarAsync();
         return ToResponse(pedido, pedido.Itens.Select(ToItemResponse).ToList());
     }
 
-    public Task<bool> DeleteAsync(Guid id) =>
-        pedidoRepository.DeleteAsync(id);
+    public Task<bool> ExcluirAsync(Guid id) =>
+        pedidoRepository.ExcluirAsync(id);
 
-    public async Task<ItemPedidoResponseDto> AddItemAsync(Guid pedidoId, ItemPedidoAddDto dto)
+    public async Task<ItemPedidoResponseDto> AdicionarItemAsync(Guid pedidoId, ItemPedidoAddDto dto)
     {
-        var pedido = await pedidoRepository.GetByIdAsync(pedidoId)
-            ?? throw new NotFoundException("Pedido não encontrado.");
+        var pedido = await pedidoRepository.ObterPorIdAsync(pedidoId)
+            ?? throw new NaoEncontradoException("Pedido não encontrado.");
 
         if (pedido.StPedido != StatusPedido.Pendente)
-            throw new ConflictException("Itens só podem ser adicionados a pedidos com status Pendente.");
+            throw new ConflitoException("Itens só podem ser adicionados a pedidos com status Pendente.");
 
-        var estoque = await pedidoRepository.GetEstoqueWithProdutoAsync(dto.EstoqueId)
-            ?? throw new NotFoundException($"Estoque '{dto.EstoqueId}' não encontrado.");
+        var estoque = await pedidoRepository.ObterEstoqueComProdutoAsync(dto.EstoqueId)
+            ?? throw new NaoEncontradoException($"Estoque '{dto.EstoqueId}' não encontrado.");
 
         if (estoque.QtEstoque < dto.QtQuantidade)
-            throw new ConflictException(
+            throw new ConflitoException(
                 $"Estoque insuficiente para '{estoque.Produto.NmProduto}' ({estoque.TpTamanho}/{estoque.NmCor}). " +
                 $"Disponível: {estoque.QtEstoque}, Solicitado: {dto.QtQuantidade}.");
 
@@ -138,28 +138,28 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         RecalcularSubtotal(pedido);
         pedido.TsEdicao = DateTime.UtcNow;
 
-        await pedidoRepository.SaveAsync();
+        await pedidoRepository.SalvarAsync();
         return ToItemResponse(item);
     }
 
-    public async Task<ItemPedidoResponseDto?> UpdateItemAsync(Guid pedidoId, Guid itemId, ItemPedidoUpdateDto dto)
+    public async Task<ItemPedidoResponseDto?> AtualizarItemAsync(Guid pedidoId, Guid itemId, ItemPedidoUpdateDto dto)
     {
-        var pedido = await pedidoRepository.GetByIdAsync(pedidoId);
+        var pedido = await pedidoRepository.ObterPorIdAsync(pedidoId);
         if (pedido is null) return null;
 
         if (pedido.StPedido != StatusPedido.Pendente)
-            throw new ConflictException("Itens só podem ser alterados em pedidos com status Pendente.");
+            throw new ConflitoException("Itens só podem ser alterados em pedidos com status Pendente.");
 
         var item = pedido.Itens.FirstOrDefault(i => i.IdItemPedido == itemId);
         if (item is null) return null;
 
-        var estoque = await pedidoRepository.GetEstoqueWithProdutoAsync(item.EstoqueId)
-            ?? throw new NotFoundException("Estoque do item não encontrado.");
+        var estoque = await pedidoRepository.ObterEstoqueComProdutoAsync(item.EstoqueId)
+            ?? throw new NaoEncontradoException("Estoque do item não encontrado.");
 
         var diferenca = dto.QtQuantidade - item.QtQuantidade;
 
         if (diferenca > 0 && estoque.QtEstoque < diferenca)
-            throw new ConflictException(
+            throw new ConflitoException(
                 $"Estoque insuficiente para '{estoque.Produto.NmProduto}' ({estoque.TpTamanho}/{estoque.NmCor}). " +
                 $"Disponível: {estoque.QtEstoque}, Adicional solicitado: {diferenca}.");
 
@@ -172,26 +172,26 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         RecalcularSubtotal(pedido);
         pedido.TsEdicao = DateTime.UtcNow;
 
-        await pedidoRepository.SaveAsync();
+        await pedidoRepository.SalvarAsync();
         return ToItemResponse(item);
     }
 
-    public async Task<bool> RemoveItemAsync(Guid pedidoId, Guid itemId)
+    public async Task<bool> RemoverItemAsync(Guid pedidoId, Guid itemId)
     {
-        var pedido = await pedidoRepository.GetByIdAsync(pedidoId);
+        var pedido = await pedidoRepository.ObterPorIdAsync(pedidoId);
         if (pedido is null) return false;
 
         if (pedido.StPedido != StatusPedido.Pendente)
-            throw new ConflictException("Itens só podem ser removidos de pedidos com status Pendente.");
+            throw new ConflitoException("Itens só podem ser removidos de pedidos com status Pendente.");
 
         var item = pedido.Itens.FirstOrDefault(i => i.IdItemPedido == itemId);
         if (item is null) return false;
 
-        var estoque = await pedidoRepository.GetEstoqueWithProdutoAsync(item.EstoqueId);
+        var estoque = await pedidoRepository.ObterEstoqueComProdutoAsync(item.EstoqueId);
         if (estoque is not null)
             estoque.QtEstoque += item.QtQuantidade;
 
-        pedidoRepository.RemoveItem(item);
+        pedidoRepository.RemoverItem(item);
 
         var vlSubtotal = pedido.Itens
             .Where(i => i.IdItemPedido != itemId)
@@ -200,7 +200,7 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         pedido.VlTotal = vlSubtotal + pedido.VlFrete - pedido.VlDesconto;
         pedido.TsEdicao = DateTime.UtcNow;
 
-        await pedidoRepository.SaveAsync();
+        await pedidoRepository.SalvarAsync();
         return true;
     }
 

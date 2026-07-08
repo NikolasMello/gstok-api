@@ -10,63 +10,63 @@ public class ImagemProdutoService(
     IImagemProdutoRepository imagemRepository,
     IImageProcessingService imageProcessingService) : IImagemProdutoService
 {
-    public async Task<List<ImagemProdutoResponseDto>> GetByProdutoIdAsync(Guid produtoId)
+    public async Task<List<ImagemProdutoResponseDto>> ObterPorProdutoIdAsync(Guid produtoId)
     {
-        var imagens = await imagemRepository.GetByProdutoIdAsync(produtoId);
+        var imagens = await imagemRepository.ObterPorProdutoIdAsync(produtoId);
         return imagens.Select(ToResponseDto).ToList();
     }
 
     public async Task<List<ImagemProdutoResponseDto>> ReordenarAsync(Guid produtoId, ReordenarImagensDto dto)
     {
         var ids = dto.Ordens.Select(o => o.ImagemProdutoId).ToList();
-        var imagens = await imagemRepository.GetByIdsAsync(ids);
+        var imagens = await imagemRepository.ObterPorIdsAsync(ids);
 
         var naoencontradas = ids.Except(imagens.Select(i => i.IdImagemProduto)).ToList();
         if (naoencontradas.Count > 0)
-            throw new NotFoundException("Uma ou mais imagens não foram encontradas.");
+            throw new NaoEncontradoException("Uma ou mais imagens não foram encontradas.");
 
         var imagensInvalidas = imagens.Where(i => i.ProdutoId != produtoId).ToList();
         if (imagensInvalidas.Count > 0)
-            throw new BusinessException("Uma ou mais imagens não pertencem a este produto.");
+            throw new ExcecaoNegocio("Uma ou mais imagens não pertencem a este produto.");
 
         var ordemPorId = dto.Ordens.ToDictionary(o => o.ImagemProdutoId, o => o.SqOrdem);
         foreach (var imagem in imagens)
             imagem.SqOrdem = ordemPorId[imagem.IdImagemProduto];
 
-        await imagemRepository.UpdateRangeAsync(imagens);
+        await imagemRepository.AtualizarVariosAsync(imagens);
 
-        var todas = await imagemRepository.GetByProdutoIdAsync(produtoId);
+        var todas = await imagemRepository.ObterPorProdutoIdAsync(produtoId);
         return todas.Select(ToResponseDto).ToList();
     }
 
-    public async Task DeleteAsync(Guid produtoId, Guid idImagemProduto)
+    public async Task ExcluirAsync(Guid produtoId, Guid idImagemProduto)
     {
-        var imagem = await imagemRepository.GetByIdAsync(idImagemProduto)
-            ?? throw new NotFoundException("Imagem não encontrada.");
+        var imagem = await imagemRepository.ObterPorIdAsync(idImagemProduto)
+            ?? throw new NaoEncontradoException("Imagem não encontrada.");
 
         if (imagem.ProdutoId != produtoId)
-            throw new BusinessException("A imagem não pertence a este produto.");
+            throw new ExcecaoNegocio("A imagem não pertence a este produto.");
 
         imageProcessingService.Remover(imagem.UrAvatar);
-        await imagemRepository.DeleteAsync(imagem);
+        await imagemRepository.ExcluirAsync(imagem);
     }
 
-    public async Task DeleteManyAsync(Guid produtoId, DeleteManyImagensDto dto)
+    public async Task ExcluirVariosAsync(Guid produtoId, DeleteManyImagensDto dto)
     {
-        var imagens = await imagemRepository.GetByIdsAsync(dto.Ids);
+        var imagens = await imagemRepository.ObterPorIdsAsync(dto.Ids);
 
         var naoencontradas = dto.Ids.Except(imagens.Select(i => i.IdImagemProduto)).ToList();
         if (naoencontradas.Count > 0)
-            throw new NotFoundException("Uma ou mais imagens não foram encontradas.");
+            throw new NaoEncontradoException("Uma ou mais imagens não foram encontradas.");
 
         var imagensInvalidas = imagens.Where(i => i.ProdutoId != produtoId).ToList();
         if (imagensInvalidas.Count > 0)
-            throw new BusinessException("Uma ou mais imagens não pertencem a este produto.");
+            throw new ExcecaoNegocio("Uma ou mais imagens não pertencem a este produto.");
 
         foreach (var imagem in imagens)
             imageProcessingService.Remover(imagem.UrAvatar);
 
-        await imagemRepository.DeleteManyAsync(imagens);
+        await imagemRepository.ExcluirVariosAsync(imagens);
     }
 
     private static ImagemProdutoResponseDto ToResponseDto(ImagemProdutoModel i) => new()

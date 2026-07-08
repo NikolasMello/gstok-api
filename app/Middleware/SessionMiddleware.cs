@@ -8,7 +8,7 @@ using gstok_api.Features.Auth;
 
 namespace gstok_api.Middleware;
 
-public class SessionMiddleware(RequestDelegate next, ILogger<SessionMiddleware> logger)
+public class MiddlewareSessao(RequestDelegate next, ILogger<MiddlewareSessao> logger)
 {
     public const string CookieName = "sid";
     public const string UserIdKey = "UsuarioId";
@@ -31,7 +31,7 @@ public class SessionMiddleware(RequestDelegate next, ILogger<SessionMiddleware> 
         var token = context.Request.Cookies[CookieName];
         if (string.IsNullOrEmpty(token))
         {
-            await WriteUnauthorizedAsync(context, "Sessão não encontrada.");
+            await EscreverNaoAutorizadoAsync(context, "Sessão não encontrada.");
             return;
         }
 
@@ -42,12 +42,12 @@ public class SessionMiddleware(RequestDelegate next, ILogger<SessionMiddleware> 
             return;
         }
 
-        var sessao = await authRepository.FindSessionByTokenAsync(token);
+        var sessao = await authRepository.BuscarSessaoPorTokenAsync(token);
 
         if (sessao is null || sessao.TsExpiracao <= DateTime.UtcNow)
         {
             logger.LogWarning("Tentativa de acesso com sessão inválida ou expirada");
-            await WriteUnauthorizedAsync(context, "Sessão inválida ou expirada.");
+            await EscreverNaoAutorizadoAsync(context, "Sessão inválida ou expirada.");
             return;
         }
 
@@ -57,7 +57,7 @@ public class SessionMiddleware(RequestDelegate next, ILogger<SessionMiddleware> 
         await next(context);
     }
 
-    private static Task WriteUnauthorizedAsync(HttpContext context, string mensagem)
+    private static Task EscreverNaoAutorizadoAsync(HttpContext context, string mensagem)
     {
         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
         context.Response.ContentType = "application/json";

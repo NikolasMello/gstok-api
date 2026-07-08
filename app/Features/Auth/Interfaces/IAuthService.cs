@@ -4,7 +4,7 @@ namespace gstok_api.Features.Auth;
 
 public interface IAuthService
 {
-    Task<RegisterResponseDto?> RegisterAsync(RegisterRequestDto dto);
-    Task<AuthSessionResult?> LoginAsync(LoginRequestDto dto);
-    Task LogoutAsync(string token);
+    Task<RegisterResponseDto?> RegistrarAsync(RegisterRequestDto dto);
+    Task<ResultadoSessaoAuth?> EntrarAsync(LoginRequestDto dto);
+    Task SairAsync(string token);
 }

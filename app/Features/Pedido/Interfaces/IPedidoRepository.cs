@@ -5,13 +5,13 @@ namespace gstok_api.Features.Pedido;
 
 public interface IPedidoRepository
 {
-    Task<PagedResult<PedidoModel>> GetAllAsync(PaginationParams pagination);
-    Task<PedidoModel?> GetByIdAsync(Guid id);
+    Task<PagedResult<PedidoModel>> ObterTodosAsync(PaginationParams pagination);
+    Task<PedidoModel?> ObterPorIdAsync(Guid id);
     Task<bool> ClienteExisteAsync(Guid clienteId);
-    Task<EstoqueModel?> GetEstoqueWithProdutoAsync(Guid estoqueId);
-    Task<ItemPedidoModel?> GetItemByIdAsync(Guid pedidoId, Guid itemId);
-    Task<PedidoModel> CreateAsync(PedidoModel pedido);
-    Task<bool> DeleteAsync(Guid id);
-    void RemoveItem(ItemPedidoModel item);
-    Task SaveAsync();
+    Task<EstoqueModel?> ObterEstoqueComProdutoAsync(Guid estoqueId);
+    Task<ItemPedidoModel?> ObterItemPorIdAsync(Guid pedidoId, Guid itemId);
+    Task<PedidoModel> CriarAsync(PedidoModel pedido);
+    Task<bool> ExcluirAsync(Guid id);
+    void RemoverItem(ItemPedidoModel item);
+    Task SalvarAsync();
 }

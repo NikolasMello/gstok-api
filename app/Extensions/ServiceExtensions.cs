@@ -39,7 +39,7 @@ public static class ServiceExtensions
             o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
-        services.AddControllers(o => o.Conventions.Add(new RoutePrefixConvention("api/v1")))
+        services.AddControllers(o => o.Conventions.Add(new RotaPrefixoConvencao("api/v1")))
                 .AddJsonOptions(o =>
                 {
                     o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;
@@ -67,7 +67,7 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<StorageSettings>(configuration.GetSection("Storage"));
+        services.Configure<ConfiguracaoArmazenamento>(configuration.GetSection("Storage"));
         services.AddSingleton<IImageProcessingService, ImageProcessingService>();
         services.AddScoped<IPessoaRepository, PessoaRepository>();
         services.AddScoped<IPessoaService, PessoaService>();
@@ -119,14 +119,14 @@ public static class ServiceExtensions
 
     public static IServiceCollection AddAuth(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<AuthSettings>(configuration.GetSection("Auth"));
+        services.Configure<ConfiguracaoAuth>(configuration.GetSection("Auth"));
         services.AddScoped<IAuthRepository, AuthRepository>();
         services.AddScoped<IAuthService, AuthService>();
         services.AddMemoryCache();
         return services;
     }
 
-    private sealed class RoutePrefixConvention(string prefix) : IApplicationModelConvention
+    private sealed class RotaPrefixoConvencao(string prefix) : IApplicationModelConvention
     {
         private readonly AttributeRouteModel _prefix = new(new RouteAttribute(prefix));
 

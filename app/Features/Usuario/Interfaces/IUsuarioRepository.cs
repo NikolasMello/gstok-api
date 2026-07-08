@@ -5,10 +5,10 @@ namespace gstok_api.Features.Usuario;
 
 public interface IUsuarioRepository
 {
-    Task<PagedResult<UsuarioModel>> GetAllAsync(PaginationParams pagination);
-    Task<UsuarioModel?> GetByIdAsync(Guid id);
-    Task<bool> EmailExistsAsync(string email, Guid? excludeId = null);
-    Task<UsuarioModel> CreateAsync(UsuarioModel usuario);
-    Task<UsuarioModel?> UpdateAsync(Guid id, string nmEmail, Guid? pessoaId);
-    Task<bool> DeleteAsync(Guid id);
+    Task<PagedResult<UsuarioModel>> ObterTodosAsync(PaginationParams pagination);
+    Task<UsuarioModel?> ObterPorIdAsync(Guid id);
+    Task<bool> EmailExisteAsync(string email, Guid? excludeId = null);
+    Task<UsuarioModel> CriarAsync(UsuarioModel usuario);
+    Task<UsuarioModel?> AtualizarAsync(Guid id, string nmEmail, Guid? pessoaId);
+    Task<bool> ExcluirAsync(Guid id);
 }

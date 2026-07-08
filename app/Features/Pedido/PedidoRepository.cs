@@ -7,7 +7,7 @@ namespace gstok_api.Features.Pedido;
 
 public class PedidoRepository(AppDbContext context) : IPedidoRepository
 {
-    public async Task<PagedResult<PedidoModel>> GetAllAsync(PaginationParams pagination)
+    public async Task<PagedResult<PedidoModel>> ObterTodosAsync(PaginationParams pagination)
     {
         var query = context.Pedidos
             .OrderByDescending(p => p.TsCriacao)
@@ -28,7 +28,7 @@ public class PedidoRepository(AppDbContext context) : IPedidoRepository
         };
     }
 
-    public Task<PedidoModel?> GetByIdAsync(Guid id) =>
+    public Task<PedidoModel?> ObterPorIdAsync(Guid id) =>
         context.Pedidos
             .Include(p => p.Itens)
                 .ThenInclude(i => i.Estoque)
@@ -38,25 +38,25 @@ public class PedidoRepository(AppDbContext context) : IPedidoRepository
     public Task<bool> ClienteExisteAsync(Guid clienteId) =>
         context.Clientes.AnyAsync(c => c.IdCliente == clienteId);
 
-    public Task<EstoqueModel?> GetEstoqueWithProdutoAsync(Guid estoqueId) =>
+    public Task<EstoqueModel?> ObterEstoqueComProdutoAsync(Guid estoqueId) =>
         context.Estoques
             .Include(e => e.Produto)
             .FirstOrDefaultAsync(e => e.Id == estoqueId);
 
-    public Task<ItemPedidoModel?> GetItemByIdAsync(Guid pedidoId, Guid itemId) =>
+    public Task<ItemPedidoModel?> ObterItemPorIdAsync(Guid pedidoId, Guid itemId) =>
         context.ItensPedido
             .Include(i => i.Estoque)
                 .ThenInclude(e => e.Produto)
             .FirstOrDefaultAsync(i => i.IdItemPedido == itemId && i.PedidoId == pedidoId);
 
-    public async Task<PedidoModel> CreateAsync(PedidoModel pedido)
+    public async Task<PedidoModel> CriarAsync(PedidoModel pedido)
     {
         context.Pedidos.Add(pedido);
         await context.SaveChangesAsync();
         return pedido;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> ExcluirAsync(Guid id)
     {
         var pedido = await context.Pedidos.FindAsync(id);
         if (pedido is null) return false;
@@ -66,8 +66,8 @@ public class PedidoRepository(AppDbContext context) : IPedidoRepository
         return true;
     }
 
-    public void RemoveItem(ItemPedidoModel item) =>
+    public void RemoverItem(ItemPedidoModel item) =>
         context.ItensPedido.Remove(item);
 
-    public Task SaveAsync() => context.SaveChangesAsync();
+    public Task SalvarAsync() => context.SaveChangesAsync();
 }

@@ -5,9 +5,9 @@ namespace gstok_api.Features.Pessoa;
 
 public interface IPessoaRepository
 {
-    Task<PagedResult<PessoaModel>> GetAllAsync(PaginationParams pagination);
-    Task<PessoaModel?> GetByIdAsync(Guid id);
-    Task<PessoaModel> CreateAsync(PessoaModel pessoa);
-    Task<PessoaModel?> UpdateAsync(Guid id, PessoaModel pessoa);
-    Task<bool> DeleteAsync(Guid id);
+    Task<PagedResult<PessoaModel>> ObterTodosAsync(PaginationParams pagination);
+    Task<PessoaModel?> ObterPorIdAsync(Guid id);
+    Task<PessoaModel> CriarAsync(PessoaModel pessoa);
+    Task<PessoaModel?> AtualizarAsync(Guid id, PessoaModel pessoa);
+    Task<bool> ExcluirAsync(Guid id);
 }

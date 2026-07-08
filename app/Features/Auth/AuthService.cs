@@ -10,23 +10,23 @@ namespace gstok_api.Services;
 
 public class AuthService(
     IAuthRepository authRepository,
-    IOptions<AuthSettings> authOptions,
+    IOptions<ConfiguracaoAuth> authOptions,
     IMemoryCache cache,
     ILogger<AuthService> logger) : IAuthService
 {
-    private readonly AuthSettings _settings = authOptions.Value;
+    private readonly ConfiguracaoAuth _settings = authOptions.Value;
 
-    public async Task<RegisterResponseDto?> RegisterAsync(RegisterRequestDto dto)
+    public async Task<RegisterResponseDto?> RegistrarAsync(RegisterRequestDto dto)
     {
         var email = dto.NmEmail.ToLowerInvariant();
 
-        if (await authRepository.EmailExistsAsync(email))
+        if (await authRepository.EmailExisteAsync(email))
         {
             logger.LogWarning("Tentativa de registro com e-mail já cadastrado: {Email}", email);
             return null;
         }
 
-        await authRepository.CreateAsync(new UsuarioModel
+        await authRepository.CriarAsync(new UsuarioModel
         {
             IdUsuario = Guid.CreateVersion7(),
             NmEmail = email,
@@ -39,10 +39,10 @@ public class AuthService(
         return new RegisterResponseDto { NmEmail = email };
     }
 
-    public async Task<AuthSessionResult?> LoginAsync(LoginRequestDto dto)
+    public async Task<ResultadoSessaoAuth?> EntrarAsync(LoginRequestDto dto)
     {
         var email = dto.NmEmail.ToLowerInvariant();
-        var usuario = await authRepository.FindByEmailAsync(email);
+        var usuario = await authRepository.BuscarPorEmailAsync(email);
 
         if (usuario is null || !BCrypt.Net.BCrypt.Verify(dto.DsSenha, usuario.DsSenha))
         {
@@ -51,27 +51,27 @@ public class AuthService(
         }
 
         logger.LogInformation("Login bem-sucedido: {Email} ({UserId})", email, usuario.IdUsuario);
-        return await CreateSessionAsync(usuario);
+        return await CriarSessaoAsync(usuario);
     }
 
-    public async Task LogoutAsync(string token)
+    public async Task SairAsync(string token)
     {
-        var sessao = await authRepository.FindSessionByTokenAsync(token);
+        var sessao = await authRepository.BuscarSessaoPorTokenAsync(token);
 
         if (sessao is not null)
         {
-            await authRepository.DeleteSessionAsync(sessao);
+            await authRepository.ExcluirSessaoAsync(sessao);
             cache.Remove(token);
             logger.LogInformation("Logout: sessão encerrada para usuário {UserId}", sessao.UsuarioId);
         }
     }
 
-    private async Task<AuthSessionResult> CreateSessionAsync(UsuarioModel usuario)
+    private async Task<ResultadoSessaoAuth> CriarSessaoAsync(UsuarioModel usuario)
     {
         var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
         var expires = DateTime.UtcNow.AddDays(_settings.Session.ExpirationDays);
 
-        await authRepository.CreateSessionAsync(new SessaoModel
+        await authRepository.CriarSessaoAsync(new SessaoModel
         {
             IdSessao = Guid.CreateVersion7(),
             UsuarioId = usuario.IdUsuario,
@@ -80,7 +80,7 @@ public class AuthService(
             TsCriacao = DateTime.UtcNow
         });
 
-        return new AuthSessionResult(
+        return new ResultadoSessaoAuth(
             Token: token,
             Expires: expires,
             NmEmail: usuario.NmEmail,

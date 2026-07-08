@@ -11,48 +11,48 @@ namespace gstok_api.Controllers;
 public class UsuarioController(IUsuarioService usuarioService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] PaginationParams pagination)
+    public async Task<IActionResult> ObterTodos([FromQuery] PaginationParams pagination)
     {
-        var result = await usuarioService.GetAllAsync(pagination);
+        var result = await usuarioService.ObterTodosAsync(pagination);
         return Ok(result);
     }
 
     [HttpGet("me")]
-    public async Task<IActionResult> GetMe()
+    public async Task<IActionResult> ObterMe()
     {
-        var userId = (Guid)HttpContext.Items[SessionMiddleware.UserIdKey]!;
-        var result = await usuarioService.GetMeAsync(userId);
+        var userId = (Guid)HttpContext.Items[MiddlewareSessao.UserIdKey]!;
+        var result = await usuarioService.ObterMeAsync(userId);
         if (result is null) return NotFound();
         return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> ObterPorId(Guid id)
     {
-        var result = await usuarioService.GetByIdAsync(id);
+        var result = await usuarioService.ObterPorIdAsync(id);
         if (result is null) return NotFound();
         return Ok(result);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] UsuarioCreateDto dto)
+    public async Task<IActionResult> Criar([FromBody] UsuarioCreateDto dto)
     {
-        var result = await usuarioService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = result.IdUsuario }, result);
+        var result = await usuarioService.CriarAsync(dto);
+        return CreatedAtAction(nameof(ObterPorId), new { id = result.IdUsuario }, result);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UsuarioUpdateDto dto)
+    public async Task<IActionResult> Atualizar(Guid id, [FromBody] UsuarioUpdateDto dto)
     {
-        var result = await usuarioService.UpdateAsync(id, dto);
+        var result = await usuarioService.AtualizarAsync(id, dto);
         if (result is null) return NotFound();
         return Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Excluir(Guid id)
     {
-        var deleted = await usuarioService.DeleteAsync(id);
+        var deleted = await usuarioService.ExcluirAsync(id);
         if (!deleted) return NotFound();
         return NoContent();
     }

@@ -14,25 +14,25 @@ namespace gstok_api.Controllers;
 [Route("auth")]
 public class AuthController(
     IAuthService authService,
-    IOptions<AuthSettings> authOptions) : ControllerBase
+    IOptions<ConfiguracaoAuth> authOptions) : ControllerBase
 {
-    private readonly CookieSettings _cookieSettings = authOptions.Value.Cookie;
+    private readonly ConfiguracaoCookie _cookieSettings = authOptions.Value.Cookie;
 
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterRequestDto dto)
+    public async Task<IActionResult> Registrar([FromBody] RegisterRequestDto dto)
     {
-        var result = await authService.RegisterAsync(dto);
+        var result = await authService.RegistrarAsync(dto);
         if (result is null) return Conflict(new { message = "E-mail já cadastrado." });
         return Ok(result);
     }
 
     [HttpPost("login")]
     [EnableRateLimiting("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
+    public async Task<IActionResult> Entrar([FromBody] LoginRequestDto dto)
     {
-        var result = await authService.LoginAsync(dto);
+        var result = await authService.EntrarAsync(dto);
         if (result is null) return Unauthorized();
-        SetSessionCookie(result.Token, result.Expires);
+        DefinirCookieSessao(result.Token, result.Expires);
         return Ok(new AuthResponseDto
         {
             NmEmail = result.NmEmail,
@@ -43,17 +43,17 @@ public class AuthController(
     }
 
     [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
+    public async Task<IActionResult> Sair()
     {
-        var token = Request.Cookies[SessionMiddleware.CookieName];
+        var token = Request.Cookies[MiddlewareSessao.CookieName];
         if (!string.IsNullOrEmpty(token))
-            await authService.LogoutAsync(token);
+            await authService.SairAsync(token);
 
-        ClearSessionCookie();
+        LimparCookieSessao();
         return NoContent();
     }
 
-    private void SetSessionCookie(string token, DateTime expires)
+    private void DefinirCookieSessao(string token, DateTime expires)
     {
         var options = new CookieOptions
         {
@@ -67,10 +67,10 @@ public class AuthController(
         if (!string.IsNullOrEmpty(_cookieSettings.Domain))
             options.Domain = _cookieSettings.Domain;
 
-        Response.Cookies.Append(SessionMiddleware.CookieName, token, options);
+        Response.Cookies.Append(MiddlewareSessao.CookieName, token, options);
     }
 
-    private void ClearSessionCookie()
+    private void LimparCookieSessao()
     {
         var options = new CookieOptions
         {
@@ -84,6 +84,6 @@ public class AuthController(
         if (!string.IsNullOrEmpty(_cookieSettings.Domain))
             options.Domain = _cookieSettings.Domain;
 
-        Response.Cookies.Append(SessionMiddleware.CookieName, string.Empty, options);
+        Response.Cookies.Append(MiddlewareSessao.CookieName, string.Empty, options);
     }
 }

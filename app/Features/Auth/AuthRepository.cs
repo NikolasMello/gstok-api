@@ -7,33 +7,33 @@ namespace gstok_api.Repositories;
 
 public class AuthRepository(AppDbContext context) : IAuthRepository
 {
-    public Task<bool> EmailExistsAsync(string email) =>
+    public Task<bool> EmailExisteAsync(string email) =>
         context.Usuarios.AnyAsync(u => u.NmEmail == email);
 
-    public Task<UsuarioModel?> FindByEmailAsync(string email) =>
+    public Task<UsuarioModel?> BuscarPorEmailAsync(string email) =>
         context.Usuarios
             .Include(u => u.Pessoa)
                 .ThenInclude(p => p!.Foto)
             .FirstOrDefaultAsync(u => u.NmEmail == email);
 
-    public async Task<UsuarioModel> CreateAsync(UsuarioModel usuario)
+    public async Task<UsuarioModel> CriarAsync(UsuarioModel usuario)
     {
         context.Usuarios.Add(usuario);
         await context.SaveChangesAsync();
         return usuario;
     }
 
-    public async Task<SessaoModel> CreateSessionAsync(SessaoModel sessao)
+    public async Task<SessaoModel> CriarSessaoAsync(SessaoModel sessao)
     {
         context.Sessoes.Add(sessao);
         await context.SaveChangesAsync();
         return sessao;
     }
 
-    public Task<SessaoModel?> FindSessionByTokenAsync(string token) =>
+    public Task<SessaoModel?> BuscarSessaoPorTokenAsync(string token) =>
         context.Sessoes.FirstOrDefaultAsync(s => s.CdToken == token);
 
-    public async Task DeleteSessionAsync(SessaoModel sessao)
+    public async Task ExcluirSessaoAsync(SessaoModel sessao)
     {
         context.Sessoes.Remove(sessao);
         await context.SaveChangesAsync();

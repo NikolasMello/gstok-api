@@ -9,37 +9,37 @@ namespace gstok_api.Controllers;
 public class ProdutoController(IProdutoService produtoService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll([FromQuery] PaginationParams pagination)
+    public async Task<IActionResult> ObterTodos([FromQuery] PaginationParams pagination)
     {
-        var result = await produtoService.GetAllAsync(pagination);
+        var result = await produtoService.ObterTodosAsync(pagination);
         return Ok(result);
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> GetById(Guid id)
+    public async Task<IActionResult> ObterPorId(Guid id)
     {
-        var produto = await produtoService.GetByIdAsync(id);
+        var produto = await produtoService.ObterPorIdAsync(id);
         return produto is null ? NotFound() : Ok(produto);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromForm] ProdutoCreateDto dto)
+    public async Task<IActionResult> Criar([FromForm] ProdutoCreateDto dto)
     {
-        var produto = await produtoService.CreateAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = produto.Id }, produto);
+        var produto = await produtoService.CriarAsync(dto);
+        return CreatedAtAction(nameof(ObterPorId), new { id = produto.Id }, produto);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Update(Guid id, [FromBody] ProdutoUpdateDto dto)
+    public async Task<IActionResult> Atualizar(Guid id, [FromBody] ProdutoUpdateDto dto)
     {
-        var produto = await produtoService.UpdateAsync(id, dto);
+        var produto = await produtoService.AtualizarAsync(id, dto);
         return produto is null ? NotFound() : Ok(produto);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid id)
+    public async Task<IActionResult> Excluir(Guid id)
     {
-        var deleted = await produtoService.DeleteAsync(id);
+        var deleted = await produtoService.ExcluirAsync(id);
         return deleted ? NoContent() : NotFound();
     }
 }

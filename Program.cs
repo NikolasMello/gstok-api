@@ -19,12 +19,12 @@ builder.Services.AddDocs();
 var app = builder.Build();
 
 app.MapDocs();
-app.UseMiddleware<ExceptionHandlingMiddleware>();
+app.UseMiddleware<MiddlewareExcecao>();
 app.UseSerilogRequestLogging();
 app.UseHttpsRedirection();
 app.UseRateLimiter();
 app.UseRouting();
 app.UseCors();
-app.UseMiddleware<SessionMiddleware>();
+app.UseMiddleware<MiddlewareSessao>();
 app.MapControllers();
 app.Run();

@@ -8,9 +8,9 @@ using gstok_api.Settings;
 
 namespace gstok_api.Common.Services;
 
-public class ImageProcessingService(IOptions<StorageSettings> storageOptions) : IImageProcessingService
+public class ImageProcessingService(IOptions<ConfiguracaoArmazenamento> storageOptions) : IImageProcessingService
 {
-    private readonly StorageSettings _settings = storageOptions.Value;
+    private readonly ConfiguracaoArmazenamento _settings = storageOptions.Value;
 
     private static readonly WebpEncoder Encoder = new() { Quality = 80 };
 
@@ -29,12 +29,12 @@ public class ImageProcessingService(IOptions<StorageSettings> storageOptions) : 
     public async Task<ImageVariantesResult> ProcessarAsync(Stream inputStream, string pasta)
     {
         if (inputStream.Length > TamanhoMaximoBytes)
-            throw new BusinessException($"Imagem excede o tamanho máximo de {TamanhoMaximoBytes / 1024 / 1024}MB.");
+            throw new ExcecaoNegocio($"Imagem excede o tamanho máximo de {TamanhoMaximoBytes / 1024 / 1024}MB.");
 
         using var imagem = await Image.LoadAsync(inputStream);
 
         if (imagem.Width < LarguraMinima)
-            throw new BusinessException($"Largura mínima da imagem é {LarguraMinima}px. Enviada: {imagem.Width}px.");
+            throw new ExcecaoNegocio($"Largura mínima da imagem é {LarguraMinima}px. Enviada: {imagem.Width}px.");
 
         var nomeBase = Guid.CreateVersion7().ToString();
         var variantes = new Dictionary<string, ImageVariante>();

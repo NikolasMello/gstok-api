@@ -1,6 +1,6 @@
 namespace gstok_api.Features.Auth;
 
-public record AuthSessionResult(
+public record ResultadoSessaoAuth(
     string Token,
     DateTime Expires,
     string NmEmail,

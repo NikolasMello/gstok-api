@@ -9,9 +9,9 @@ namespace gstok_api.Controllers;
 public class ImagemProdutoController(IImagemProdutoService imagemService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetByProduto(Guid produtoId)
+    public async Task<IActionResult> ObterPorProduto(Guid produtoId)
     {
-        var imagens = await imagemService.GetByProdutoIdAsync(produtoId);
+        var imagens = await imagemService.ObterPorProdutoIdAsync(produtoId);
         return Ok(imagens);
     }
 
@@ -23,16 +23,16 @@ public class ImagemProdutoController(IImagemProdutoService imagemService) : Cont
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Delete(Guid produtoId, Guid id)
+    public async Task<IActionResult> Excluir(Guid produtoId, Guid id)
     {
-        await imagemService.DeleteAsync(produtoId, id);
+        await imagemService.ExcluirAsync(produtoId, id);
         return NoContent();
     }
 
     [HttpDelete]
-    public async Task<IActionResult> DeleteMany(Guid produtoId, [FromBody] DeleteManyImagensDto dto)
+    public async Task<IActionResult> ExcluirVarios(Guid produtoId, [FromBody] DeleteManyImagensDto dto)
     {
-        await imagemService.DeleteManyAsync(produtoId, dto);
+        await imagemService.ExcluirVariosAsync(produtoId, dto);
         return NoContent();
     }
 }

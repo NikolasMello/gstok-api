@@ -5,10 +5,10 @@ namespace gstok_api.Features.Usuario;
 
 public interface IUsuarioService
 {
-    Task<PagedResult<UsuarioResponseDto>> GetAllAsync(PaginationParams pagination);
-    Task<UsuarioResponseDto?> GetByIdAsync(Guid id);
-    Task<UsuarioMeDto?> GetMeAsync(Guid userId);
-    Task<UsuarioResponseDto> CreateAsync(UsuarioCreateDto dto);
-    Task<UsuarioResponseDto?> UpdateAsync(Guid id, UsuarioUpdateDto dto);
-    Task<bool> DeleteAsync(Guid id);
+    Task<PagedResult<UsuarioResponseDto>> ObterTodosAsync(PaginationParams pagination);
+    Task<UsuarioResponseDto?> ObterPorIdAsync(Guid id);
+    Task<UsuarioMeDto?> ObterMeAsync(Guid userId);
+    Task<UsuarioResponseDto> CriarAsync(UsuarioCreateDto dto);
+    Task<UsuarioResponseDto?> AtualizarAsync(Guid id, UsuarioUpdateDto dto);
+    Task<bool> ExcluirAsync(Guid id);
 }

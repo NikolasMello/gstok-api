@@ -6,13 +6,13 @@ namespace gstok_api.Services;
 
 public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
 {
-    public async Task<PagedResult<PessoaModel>> GetAllAsync(PaginationParams pagination) =>
-        await pessoaRepository.GetAllAsync(pagination);
+    public async Task<PagedResult<PessoaModel>> ObterTodosAsync(PaginationParams pagination) =>
+        await pessoaRepository.ObterTodosAsync(pagination);
 
-    public async Task<PessoaModel?> GetByIdAsync(Guid id) =>
-        await pessoaRepository.GetByIdAsync(id);
+    public async Task<PessoaModel?> ObterPorIdAsync(Guid id) =>
+        await pessoaRepository.ObterPorIdAsync(id);
 
-    public async Task<PessoaModel> CreateAsync(PessoaRequestDto dto)
+    public async Task<PessoaModel> CriarAsync(PessoaRequestDto dto)
     {
         var pessoa = new PessoaModel
         {
@@ -25,10 +25,10 @@ public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
             NmEmail = dto.NmEmail,
             TsCriacao = DateTime.UtcNow
         };
-        return await pessoaRepository.CreateAsync(pessoa);
+        return await pessoaRepository.CriarAsync(pessoa);
     }
 
-    public async Task<PessoaModel?> UpdateAsync(Guid id, PessoaRequestDto dto)
+    public async Task<PessoaModel?> AtualizarAsync(Guid id, PessoaRequestDto dto)
     {
         var pessoa = new PessoaModel
         {
@@ -39,9 +39,9 @@ public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
             NmTelefone = dto.NmTelefone,
             NmEmail = dto.NmEmail
         };
-        return await pessoaRepository.UpdateAsync(id, pessoa);
+        return await pessoaRepository.AtualizarAsync(id, pessoa);
     }
 
-    public async Task<bool> DeleteAsync(Guid id) =>
-        await pessoaRepository.DeleteAsync(id);
+    public async Task<bool> ExcluirAsync(Guid id) =>
+        await pessoaRepository.ExcluirAsync(id);
 }

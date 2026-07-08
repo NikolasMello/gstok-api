@@ -8,7 +8,7 @@ namespace gstok_api.Repositories;
 
 public class PessoaRepository(AppDbContext context) : IPessoaRepository
 {
-    public async Task<PagedResult<PessoaModel>> GetAllAsync(PaginationParams pagination)
+    public async Task<PagedResult<PessoaModel>> ObterTodosAsync(PaginationParams pagination)
     {
         var query = context.Pessoas.AsQueryable();
         var totalCount = await query.CountAsync();
@@ -27,17 +27,17 @@ public class PessoaRepository(AppDbContext context) : IPessoaRepository
         };
     }
 
-    public async Task<PessoaModel?> GetByIdAsync(Guid id) =>
+    public async Task<PessoaModel?> ObterPorIdAsync(Guid id) =>
         await context.Pessoas.FindAsync(id);
 
-    public async Task<PessoaModel> CreateAsync(PessoaModel pessoa)
+    public async Task<PessoaModel> CriarAsync(PessoaModel pessoa)
     {
         context.Pessoas.Add(pessoa);
         await context.SaveChangesAsync();
         return pessoa;
     }
 
-    public async Task<PessoaModel?> UpdateAsync(Guid id, PessoaModel pessoa)
+    public async Task<PessoaModel?> AtualizarAsync(Guid id, PessoaModel pessoa)
     {
         var existing = await context.Pessoas.FindAsync(id);
         if (existing is null) return null;
@@ -53,7 +53,7 @@ public class PessoaRepository(AppDbContext context) : IPessoaRepository
         return existing;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> ExcluirAsync(Guid id)
     {
         var existing = await context.Pessoas.FindAsync(id);
         if (existing is null) return false;

@@ -10,9 +10,9 @@ public class ProdutoService(
     IProdutoRepository produtoRepository,
     IImageProcessingService imageProcessingService) : IProdutoService
 {
-    public async Task<PagedResult<ProdutoResponseDto>> GetAllAsync(PaginationParams pagination)
+    public async Task<PagedResult<ProdutoResponseDto>> ObterTodosAsync(PaginationParams pagination)
     {
-        var result = await produtoRepository.GetAllAsync(pagination);
+        var result = await produtoRepository.ObterTodosAsync(pagination);
         return new PagedResult<ProdutoResponseDto>
         {
             Items = result.Items.Select(ToResponseDto),
@@ -22,18 +22,17 @@ public class ProdutoService(
         };
     }
 
-    public async Task<ProdutoResponseDto?> GetByIdAsync(Guid id)
+    public async Task<ProdutoResponseDto?> ObterPorIdAsync(Guid id)
     {
-        var produto = await produtoRepository.GetByIdAsync(id);
+        var produto = await produtoRepository.ObterPorIdAsync(id);
         return produto is null ? null : ToResponseDto(produto);
     }
 
-    public async Task<ProdutoResponseDto> CreateAsync(ProdutoCreateDto dto)
+    public async Task<ProdutoResponseDto> CriarAsync(ProdutoCreateDto dto)
     {
         if (dto.Imagens.Count == 0)
-            throw new BusinessException("Pelo menos uma imagem é obrigatória.");
+            throw new ExcecaoNegocio("Pelo menos uma imagem é obrigatória.");
 
-        // Process all images first — fail fast before any DB writes
         var imagensProcessadas = new List<(ImageVariantesResult Variantes, string? Caption, bool FlPrincipal, int Ordem)>();
 
         for (int i = 0; i < dto.Imagens.Count; i++)
@@ -86,15 +85,13 @@ public class ProdutoService(
             });
         }
 
-        // Produto + imagens salvos em uma única transação via cascade do EF Core
-        await produtoRepository.CreateAsync(produto);
+        await produtoRepository.CriarAsync(produto);
 
-        // Recarrega para popular TipoProduto.NmTipo se houver FK
-        var produtoCompleto = await produtoRepository.GetByIdAsync(produto.Id);
+        var produtoCompleto = await produtoRepository.ObterPorIdAsync(produto.Id);
         return ToResponseDto(produtoCompleto!);
     }
 
-    public async Task<ProdutoResponseDto?> UpdateAsync(Guid id, ProdutoUpdateDto dto)
+    public async Task<ProdutoResponseDto?> AtualizarAsync(Guid id, ProdutoUpdateDto dto)
     {
         var produto = new ProdutoModel
         {
@@ -109,12 +106,12 @@ public class ProdutoService(
             FlAtivo = dto.FlAtivo
         };
 
-        var updated = await produtoRepository.UpdateAsync(id, produto);
+        var updated = await produtoRepository.AtualizarAsync(id, produto);
         return updated is null ? null : ToResponseDto(updated);
     }
 
-    public async Task<bool> DeleteAsync(Guid id) =>
-        await produtoRepository.DeleteAsync(id);
+    public async Task<bool> ExcluirAsync(Guid id) =>
+        await produtoRepository.ExcluirAsync(id);
 
     private static ProdutoResponseDto ToResponseDto(ProdutoModel p) => new()
     {

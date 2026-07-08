@@ -7,7 +7,7 @@ namespace gstok_api.Features.Usuario;
 
 public class UsuarioRepository(AppDbContext context) : IUsuarioRepository
 {
-    public async Task<PagedResult<UsuarioModel>> GetAllAsync(PaginationParams pagination)
+    public async Task<PagedResult<UsuarioModel>> ObterTodosAsync(PaginationParams pagination)
     {
         var query = context.Usuarios.AsQueryable();
         var totalCount = await query.CountAsync();
@@ -26,23 +26,23 @@ public class UsuarioRepository(AppDbContext context) : IUsuarioRepository
         };
     }
 
-    public Task<UsuarioModel?> GetByIdAsync(Guid id) =>
+    public Task<UsuarioModel?> ObterPorIdAsync(Guid id) =>
         context.Usuarios
             .Include(u => u.Pessoa)
                 .ThenInclude(p => p!.Foto)
             .FirstOrDefaultAsync(u => u.IdUsuario == id);
 
-    public Task<bool> EmailExistsAsync(string email, Guid? excludeId = null) =>
+    public Task<bool> EmailExisteAsync(string email, Guid? excludeId = null) =>
         context.Usuarios.AnyAsync(u => u.NmEmail == email && u.IdUsuario != excludeId);
 
-    public async Task<UsuarioModel> CreateAsync(UsuarioModel usuario)
+    public async Task<UsuarioModel> CriarAsync(UsuarioModel usuario)
     {
         context.Usuarios.Add(usuario);
         await context.SaveChangesAsync();
         return usuario;
     }
 
-    public async Task<UsuarioModel?> UpdateAsync(Guid id, string nmEmail, Guid? pessoaId)
+    public async Task<UsuarioModel?> AtualizarAsync(Guid id, string nmEmail, Guid? pessoaId)
     {
         var existing = await context.Usuarios.FindAsync(id);
         if (existing is null) return null;
@@ -55,7 +55,7 @@ public class UsuarioRepository(AppDbContext context) : IUsuarioRepository
         return existing;
     }
 
-    public async Task<bool> DeleteAsync(Guid id)
+    public async Task<bool> ExcluirAsync(Guid id)
     {
         var existing = await context.Usuarios.FindAsync(id);
         if (existing is null) return false;
