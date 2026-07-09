@@ -40,8 +40,8 @@ public class PessoaModel
     [Required]
     [EmailAddress]
     [MaxLength(150)]
-    [Column("nm_email")]
-    public string NmEmail { get; set; } = string.Empty;
+    [Column("nm_email_contato")]
+    public string NmEmailContato { get; set; } = string.Empty;
 
     [Column("ts_criacao")]
     public DateTime TsCriacao { get; set; }

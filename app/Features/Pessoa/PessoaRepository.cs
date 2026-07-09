@@ -47,7 +47,7 @@ public class PessoaRepository(AppDbContext context) : IPessoaRepository
         existing.NmPessoa = pessoa.NmPessoa;
         existing.NmSobrenome = pessoa.NmSobrenome;
         existing.NmTelefone = pessoa.NmTelefone;
-        existing.NmEmail = pessoa.NmEmail;
+        existing.NmEmailContato = pessoa.NmEmailContato;
 
         await context.SaveChangesAsync();
         return existing;

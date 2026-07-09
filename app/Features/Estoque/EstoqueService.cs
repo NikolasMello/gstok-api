@@ -1,5 +1,6 @@
 using gstok_api.DTOs.Estoque;
 using gstok_api.Exceptions;
+using gstok_api.Mappings.Estoque;
 using gstok_api.Models;
 
 namespace gstok_api.Features.Estoque;
@@ -8,14 +9,14 @@ public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueServ
 {
     public async Task<List<EstoqueResponseDto>> ObterPorProdutoIdAsync(Guid produtoId) =>
         (await estoqueRepository.ObterPorProdutoIdAsync(produtoId))
-            .Select(ToResponse)
+            .Select(EstoqueMapper.ParaResposta)
             .ToList();
 
     public async Task<EstoqueResponseDto?> ObterPorIdAsync(Guid id, Guid produtoId)
     {
         var estoque = await estoqueRepository.ObterPorIdAsync(id);
         if (estoque is null || estoque.ProdutoId != produtoId) return null;
-        return ToResponse(estoque);
+        return EstoqueMapper.ParaResposta(estoque);
     }
 
     public async Task<EstoqueResponseDto> CriarAsync(Guid produtoId, EstoqueCreateDto dto)
@@ -33,26 +34,15 @@ public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueServ
             TsCriacao = DateTime.UtcNow
         };
 
-        return ToResponse(await estoqueRepository.CriarAsync(estoque));
+        return EstoqueMapper.ParaResposta(await estoqueRepository.CriarAsync(estoque));
     }
 
     public async Task<EstoqueResponseDto?> AtualizarAsync(Guid id, Guid produtoId, EstoqueUpdateDto dto)
     {
         var updated = await estoqueRepository.AtualizarAsync(id, produtoId, dto.QtEstoque, dto.TpTamanho, dto.NmCor.Trim());
-        return updated is null ? null : ToResponse(updated);
+        return updated is null ? null : EstoqueMapper.ParaResposta(updated);
     }
 
     public Task<bool> ExcluirAsync(Guid id, Guid produtoId) =>
         estoqueRepository.ExcluirAsync(id, produtoId);
-
-    private static EstoqueResponseDto ToResponse(EstoqueModel e) => new()
-    {
-        Id = e.Id,
-        ProdutoId = e.ProdutoId,
-        QtEstoque = e.QtEstoque,
-        TpTamanho = e.TpTamanho,
-        NmCor = e.NmCor,
-        TsCriacao = e.TsCriacao,
-        TsEdicao = e.TsEdicao
-    };
 }

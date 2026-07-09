@@ -17,11 +17,11 @@ public class UsuarioController(IUsuarioService usuarioService) : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("me")]
-    public async Task<IActionResult> ObterMe()
+    [HttpGet("sessao")]
+    public async Task<IActionResult> ObterUsuarioSessao()
     {
         var userId = (Guid)HttpContext.Items[MiddlewareSessao.UserIdKey]!;
-        var result = await usuarioService.ObterMeAsync(userId);
+        var result = await usuarioService.ObterUsuarioSessaoAsync(userId);
         if (result is null) return NotFound();
         return Ok(result);
     }
@@ -41,8 +41,15 @@ public class UsuarioController(IUsuarioService usuarioService) : ControllerBase
         return CreatedAtAction(nameof(ObterPorId), new { id = result.IdUsuario }, result);
     }
 
+    [HttpPost("admin")]
+    public async Task<IActionResult> CriarAdministrativo([FromForm] UsuarioAdminCreateDto dto)
+    {
+        var result = await usuarioService.CriarAdministrativoAsync(dto);
+        return CreatedAtAction(nameof(ObterPorId), new { id = result.IdUsuario }, result);
+    }
+
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Atualizar(Guid id, [FromBody] UsuarioUpdateDto dto)
+    public async Task<IActionResult> Atualizar(Guid id, [FromForm] UsuarioUpdateDto dto)
     {
         var result = await usuarioService.AtualizarAsync(id, dto);
         if (result is null) return NotFound();

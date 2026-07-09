@@ -17,6 +17,7 @@ Request → Controller → Service → Repository → DbContext (PostgreSQL)
 | `Features/*/Repository` | Abstração de acesso ao banco via EF Core |
 | `Domain/Models` | Entidades mapeadas pelo EF Core |
 | `DTOs/` | Contratos de entrada e saída da API |
+| `Mappings/` | Classes estáticas de mapeamento Model → DTO (agrupadas por model) |
 | `Exceptions/` | Hierarquia de exceções tipadas de domínio |
 | `Middleware/` | Pipeline transversal (ex: tratamento de erros) |
 | `Common/` | Utilitários compartilhados entre features |
@@ -82,9 +83,9 @@ A autenticação é baseada em **sessão server-side com cookie HttpOnly**. Não
 
 | Método | Rota | Acesso |
 |---|---|---|
-| `POST` | `/api/v1/auth/register` | Público |
-| `POST` | `/api/v1/auth/login` | Público |
-| `POST` | `/api/v1/auth/logout` | Autenticado |
+| `POST` | `/auth/register` | Público |
+| `POST` | `/auth/login` | Público |
+| `POST` | `/auth/logout` | Autenticado |
 
 Todas as demais rotas exigem sessão ativa.
 
@@ -107,7 +108,7 @@ O token de sessão **nunca é exposto no body**. O browser gerencia o cookie e o
 
 ### Validação de sessão por requisição
 
-Cada request para uma rota protegida passa pelo `SessionMiddleware`:
+Cada request para uma rota protegida passa pelo `MiddlewareSessao`:
 
 ```
 Request chega
@@ -161,14 +162,14 @@ Cliente                          Servidor
 }
 ```
 
-`nm_pessoa`, `nm_sobrenome` e `ur_avatar` são `null` até o usuário vincular seus dados pessoais. O frontend deve tratar esses campos como opcionais.
+`nm_pessoa` sempre está preenchido — é definido no momento do registro. `nm_sobrenome` e `ur_avatar` são `null` até o usuário vincular seus dados pessoais (`Pessoa`). O frontend deve tratar esses dois campos como opcionais.
 
 ### Verificação de sessão no frontend
 
 Como o cookie é HttpOnly, o JavaScript não consegue lê-lo diretamente. O padrão recomendado:
 
 1. **Após login:** armazena o response (`nm_email`, `nm_pessoa` etc.) em estado global persistido no `localStorage`
-2. **Ao carregar o app:** se há dados no `localStorage`, valida com `GET /api/v1/usuario/me`
+2. **Ao carregar o app:** se há dados no `localStorage`, valida com `GET /usuario/sessao`
    - `200` → sessão ativa, libera rotas privadas
    - `401` → sessão expirada, limpa `localStorage` e redireciona para login
 3. **Durante o uso:** qualquer `401` de qualquer endpoint deve limpar o estado e redirecionar para login (interceptor global)

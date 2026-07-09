@@ -2,7 +2,7 @@ using gstok_api.Common.Services;
 using gstok_api.DTOs;
 using gstok_api.Exceptions;
 using gstok_api.Features.ImagemProduto;
-using gstok_api.Models;
+using gstok_api.Mappings.ImagemProduto;
 
 namespace gstok_api.Services;
 
@@ -13,7 +13,7 @@ public class ImagemProdutoService(
     public async Task<List<ImagemProdutoResponseDto>> ObterPorProdutoIdAsync(Guid produtoId)
     {
         var imagens = await imagemRepository.ObterPorProdutoIdAsync(produtoId);
-        return imagens.Select(ToResponseDto).ToList();
+        return imagens.Select(ImagemProdutoMapper.ParaResposta).ToList();
     }
 
     public async Task<List<ImagemProdutoResponseDto>> ReordenarAsync(Guid produtoId, ReordenarImagensDto dto)
@@ -36,7 +36,7 @@ public class ImagemProdutoService(
         await imagemRepository.AtualizarVariosAsync(imagens);
 
         var todas = await imagemRepository.ObterPorProdutoIdAsync(produtoId);
-        return todas.Select(ToResponseDto).ToList();
+        return todas.Select(ImagemProdutoMapper.ParaResposta).ToList();
     }
 
     public async Task ExcluirAsync(Guid produtoId, Guid idImagemProduto)
@@ -68,17 +68,4 @@ public class ImagemProdutoService(
 
         await imagemRepository.ExcluirVariosAsync(imagens);
     }
-
-    private static ImagemProdutoResponseDto ToResponseDto(ImagemProdutoModel i) => new()
-    {
-        IdImagemProduto = i.IdImagemProduto,
-        NmCaption   = i.NmCaption,
-        SqOrdem     = i.SqOrdem,
-        FlPrincipal = i.FlPrincipal,
-        Avatar    = new ImageVariante { Url = i.UrAvatar,    Largura = i.NrLarguraAvatar,    Altura = i.NrAlturaAvatar },
-        Thumbnail = new ImageVariante { Url = i.UrThumbnail, Largura = i.NrLarguraThumbnail, Altura = i.NrAlturaThumbnail },
-        Mobile    = new ImageVariante { Url = i.UrMobile,    Largura = i.NrLarguraMobile,    Altura = i.NrAlturaMobile },
-        Tablet    = new ImageVariante { Url = i.UrTablet,    Largura = i.NrLarguraTablet,    Altura = i.NrAlturaTablet },
-        Desktop   = new ImageVariante { Url = i.UrDesktop,   Largura = i.NrLarguraDesktop,   Altura = i.NrAlturaDesktop }
-    };
 }

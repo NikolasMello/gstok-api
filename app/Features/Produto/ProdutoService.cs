@@ -2,6 +2,7 @@ using gstok_api.Common.Services;
 using gstok_api.DTOs;
 using gstok_api.Exceptions;
 using gstok_api.Features.Produto;
+using gstok_api.Mappings.Produto;
 using gstok_api.Models;
 
 namespace gstok_api.Services;
@@ -15,7 +16,7 @@ public class ProdutoService(
         var result = await produtoRepository.ObterTodosAsync(pagination);
         return new PagedResult<ProdutoResponseDto>
         {
-            Items = result.Items.Select(ToResponseDto),
+            Items = result.Items.Select(ProdutoMapper.ParaResposta),
             Page = result.Page,
             PageSize = result.PageSize,
             TotalCount = result.TotalCount
@@ -25,7 +26,7 @@ public class ProdutoService(
     public async Task<ProdutoResponseDto?> ObterPorIdAsync(Guid id)
     {
         var produto = await produtoRepository.ObterPorIdAsync(id);
-        return produto is null ? null : ToResponseDto(produto);
+        return produto is null ? null : ProdutoMapper.ParaResposta(produto);
     }
 
     public async Task<ProdutoResponseDto> CriarAsync(ProdutoCreateDto dto)
@@ -88,7 +89,7 @@ public class ProdutoService(
         await produtoRepository.CriarAsync(produto);
 
         var produtoCompleto = await produtoRepository.ObterPorIdAsync(produto.Id);
-        return ToResponseDto(produtoCompleto!);
+        return ProdutoMapper.ParaResposta(produtoCompleto!);
     }
 
     public async Task<ProdutoResponseDto?> AtualizarAsync(Guid id, ProdutoUpdateDto dto)
@@ -107,41 +108,9 @@ public class ProdutoService(
         };
 
         var updated = await produtoRepository.AtualizarAsync(id, produto);
-        return updated is null ? null : ToResponseDto(updated);
+        return updated is null ? null : ProdutoMapper.ParaResposta(updated);
     }
 
     public async Task<bool> ExcluirAsync(Guid id) =>
         await produtoRepository.ExcluirAsync(id);
-
-    private static ProdutoResponseDto ToResponseDto(ProdutoModel p) => new()
-    {
-        Id = p.Id,
-        CdSku = p.CdSku,
-        NmProduto = p.NmProduto,
-        DsProduto = p.DsProduto,
-        NmMarca = p.NmMarca,
-        VlPreco = p.VlPreco,
-        VlVenda = p.VlVenda,
-        TipoProdutoId = p.TipoProdutoId,
-        NmTipo = p.TipoProduto?.NmTipo,
-        TpEstacao = p.TpEstacao,
-        FlAtivo = p.FlAtivo,
-        TsCriacao = p.TsCriacao,
-        TsEdicao = p.TsEdicao,
-        Imagens = p.Imagens
-            .OrderBy(i => i.SqOrdem)
-            .Select(i => new ImagemProdutoResponseDto
-            {
-                IdImagemProduto = i.IdImagemProduto,
-                NmCaption  = i.NmCaption,
-                SqOrdem    = i.SqOrdem,
-                FlPrincipal = i.FlPrincipal,
-                Avatar    = new ImageVariante { Url = i.UrAvatar,   Largura = i.NrLarguraAvatar,   Altura = i.NrAlturaAvatar },
-                Thumbnail = new ImageVariante { Url = i.UrThumbnail, Largura = i.NrLarguraThumbnail, Altura = i.NrAlturaThumbnail },
-                Mobile    = new ImageVariante { Url = i.UrMobile,   Largura = i.NrLarguraMobile,   Altura = i.NrAlturaMobile },
-                Tablet    = new ImageVariante { Url = i.UrTablet,   Largura = i.NrLarguraTablet,   Altura = i.NrAlturaTablet },
-                Desktop   = new ImageVariante { Url = i.UrDesktop,  Largura = i.NrLarguraDesktop,  Altura = i.NrAlturaDesktop }
-            })
-            .ToList()
-    };
 }

@@ -1,6 +1,6 @@
 namespace gstok_api.DTOs.Usuario;
 
-public class UsuarioMeDto
+public class UsuarioSessaoDto
 {
     public string NmEmail { get; set; } = string.Empty;
     public string? NmPessoa { get; set; }

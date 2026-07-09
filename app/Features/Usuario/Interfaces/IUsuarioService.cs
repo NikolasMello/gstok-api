@@ -7,8 +7,9 @@ public interface IUsuarioService
 {
     Task<PagedResult<UsuarioResponseDto>> ObterTodosAsync(PaginationParams pagination);
     Task<UsuarioResponseDto?> ObterPorIdAsync(Guid id);
-    Task<UsuarioMeDto?> ObterMeAsync(Guid userId);
+    Task<UsuarioSessaoDto?> ObterUsuarioSessaoAsync(Guid userId);
     Task<UsuarioResponseDto> CriarAsync(UsuarioCreateDto dto);
+    Task<UsuarioResponseDto> CriarAdministrativoAsync(UsuarioAdminCreateDto dto);
     Task<UsuarioResponseDto?> AtualizarAsync(Guid id, UsuarioUpdateDto dto);
     Task<bool> ExcluirAsync(Guid id);
 }

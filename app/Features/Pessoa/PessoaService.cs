@@ -22,7 +22,7 @@ public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
             NmPessoa = dto.NmPessoa,
             NmSobrenome = dto.NmSobrenome,
             NmTelefone = dto.NmTelefone,
-            NmEmail = dto.NmEmail,
+            NmEmailContato = dto.NmEmailContato,
             TsCriacao = DateTime.UtcNow
         };
         return await pessoaRepository.CriarAsync(pessoa);
@@ -37,7 +37,7 @@ public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
             NmPessoa = dto.NmPessoa,
             NmSobrenome = dto.NmSobrenome,
             NmTelefone = dto.NmTelefone,
-            NmEmail = dto.NmEmail
+            NmEmailContato = dto.NmEmailContato
         };
         return await pessoaRepository.AtualizarAsync(id, pessoa);
     }

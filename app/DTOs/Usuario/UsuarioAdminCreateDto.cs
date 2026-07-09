@@ -1,16 +1,21 @@
 using System.ComponentModel.DataAnnotations;
-using gstok_api.Enums;
 using gstok_api.Common.Validators;
 
-namespace gstok_api.DTOs;
+namespace gstok_api.DTOs.Usuario;
 
-public class PessoaRequestDto
+public class UsuarioAdminCreateDto
 {
     [Required]
-    public TipoPessoa TpPessoa { get; set; }
+    [EmailAddress]
+    [MaxLength(150)]
+    public string NmEmail { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(14)]
+    [MinLength(8)]
+    public string DsSenha { get; set; } = string.Empty;
+
+    [Required]
+    [MaxLength(11)]
     [InscricaoNacional]
     public string CdInscricaoNacional { get; set; } = string.Empty;
 
@@ -31,4 +36,6 @@ public class PessoaRequestDto
     [EmailAddress]
     [MaxLength(150)]
     public string NmEmailContato { get; set; } = string.Empty;
+
+    public IFormFile? Foto { get; set; }
 }

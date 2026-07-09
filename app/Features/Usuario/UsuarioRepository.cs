@@ -9,7 +9,10 @@ public class UsuarioRepository(AppDbContext context) : IUsuarioRepository
 {
     public async Task<PagedResult<UsuarioModel>> ObterTodosAsync(PaginationParams pagination)
     {
-        var query = context.Usuarios.AsQueryable();
+        var query = context.Usuarios
+            .Include(u => u.Pessoa)
+                .ThenInclude(p => p!.Foto)
+            .AsQueryable();
         var totalCount = await query.CountAsync();
         var items = await query
             .OrderBy(u => u.NmEmail)
@@ -42,17 +45,63 @@ public class UsuarioRepository(AppDbContext context) : IUsuarioRepository
         return usuario;
     }
 
-    public async Task<UsuarioModel?> AtualizarAsync(Guid id, string nmEmail, Guid? pessoaId)
+    public async Task<UsuarioModel> CriarComPessoaAsync(UsuarioModel usuario, PessoaModel pessoa, FotoPessoaModel? foto)
     {
-        var existing = await context.Usuarios.FindAsync(id);
-        if (existing is null) return null;
+        if (foto is not null)
+        {
+            foto.PessoaId = pessoa.IdPessoa;
+            pessoa.Foto = foto;
+        }
+        context.Pessoas.Add(pessoa);
+        usuario.PessoaId = pessoa.IdPessoa;
+        usuario.Pessoa = pessoa;
+        context.Usuarios.Add(usuario);
+        await context.SaveChangesAsync();
+        return usuario;
+    }
 
-        existing.NmEmail = nmEmail;
-        existing.PessoaId = pessoaId;
-        existing.TsEdicao = DateTime.UtcNow;
+    public async Task<UsuarioModel?> AtualizarComPessoaAsync(
+        Guid id, string nmEmail, string nmPessoa, PessoaModel pessoaDados, FotoPessoaModel? novaFoto)
+    {
+        var usuario = await context.Usuarios
+            .Include(u => u.Pessoa)
+                .ThenInclude(p => p!.Foto)
+            .FirstOrDefaultAsync(u => u.IdUsuario == id);
+
+        if (usuario is null) return null;
+
+        usuario.NmEmail = nmEmail;
+        usuario.NmPessoa = nmPessoa;
+        usuario.TsEdicao = DateTime.UtcNow;
+
+        if (usuario.Pessoa is not null)
+        {
+            usuario.Pessoa.NmPessoa = pessoaDados.NmPessoa;
+            usuario.Pessoa.NmSobrenome = pessoaDados.NmSobrenome;
+            usuario.Pessoa.NmTelefone = pessoaDados.NmTelefone;
+            usuario.Pessoa.NmEmailContato = pessoaDados.NmEmailContato;
+            usuario.Pessoa.TsEdicao = DateTime.UtcNow;
+
+            if (novaFoto is not null)
+            {
+                if (usuario.Pessoa.Foto is not null)
+                {
+                    usuario.Pessoa.Foto.NmImagem = novaFoto.NmImagem;
+                    usuario.Pessoa.Foto.UrImagem = novaFoto.UrImagem;
+                    usuario.Pessoa.Foto.NrLargura = novaFoto.NrLargura;
+                    usuario.Pessoa.Foto.NrAltura = novaFoto.NrAltura;
+                    usuario.Pessoa.Foto.TsEdicao = DateTime.UtcNow;
+                }
+                else
+                {
+                    novaFoto.PessoaId = usuario.Pessoa.IdPessoa;
+                    context.FotosPessoa.Add(novaFoto);
+                }
+            }
+        }
 
         await context.SaveChangesAsync();
-        return existing;
+        return usuario;
     }
 
     public async Task<bool> ExcluirAsync(Guid id)

@@ -2,6 +2,7 @@ using gstok_api.DTOs;
 using gstok_api.DTOs.Pedido;
 using gstok_api.Enums;
 using gstok_api.Exceptions;
+using gstok_api.Mappings.Pedido;
 using gstok_api.Models;
 
 namespace gstok_api.Features.Pedido;
@@ -13,7 +14,7 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         var result = await pedidoRepository.ObterTodosAsync(pagination);
         return new PagedResult<PedidoResponseDto>
         {
-            Items = result.Items.Select(p => ToResponse(p, [])).ToList(),
+            Items = result.Items.Select(PedidoMapper.ParaResposta).ToList(),
             TotalCount = result.TotalCount,
             Page = result.Page,
             PageSize = result.PageSize
@@ -23,7 +24,7 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
     public async Task<PedidoResponseDto?> ObterPorIdAsync(Guid id)
     {
         var pedido = await pedidoRepository.ObterPorIdAsync(id);
-        return pedido is null ? null : ToResponse(pedido, pedido.Itens.Select(ToItemResponse).ToList());
+        return pedido is null ? null : PedidoMapper.ParaResposta(pedido);
     }
 
     public async Task<PedidoResponseDto> CriarAsync(PedidoCreateDto dto)
@@ -80,7 +81,7 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
             "Pedido criado: {PedidoId} | Cliente: {ClienteId} | Itens: {QtItens} | Total: {VlTotal:C}",
             pedido.IdPedido, pedido.ClienteId, itensModel.Count, pedido.VlTotal);
 
-        return ToResponse(pedido, itensModel.Select(ToItemResponse).ToList());
+        return PedidoMapper.ParaResposta(pedido);
     }
 
     public async Task<PedidoResponseDto?> AtualizarAsync(Guid id, PedidoUpdateDto dto)
@@ -97,7 +98,7 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         pedido.TsEdicao = DateTime.UtcNow;
 
         await pedidoRepository.SalvarAsync();
-        return ToResponse(pedido, pedido.Itens.Select(ToItemResponse).ToList());
+        return PedidoMapper.ParaResposta(pedido);
     }
 
     public Task<bool> ExcluirAsync(Guid id) =>
@@ -139,7 +140,7 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         pedido.TsEdicao = DateTime.UtcNow;
 
         await pedidoRepository.SalvarAsync();
-        return ToItemResponse(item);
+        return PedidoMapper.ParaItemResposta(item);
     }
 
     public async Task<ItemPedidoResponseDto?> AtualizarItemAsync(Guid pedidoId, Guid itemId, ItemPedidoUpdateDto dto)
@@ -173,7 +174,7 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         pedido.TsEdicao = DateTime.UtcNow;
 
         await pedidoRepository.SalvarAsync();
-        return ToItemResponse(item);
+        return PedidoMapper.ParaItemResposta(item);
     }
 
     public async Task<bool> RemoverItemAsync(Guid pedidoId, Guid itemId)
@@ -209,32 +210,4 @@ public class PedidoService(IPedidoRepository pedidoRepository, ILogger<PedidoSer
         pedido.VlSubtotal = pedido.Itens.Sum(i => i.VlTotal);
         pedido.VlTotal = pedido.VlSubtotal + pedido.VlFrete - pedido.VlDesconto;
     }
-
-    private static PedidoResponseDto ToResponse(PedidoModel p, List<ItemPedidoResponseDto> itens) => new()
-    {
-        IdPedido = p.IdPedido,
-        ClienteId = p.ClienteId,
-        StPedido = p.StPedido,
-        StPagamento = p.StPagamento,
-        TpPagamento = p.TpPagamento,
-        VlSubtotal = p.VlSubtotal,
-        VlFrete = p.VlFrete,
-        VlDesconto = p.VlDesconto,
-        VlTotal = p.VlTotal,
-        TsCriacao = p.TsCriacao,
-        TsEdicao = p.TsEdicao,
-        Itens = itens
-    };
-
-    private static ItemPedidoResponseDto ToItemResponse(ItemPedidoModel i) => new()
-    {
-        IdItemPedido = i.IdItemPedido,
-        EstoqueId = i.EstoqueId,
-        NmProduto = i.Estoque?.Produto?.NmProduto ?? string.Empty,
-        TpTamanho = i.Estoque?.TpTamanho ?? default,
-        NmCor = i.Estoque?.NmCor ?? string.Empty,
-        QtQuantidade = i.QtQuantidade,
-        VlUnitario = i.VlUnitario,
-        VlTotal = i.VlTotal
-    };
 }

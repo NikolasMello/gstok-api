@@ -9,6 +9,7 @@ public interface IUsuarioRepository
     Task<UsuarioModel?> ObterPorIdAsync(Guid id);
     Task<bool> EmailExisteAsync(string email, Guid? excludeId = null);
     Task<UsuarioModel> CriarAsync(UsuarioModel usuario);
-    Task<UsuarioModel?> AtualizarAsync(Guid id, string nmEmail, Guid? pessoaId);
+    Task<UsuarioModel> CriarComPessoaAsync(UsuarioModel usuario, PessoaModel pessoa, FotoPessoaModel? foto);
+    Task<UsuarioModel?> AtualizarComPessoaAsync(Guid id, string nmEmail, string nmPessoa, PessoaModel pessoaDados, FotoPessoaModel? novaFoto);
     Task<bool> ExcluirAsync(Guid id);
 }
