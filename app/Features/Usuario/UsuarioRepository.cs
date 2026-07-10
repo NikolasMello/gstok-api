@@ -61,7 +61,7 @@ public class UsuarioRepository(AppDbContext context) : IUsuarioRepository
     }
 
     public async Task<UsuarioModel?> AtualizarComPessoaAsync(
-        Guid id, string nmEmail, string nmPessoa, PessoaModel pessoaDados, FotoPessoaModel? novaFoto)
+        Guid id, string nmEmail, string nmPessoa, PessoaModel? pessoaDados, FotoPessoaModel? novaFoto)
     {
         var usuario = await context.Usuarios
             .Include(u => u.Pessoa)
@@ -74,29 +74,43 @@ public class UsuarioRepository(AppDbContext context) : IUsuarioRepository
         usuario.NmPessoa = nmPessoa;
         usuario.TsEdicao = DateTime.UtcNow;
 
-        if (usuario.Pessoa is not null)
+        if (pessoaDados is not null)
         {
-            usuario.Pessoa.NmPessoa = pessoaDados.NmPessoa;
-            usuario.Pessoa.NmSobrenome = pessoaDados.NmSobrenome;
-            usuario.Pessoa.NmTelefone = pessoaDados.NmTelefone;
-            usuario.Pessoa.NmEmailContato = pessoaDados.NmEmailContato;
-            usuario.Pessoa.TsEdicao = DateTime.UtcNow;
-
-            if (novaFoto is not null)
+            if (usuario.Pessoa is not null)
             {
-                if (usuario.Pessoa.Foto is not null)
+                usuario.Pessoa.NmPessoa = pessoaDados.NmPessoa;
+                usuario.Pessoa.NmSobrenome = pessoaDados.NmSobrenome;
+                usuario.Pessoa.NmTelefone = pessoaDados.NmTelefone;
+                usuario.Pessoa.NmEmailContato = pessoaDados.NmEmailContato;
+                usuario.Pessoa.TsEdicao = DateTime.UtcNow;
+
+                if (novaFoto is not null)
                 {
-                    usuario.Pessoa.Foto.NmImagem = novaFoto.NmImagem;
-                    usuario.Pessoa.Foto.UrImagem = novaFoto.UrImagem;
-                    usuario.Pessoa.Foto.NrLargura = novaFoto.NrLargura;
-                    usuario.Pessoa.Foto.NrAltura = novaFoto.NrAltura;
-                    usuario.Pessoa.Foto.TsEdicao = DateTime.UtcNow;
+                    if (usuario.Pessoa.Foto is not null)
+                    {
+                        usuario.Pessoa.Foto.NmImagem = novaFoto.NmImagem;
+                        usuario.Pessoa.Foto.UrImagem = novaFoto.UrImagem;
+                        usuario.Pessoa.Foto.NrLargura = novaFoto.NrLargura;
+                        usuario.Pessoa.Foto.NrAltura = novaFoto.NrAltura;
+                        usuario.Pessoa.Foto.TsEdicao = DateTime.UtcNow;
+                    }
+                    else
+                    {
+                        novaFoto.PessoaId = usuario.Pessoa.IdPessoa;
+                        context.FotosPessoa.Add(novaFoto);
+                    }
                 }
-                else
+            }
+            else
+            {
+                if (novaFoto is not null)
                 {
-                    novaFoto.PessoaId = usuario.Pessoa.IdPessoa;
-                    context.FotosPessoa.Add(novaFoto);
+                    novaFoto.PessoaId = pessoaDados.IdPessoa;
+                    pessoaDados.Foto = novaFoto;
                 }
+                context.Pessoas.Add(pessoaDados);
+                usuario.PessoaId = pessoaDados.IdPessoa;
+                usuario.Pessoa = pessoaDados;
             }
         }
 

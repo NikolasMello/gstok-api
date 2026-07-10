@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using gstok_api.Common.Validators;
 
 namespace gstok_api.DTOs.Usuario;
 
@@ -13,19 +14,20 @@ public class UsuarioUpdateDto
     [MaxLength(100)]
     public string NmPessoa { get; set; } = string.Empty;
 
-    [Required]
-    [MaxLength(100)]
-    public string NmSobrenome { get; set; } = string.Empty;
+    [MaxLength(11)]
+    [InscricaoNacional]
+    public string? CdInscricaoNacional { get; set; }
 
-    [Required]
+    [MaxLength(100)]
+    public string? NmSobrenome { get; set; }
+
     [Phone]
     [MaxLength(20)]
-    public string NmTelefone { get; set; } = string.Empty;
+    public string? NmTelefone { get; set; }
 
-    [Required]
     [EmailAddress]
     [MaxLength(150)]
-    public string NmEmailContato { get; set; } = string.Empty;
+    public string? NmEmailContato { get; set; }
 
     public IFormFile? Foto { get; set; }
 }

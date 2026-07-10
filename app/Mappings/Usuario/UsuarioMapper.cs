@@ -10,8 +10,8 @@ public static class UsuarioMapper
     {
         IdUsuario = u.IdUsuario,
         NmEmail = u.NmEmail,
-        PessoaId = u.PessoaId,
         CdInscricaoNacional = u.Pessoa?.CdInscricaoNacional,
+        PessoaId = u.PessoaId,
         NmPessoa = u.Pessoa?.NmPessoa ?? u.NmPessoa,
         NmSobrenome = u.Pessoa?.NmSobrenome,
         NmTelefone = u.Pessoa?.NmTelefone,
@@ -27,7 +27,7 @@ public static class UsuarioMapper
         TsCriacao = u.TsCriacao
     };
 
-    public static UsuarioSessaoDto ParaMe(UsuarioModel u) => new()
+    public static UsuarioSessaoDto ParaUsuarioSessao(UsuarioModel u) => new()
     {
         NmEmail = u.NmEmail,
         NmPessoa = u.Pessoa?.NmPessoa ?? u.NmPessoa,

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Usuario;
+using gstok_api.Exceptions;
 using gstok_api.Features.Usuario;
 using gstok_api.Middleware;
 
@@ -59,6 +60,10 @@ public class UsuarioController(IUsuarioService usuarioService) : ControllerBase
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Excluir(Guid id)
     {
+        var usuarioLogadoId = (Guid)HttpContext.Items[MiddlewareSessao.UserIdKey]!;
+        if (id == usuarioLogadoId)
+            throw new ExcecaoNegocio("Você não pode excluir seu próprio usuário.");
+
         var deleted = await usuarioService.ExcluirAsync(id);
         if (!deleted) return NotFound();
         return NoContent();

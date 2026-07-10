@@ -36,7 +36,7 @@ public class UsuarioService(
     public async Task<UsuarioSessaoDto?> ObterUsuarioSessaoAsync(Guid userId)
     {
         var usuario = await usuarioRepository.ObterPorIdAsync(userId);
-        return usuario is null ? null : UsuarioMapper.ParaMe(usuario);
+        return usuario is null ? null : UsuarioMapper.ParaUsuarioSessao(usuario);
     }
 
     public async Task<UsuarioResponseDto> CriarAdministrativoAsync(UsuarioAdminCreateDto dto)
@@ -141,13 +141,42 @@ public class UsuarioService(
             };
         }
 
-        var pessoaDados = new PessoaModel
+        PessoaModel? pessoaDados = null;
+
+        if (usuario.Pessoa is not null)
         {
-            NmPessoa = dto.NmPessoa,
-            NmSobrenome = dto.NmSobrenome,
-            NmTelefone = dto.NmTelefone,
-            NmEmailContato = dto.NmEmailContato
-        };
+            // Atualiza Pessoa existente; preserva valores atuais quando campo não foi enviado
+            pessoaDados = new PessoaModel
+            {
+                NmPessoa    = dto.NmPessoa,
+                NmSobrenome = dto.NmSobrenome    ?? usuario.Pessoa.NmSobrenome,
+                NmTelefone  = dto.NmTelefone     ?? usuario.Pessoa.NmTelefone,
+                NmEmailContato = dto.NmEmailContato ?? usuario.Pessoa.NmEmailContato
+            };
+        }
+        else if (!string.IsNullOrWhiteSpace(dto.CdInscricaoNacional))
+        {
+            // Cria Pessoa para usuário simples; exige campos obrigatórios no payload
+            if (string.IsNullOrWhiteSpace(dto.NmSobrenome))
+                throw new ExcecaoNegocio("Sobrenome é obrigatório para vincular dados pessoais.");
+            if (string.IsNullOrWhiteSpace(dto.NmTelefone))
+                throw new ExcecaoNegocio("Telefone é obrigatório para vincular dados pessoais.");
+            if (string.IsNullOrWhiteSpace(dto.NmEmailContato))
+                throw new ExcecaoNegocio("E-mail de contato é obrigatório para vincular dados pessoais.");
+
+            pessoaDados = new PessoaModel
+            {
+                IdPessoa           = Guid.CreateVersion7(),
+                TpPessoa           = TipoPessoa.F,
+                CdInscricaoNacional = dto.CdInscricaoNacional,
+                NmPessoa           = dto.NmPessoa,
+                NmSobrenome        = dto.NmSobrenome,
+                NmTelefone         = dto.NmTelefone,
+                NmEmailContato     = dto.NmEmailContato,
+                TsCriacao          = DateTime.UtcNow
+            };
+        }
+        // else: usuário sem Pessoa e sem CPF → apenas NmEmail e NmPessoa são atualizados
 
         var atualizado = await usuarioRepository.AtualizarComPessoaAsync(id, email, dto.NmPessoa, pessoaDados, novaFoto);
         if (atualizado is null) return null;

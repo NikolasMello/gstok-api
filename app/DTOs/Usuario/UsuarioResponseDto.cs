@@ -8,8 +8,8 @@ public class UsuarioResponseDto
     public string? CdInscricaoNacional { get; set; }
     public string NmPessoa { get; set; } = string.Empty;
     public string? NmSobrenome { get; set; }
+    public string? NmEmailContato { get; set; } = string.Empty;
     public string? NmTelefone { get; set; }
-    public string? NmEmailContato { get; set; }
     public FotoPessoaResponseDto? Foto { get; set; }
     public DateTime TsCriacao { get; set; }
 }
