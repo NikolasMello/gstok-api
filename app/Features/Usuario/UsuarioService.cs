@@ -33,12 +33,6 @@ public class UsuarioService(
         return usuario is null ? null : UsuarioMapper.ParaResposta(usuario);
     }
 
-    public async Task<UsuarioSessaoDto?> ObterUsuarioSessaoAsync(Guid userId)
-    {
-        var usuario = await usuarioRepository.ObterPorIdAsync(userId);
-        return usuario is null ? null : UsuarioMapper.ParaUsuarioSessao(usuario);
-    }
-
     public async Task<UsuarioResponseDto> CriarAdministrativoAsync(UsuarioAdminCreateDto dto)
     {
         var email = dto.NmEmail.ToLowerInvariant();

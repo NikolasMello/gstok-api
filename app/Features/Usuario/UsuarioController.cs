@@ -18,15 +18,6 @@ public class UsuarioController(IUsuarioService usuarioService) : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("sessao")]
-    public async Task<IActionResult> ObterUsuarioSessao()
-    {
-        var userId = (Guid)HttpContext.Items[MiddlewareSessao.UserIdKey]!;
-        var result = await usuarioService.ObterUsuarioSessaoAsync(userId);
-        if (result is null) return NotFound();
-        return Ok(result);
-    }
-
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> ObterPorId(Guid id)
     {

@@ -12,6 +12,7 @@ using gstok_api.Features.Auth;
 using gstok_api.Features.Pessoa;
 using gstok_api.Features.ImagemProduto;
 using gstok_api.Features.Produto;
+using gstok_api.Features.Sessao;
 using gstok_api.Features.Usuario;
 using gstok_api.Features.Estoque;
 using gstok_api.Features.Pedido;
@@ -77,6 +78,7 @@ public static class ServiceExtensions
         services.AddScoped<IImagemProdutoService, ImagemProdutoService>();
         services.AddScoped<IUsuarioRepository, UsuarioRepository>();
         services.AddScoped<IUsuarioService, UsuarioService>();
+        services.AddScoped<ISessaoService, SessaoService>();
         services.AddScoped<IEstoqueRepository, EstoqueRepository>();
         services.AddScoped<IEstoqueService, EstoqueService>();
         services.AddScoped<IPedidoRepository, PedidoRepository>();

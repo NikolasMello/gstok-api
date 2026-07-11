@@ -53,6 +53,40 @@ public class PessoaRepository(AppDbContext context) : IPessoaRepository
         return existing;
     }
 
+    public async Task<PessoaModel?> AtualizarComFotoAsync(Guid id, PessoaModel pessoaDados, FotoPessoaModel? novaFoto)
+    {
+        var existing = await context.Pessoas
+            .Include(p => p.Foto)
+            .FirstOrDefaultAsync(p => p.IdPessoa == id);
+        if (existing is null) return null;
+
+        existing.NmPessoa = pessoaDados.NmPessoa;
+        existing.NmSobrenome = pessoaDados.NmSobrenome;
+        existing.NmTelefone = pessoaDados.NmTelefone;
+        existing.NmEmailContato = pessoaDados.NmEmailContato;
+        existing.TsEdicao = DateTime.UtcNow;
+
+        if (novaFoto is not null)
+        {
+            if (existing.Foto is not null)
+            {
+                existing.Foto.NmImagem = novaFoto.NmImagem;
+                existing.Foto.UrImagem = novaFoto.UrImagem;
+                existing.Foto.NrLargura = novaFoto.NrLargura;
+                existing.Foto.NrAltura = novaFoto.NrAltura;
+                existing.Foto.TsEdicao = DateTime.UtcNow;
+            }
+            else
+            {
+                novaFoto.PessoaId = existing.IdPessoa;
+                context.FotosPessoa.Add(novaFoto);
+            }
+        }
+
+        await context.SaveChangesAsync();
+        return existing;
+    }
+
     public async Task<bool> ExcluirAsync(Guid id)
     {
         var existing = await context.Pessoas.FindAsync(id);
