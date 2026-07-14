@@ -17,6 +17,8 @@ public static class ProdutoMapper
         VlVenda = p.VlVenda,
         TipoProdutoId = p.TipoProdutoId,
         NmTipo = p.TipoProduto?.NmTipo,
+        ColecaoId = p.ColecaoId,
+        NmColecao = p.Colecao?.NmColecao,
         TpEstacao = p.TpEstacao,
         FlAtivo = p.FlAtivo,
         TsCriacao = p.TsCriacao,
@@ -26,4 +28,28 @@ public static class ProdutoMapper
             .Select(ImagemProdutoMapper.ParaResposta)
             .ToList()
     };
+
+    public static ProdutoResumoResponseDto ParaResumo(ProdutoModel p)
+    {
+        var principal = p.Imagens
+            .OrderBy(i => i.SqOrdem)
+            .FirstOrDefault(i => i.FlPrincipal) ?? p.Imagens.OrderBy(i => i.SqOrdem).FirstOrDefault();
+
+        return new ProdutoResumoResponseDto
+        {
+            Id = p.Id,
+            NmProduto = p.NmProduto,
+            NmMarca = p.NmMarca,
+            VlVenda = p.VlVenda,
+            NmTipo = p.TipoProduto?.NmTipo,
+            IdColecao = p.ColecaoId,
+            NmColecao = p.Colecao?.NmColecao,
+            IdFornecedor = p.Colecao?.FornecedorId ?? Guid.Empty,
+            TpEstacao = p.TpEstacao,
+            TsCriacao = p.TsCriacao,
+            Avatar = principal is null
+                ? null!
+                : new ImageVariante { Url = principal.UrAvatar, Largura = principal.NrLarguraAvatar, Altura = principal.NrAlturaAvatar }
+        };
+    }
 }

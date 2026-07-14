@@ -37,7 +37,7 @@ NmEmail        →   nm_email
 DsSenha        →   ds_senha
 VlTotal        →   vl_total
 TsCriacao      →   ts_criacao
-StPedido       →   st_pedido
+StVenda       →   st_venda
 ```
 
 A regra se aplica tanto ao body de entrada (`[FromBody]`) quanto às respostas. **Nunca adicione `[JsonPropertyName]`** nos DTOs — a política global cobre todos os casos.
@@ -47,7 +47,7 @@ A regra se aplica tanto ao body de entrada (`[FromBody]`) quanto às respostas. 
 Enums sempre trafegam como **string** em ambas as direções:
 
 ```json
-{ "st_pedido": "Confirmado", "tp_pagamento": "Pix" }
+{ "st_venda": "Confirmado", "tp_pagamento": "Pix" }
 ```
 
 Nunca como inteiro. Isso vale para requests e responses.
@@ -195,7 +195,7 @@ Todas as propriedades de entidades e DTOs usam um prefixo de 2 letras que identi
 | `Pc` | Percentual / taxa | `decimal` | `pc_desconto` |
 | `Dt` | Data (sem hora) | `DateOnly` | `dt_nascimento` |
 | `Ts` | Timestamp UTC (data + hora) | `DateTime` | `ts_criacao` |
-| `St` | Status | `enum` | `st_pedido` |
+| `St` | Status | `enum` | `st_venda` |
 | `Tp` | Tipo / categoria | `enum` | `tp_pagamento` |
 | `Fl` / `In` | Flag / indicador booleano | `bool` | `fl_ativo` |
 
@@ -203,5 +203,5 @@ Todas as propriedades de entidades e DTOs usam um prefixo de 2 letras que identi
 
 - **Chave primária:** `Id<Entidade>` — ex.: `IdProduto`, `IdCliente`
 - **Chave estrangeira:** `<Entidade>Id` — ex.: `ProdutoId`, `ClienteId` (sem prefixo semântico)
-- **Propriedades de navegação EF Core:** sem prefixo — ex.: `Produto`, `ICollection<ItemPedido>`
+- **Propriedades de navegação EF Core:** sem prefixo — ex.: `Produto`, `ICollection<ItemVenda>`
 - **Timestamps de auditoria:** `TsCriacao` (`DateTime`, UTC, obrigatório) e `TsEdicao` (`DateTime?`, UTC, nullable)

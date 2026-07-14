@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace gstok_api.DTOs.Pedido;
+namespace gstok_api.DTOs.Venda;
 
-public class ItemPedidoAddDto
+public class ItemVendaAddDto
 {
     [Required]
     public Guid EstoqueId { get; set; }

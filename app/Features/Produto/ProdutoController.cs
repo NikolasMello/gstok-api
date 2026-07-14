@@ -9,9 +9,9 @@ namespace gstok_api.Controllers;
 public class ProdutoController(IProdutoService produtoService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> ObterTodos([FromQuery] PaginationParams pagination)
+    public async Task<IActionResult> ObterTodos([FromQuery] PaginationParams pagination, [FromQuery] ProdutoFiltroDto filtro)
     {
-        var result = await produtoService.ObterTodosAsync(pagination);
+        var result = await produtoService.ObterTodosAsync(pagination, filtro);
         return Ok(result);
     }
 

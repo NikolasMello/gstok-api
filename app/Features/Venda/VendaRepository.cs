@@ -3,13 +3,13 @@ using gstok_api.Database;
 using gstok_api.DTOs;
 using gstok_api.Models;
 
-namespace gstok_api.Features.Pedido;
+namespace gstok_api.Features.Venda;
 
-public class PedidoRepository(AppDbContext context) : IPedidoRepository
+public class VendaRepository(AppDbContext context) : IVendaRepository
 {
-    public async Task<PagedResult<PedidoModel>> ObterTodosAsync(PaginationParams pagination)
+    public async Task<PagedResult<VendaModel>> ObterTodosAsync(PaginationParams pagination)
     {
-        var query = context.Pedidos
+        var query = context.Vendas
             .OrderByDescending(p => p.TsCriacao)
             .AsQueryable();
 
@@ -19,7 +19,7 @@ public class PedidoRepository(AppDbContext context) : IPedidoRepository
             .Take(pagination.PageSize)
             .ToListAsync();
 
-        return new PagedResult<PedidoModel>
+        return new PagedResult<VendaModel>
         {
             Items = items,
             TotalCount = total,
@@ -28,12 +28,12 @@ public class PedidoRepository(AppDbContext context) : IPedidoRepository
         };
     }
 
-    public Task<PedidoModel?> ObterPorIdAsync(Guid id) =>
-        context.Pedidos
+    public Task<VendaModel?> ObterPorIdAsync(Guid id) =>
+        context.Vendas
             .Include(p => p.Itens)
                 .ThenInclude(i => i.Estoque)
                     .ThenInclude(e => e.Produto)
-            .FirstOrDefaultAsync(p => p.IdPedido == id);
+            .FirstOrDefaultAsync(p => p.IdVenda == id);
 
     public Task<bool> ClienteExisteAsync(Guid clienteId) =>
         context.Clientes.AnyAsync(c => c.IdCliente == clienteId);
@@ -43,31 +43,31 @@ public class PedidoRepository(AppDbContext context) : IPedidoRepository
             .Include(e => e.Produto)
             .FirstOrDefaultAsync(e => e.Id == estoqueId);
 
-    public Task<ItemPedidoModel?> ObterItemPorIdAsync(Guid pedidoId, Guid itemId) =>
-        context.ItensPedido
+    public Task<VendaItemModel?> ObterItemPorIdAsync(Guid vendaId, Guid itemId) =>
+        context.ItensVenda
             .Include(i => i.Estoque)
                 .ThenInclude(e => e.Produto)
-            .FirstOrDefaultAsync(i => i.IdItemPedido == itemId && i.PedidoId == pedidoId);
+            .FirstOrDefaultAsync(i => i.IdItemVenda == itemId && i.VendaId == vendaId);
 
-    public async Task<PedidoModel> CriarAsync(PedidoModel pedido)
+    public async Task<VendaModel> CriarAsync(VendaModel venda)
     {
-        context.Pedidos.Add(pedido);
+        context.Vendas.Add(venda);
         await context.SaveChangesAsync();
-        return pedido;
+        return venda;
     }
 
     public async Task<bool> ExcluirAsync(Guid id)
     {
-        var pedido = await context.Pedidos.FindAsync(id);
-        if (pedido is null) return false;
+        var venda = await context.Vendas.FindAsync(id);
+        if (venda is null) return false;
 
-        context.Pedidos.Remove(pedido);
+        context.Vendas.Remove(venda);
         await context.SaveChangesAsync();
         return true;
     }
 
-    public void RemoverItem(ItemPedidoModel item) =>
-        context.ItensPedido.Remove(item);
+    public void RemoverItem(VendaItemModel item) =>
+        context.ItensVenda.Remove(item);
 
     public Task SalvarAsync() => context.SaveChangesAsync();
 }

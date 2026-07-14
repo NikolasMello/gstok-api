@@ -1,12 +1,12 @@
 using gstok_api.Enums;
 
-namespace gstok_api.DTOs.Pedido;
+namespace gstok_api.DTOs.Venda;
 
-public class PedidoResponseDto
+public class VendaResponseDto
 {
-    public Guid IdPedido { get; set; }
+    public Guid IdVenda { get; set; }
     public Guid ClienteId { get; set; }
-    public StatusPedido StPedido { get; set; }
+    public StatusVenda StVenda { get; set; }
     public StatusPagamento StPagamento { get; set; }
     public TipoPagamento TpPagamento { get; set; }
     public decimal VlSubtotal { get; set; }
@@ -15,12 +15,12 @@ public class PedidoResponseDto
     public decimal VlTotal { get; set; }
     public DateTime TsCriacao { get; set; }
     public DateTime? TsEdicao { get; set; }
-    public List<ItemPedidoResponseDto> Itens { get; set; } = [];
+    public List<ItemVendaResponseDto> Itens { get; set; } = [];
 }
 
-public class ItemPedidoResponseDto
+public class ItemVendaResponseDto
 {
-    public Guid IdItemPedido { get; set; }
+    public Guid IdItemVenda { get; set; }
     public Guid EstoqueId { get; set; }
     public string NmProduto { get; set; } = string.Empty;
     public TamanhoRoupa TpTamanho { get; set; }

@@ -4,21 +4,21 @@ using gstok_api.Enums;
 
 namespace gstok_api.Models;
 
-[Table("pedido")]
-public class PedidoModel
+[Table("venda")]
+public class VendaModel
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Column("id_pedido")]
-    public Guid IdPedido { get; set; }
+    [Column("id_venda")]
+    public Guid IdVenda { get; set; }
 
     [Required]
     [Column("cliente_id")]
     public Guid ClienteId { get; set; }
 
     [Required]
-    [Column("st_pedido")]
-    public StatusPedido StPedido { get; set; }
+    [Column("st_venda")]
+    public StatusVenda StVenda { get; set; }
 
     [Required]
     [Column("st_pagamento")]
@@ -51,5 +51,5 @@ public class PedidoModel
     public DateTime? TsEdicao { get; set; }
 
     public ClienteModel Cliente { get; set; } = null!;
-    public ICollection<ItemPedidoModel> Itens { get; set; } = [];
+    public ICollection<VendaItemModel> Itens { get; set; } = [];
 }

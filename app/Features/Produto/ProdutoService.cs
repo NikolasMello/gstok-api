@@ -11,12 +11,12 @@ public class ProdutoService(
     IProdutoRepository produtoRepository,
     IImageProcessingService imageProcessingService) : IProdutoService
 {
-    public async Task<PagedResult<ProdutoResponseDto>> ObterTodosAsync(PaginationParams pagination)
+    public async Task<PagedResult<ProdutoResumoResponseDto>> ObterTodosAsync(PaginationParams pagination, ProdutoFiltroDto filtro)
     {
-        var result = await produtoRepository.ObterTodosAsync(pagination);
-        return new PagedResult<ProdutoResponseDto>
+        var result = await produtoRepository.ObterTodosAsync(pagination, filtro);
+        return new PagedResult<ProdutoResumoResponseDto>
         {
-            Items = result.Items.Select(ProdutoMapper.ParaResposta),
+            Items = result.Items.Select(ProdutoMapper.ParaResumo),
             Page = result.Page,
             PageSize = result.PageSize,
             TotalCount = result.TotalCount
@@ -53,6 +53,7 @@ public class ProdutoService(
             VlPreco = dto.VlPreco,
             VlVenda = dto.VlVenda,
             TipoProdutoId = dto.TipoProdutoId,
+            ColecaoId = dto.ColecaoId,
             TpEstacao = dto.TpEstacao,
             FlAtivo = true,
             TsCriacao = DateTime.UtcNow
@@ -103,6 +104,7 @@ public class ProdutoService(
             VlPreco = dto.VlPreco,
             VlVenda = dto.VlVenda,
             TipoProdutoId = dto.TipoProdutoId,
+            ColecaoId = dto.ColecaoId,
             TpEstacao = dto.TpEstacao,
             FlAtivo = dto.FlAtivo
         };

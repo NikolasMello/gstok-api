@@ -1,6 +1,6 @@
 namespace gstok_api.Enums;
 
-public enum StatusPedido
+public enum StatusVenda
 {
     Pendente,
     Confirmado,

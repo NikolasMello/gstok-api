@@ -1,9 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using gstok_api.Enums;
 
-namespace gstok_api.DTOs.Pedido;
+namespace gstok_api.DTOs.Venda;
 
-public class PedidoCreateDto
+public class VendaCreateDto
 {
     [Required]
     public Guid ClienteId { get; set; }
@@ -18,11 +18,11 @@ public class PedidoCreateDto
     public decimal VlDesconto { get; set; }
 
     [Required]
-    [MinLength(1, ErrorMessage = "O pedido deve conter pelo menos um item.")]
-    public List<ItemPedidoCreateDto> Itens { get; set; } = [];
+    [MinLength(1, ErrorMessage = "O venda deve conter pelo menos um item.")]
+    public List<ItemVendaCreateDto> Itens { get; set; } = [];
 }
 
-public class ItemPedidoCreateDto
+public class ItemVendaCreateDto
 {
     [Required]
     public Guid EstoqueId { get; set; }

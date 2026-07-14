@@ -13,6 +13,8 @@ public class ProdutoResponseDto
     public decimal VlVenda { get; set; }
     public Guid? TipoProdutoId { get; set; }
     public string? NmTipo { get; set; }
+    public Guid ColecaoId { get; set; }
+    public string? NmColecao { get; set; }
     public Estacao TpEstacao { get; set; }
     public bool FlAtivo { get; set; }
     public DateTime TsCriacao { get; set; }

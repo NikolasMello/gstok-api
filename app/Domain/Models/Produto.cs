@@ -42,6 +42,10 @@ public class ProdutoModel
     public Guid? TipoProdutoId { get; set; }
 
     [Required]
+    [Column("colecao_id")]
+    public Guid ColecaoId { get; set; }
+
+    [Required]
     [Column("tp_estacao")]
     public Estacao TpEstacao { get; set; }
 
@@ -55,6 +59,7 @@ public class ProdutoModel
     public DateTime? TsEdicao { get; set; }
 
     public TipoProdutoModel? TipoProduto { get; set; }
+    public ColecaoModel Colecao { get; set; } = null!;
     public ICollection<EstoqueModel> Estoques { get; set; } = [];
     public ICollection<ImagemProdutoModel> Imagens { get; set; } = [];
 }

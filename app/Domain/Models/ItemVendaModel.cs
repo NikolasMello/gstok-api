@@ -3,17 +3,17 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace gstok_api.Models;
 
-[Table("item_pedido")]
-public class ItemPedidoModel
+[Table("item_venda")]
+public class VendaItemModel
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-    [Column("id_item_pedido")]
-    public Guid IdItemPedido { get; set; }
+    [Column("id_item_venda")]
+    public Guid IdItemVenda { get; set; }
 
     [Required]
-    [Column("pedido_id")]
-    public Guid PedidoId { get; set; }
+    [Column("venda_id")]
+    public Guid VendaId { get; set; }
 
     [Required]
     [Column("estoque_id")]
@@ -38,6 +38,6 @@ public class ItemPedidoModel
     [Column("ts_edicao")]
     public DateTime? TsEdicao { get; set; }
 
-    public PedidoModel Pedido { get; set; } = null!;
+    public VendaModel Venda { get; set; } = null!;
     public EstoqueModel Estoque { get; set; } = null!;
 }

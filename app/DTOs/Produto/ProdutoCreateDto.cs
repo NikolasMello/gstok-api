@@ -30,6 +30,9 @@ public class ProdutoCreateDto
     public Guid? TipoProdutoId { get; set; }
 
     [Required]
+    public Guid ColecaoId { get; set; }
+
+    [Required]
     public Estacao TpEstacao { get; set; }
 
     // Arquivos das imagens (multipart/form-data)

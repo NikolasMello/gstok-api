@@ -242,20 +242,20 @@ namespace gstok_api.Migrations
                     b.ToTable("imagem_produto");
                 });
 
-            modelBuilder.Entity("gstok_api.Models.ItemPedidoModel", b =>
+            modelBuilder.Entity("gstok_api.Models.ItemVendaModel", b =>
                 {
-                    b.Property<Guid>("IdItemPedido")
+                    b.Property<Guid>("IdItemVenda")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("id_item_pedido");
+                        .HasColumnName("id_item_venda");
 
                     b.Property<Guid>("EstoqueId")
                         .HasColumnType("uuid")
                         .HasColumnName("estoque_id");
 
-                    b.Property<Guid>("PedidoId")
+                    b.Property<Guid>("VendaId")
                         .HasColumnType("uuid")
-                        .HasColumnName("pedido_id");
+                        .HasColumnName("venda_id");
 
                     b.Property<int>("QtQuantidade")
                         .HasColumnType("integer")
@@ -277,21 +277,21 @@ namespace gstok_api.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("vl_unitario");
 
-                    b.HasKey("IdItemPedido");
+                    b.HasKey("IdItemVenda");
 
                     b.HasIndex("EstoqueId");
 
-                    b.HasIndex("PedidoId");
+                    b.HasIndex("VendaId");
 
-                    b.ToTable("item_pedido");
+                    b.ToTable("item_venda");
                 });
 
-            modelBuilder.Entity("gstok_api.Models.PedidoModel", b =>
+            modelBuilder.Entity("gstok_api.Models.VendaModel", b =>
                 {
-                    b.Property<Guid>("IdPedido")
+                    b.Property<Guid>("IdVenda")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasColumnName("id_pedido");
+                        .HasColumnName("id_venda");
 
                     b.Property<Guid>("ClienteId")
                         .HasColumnType("uuid")
@@ -303,11 +303,11 @@ namespace gstok_api.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("st_pagamento");
 
-                    b.Property<string>("StPedido")
+                    b.Property<string>("StVenda")
                         .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("character varying(20)")
-                        .HasColumnName("st_pedido");
+                        .HasColumnName("st_venda");
 
                     b.Property<string>("TpPagamento")
                         .IsRequired()
@@ -339,11 +339,11 @@ namespace gstok_api.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("vl_total");
 
-                    b.HasKey("IdPedido");
+                    b.HasKey("IdVenda");
 
                     b.HasIndex("ClienteId");
 
-                    b.ToTable("pedido");
+                    b.ToTable("venda");
                 });
 
             modelBuilder.Entity("gstok_api.Models.PessoaModel", b =>
@@ -619,7 +619,7 @@ namespace gstok_api.Migrations
                     b.Navigation("Produto");
                 });
 
-            modelBuilder.Entity("gstok_api.Models.ItemPedidoModel", b =>
+            modelBuilder.Entity("gstok_api.Models.ItemVendaModel", b =>
                 {
                     b.HasOne("gstok_api.Models.EstoqueModel", "Estoque")
                         .WithMany()
@@ -627,21 +627,21 @@ namespace gstok_api.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("gstok_api.Models.PedidoModel", "Pedido")
+                    b.HasOne("gstok_api.Models.VendaModel", "Venda")
                         .WithMany("Itens")
-                        .HasForeignKey("PedidoId")
+                        .HasForeignKey("VendaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Estoque");
 
-                    b.Navigation("Pedido");
+                    b.Navigation("Venda");
                 });
 
-            modelBuilder.Entity("gstok_api.Models.PedidoModel", b =>
+            modelBuilder.Entity("gstok_api.Models.VendaModel", b =>
                 {
                     b.HasOne("gstok_api.Models.ClienteModel", "Cliente")
-                        .WithMany("Pedidos")
+                        .WithMany("Vendas")
                         .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -682,10 +682,10 @@ namespace gstok_api.Migrations
 
             modelBuilder.Entity("gstok_api.Models.ClienteModel", b =>
                 {
-                    b.Navigation("Pedidos");
+                    b.Navigation("Vendas");
                 });
 
-            modelBuilder.Entity("gstok_api.Models.PedidoModel", b =>
+            modelBuilder.Entity("gstok_api.Models.VendaModel", b =>
                 {
                     b.Navigation("Itens");
                 });

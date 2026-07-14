@@ -22,5 +22,6 @@ public class ClienteModel
     public DateTime? TsEdicao { get; set; }
 
     public PessoaModel Pessoa { get; set; } = null!;
-    public ICollection<PedidoModel> Pedidos { get; set; } = [];
+    public ContaClienteModel? ContaCliente { get; set; }
+    public ICollection<VendaModel> Compras { get; set; } = [];
 }

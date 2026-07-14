@@ -30,6 +30,9 @@ public class ProdutoUpdateDto
     public Guid? TipoProdutoId { get; set; }
 
     [Required]
+    public Guid ColecaoId { get; set; }
+
+    [Required]
     public Estacao TpEstacao { get; set; }
 
     public bool FlAtivo { get; set; } = true;

@@ -6,18 +6,18 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace gstok_api.Migrations
 {
     /// <inheritdoc />
-    public partial class AdicionarPedido : Migration
+    public partial class AdicionarVenda : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "pedido",
+                name: "venda",
                 columns: table => new
                 {
-                    id_pedido = table.Column<Guid>(type: "uuid", nullable: false),
+                    id_venda = table.Column<Guid>(type: "uuid", nullable: false),
                     cliente_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    st_pedido = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    st_venda = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     st_pagamento = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
                     tp_pagamento = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
                     vl_subtotal = table.Column<decimal>(type: "numeric", nullable: false),
@@ -29,9 +29,9 @@ namespace gstok_api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_pedido", x => x.id_pedido);
+                    table.PrimaryKey("PK_venda", x => x.id_venda);
                     table.ForeignKey(
-                        name: "FK_pedido_cliente_cliente_id",
+                        name: "FK_venda_cliente_cliente_id",
                         column: x => x.cliente_id,
                         principalTable: "cliente",
                         principalColumn: "id_cliente",
@@ -39,11 +39,11 @@ namespace gstok_api.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "item_pedido",
+                name: "item_venda",
                 columns: table => new
                 {
-                    id_item_pedido = table.Column<Guid>(type: "uuid", nullable: false),
-                    pedido_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    id_item_venda = table.Column<Guid>(type: "uuid", nullable: false),
+                    venda_id = table.Column<Guid>(type: "uuid", nullable: false),
                     estoque_id = table.Column<Guid>(type: "uuid", nullable: false),
                     qt_quantidade = table.Column<int>(type: "integer", nullable: false),
                     vl_unitario = table.Column<decimal>(type: "numeric", nullable: false),
@@ -53,34 +53,34 @@ namespace gstok_api.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_item_pedido", x => x.id_item_pedido);
+                    table.PrimaryKey("PK_item_venda", x => x.id_item_venda);
                     table.ForeignKey(
-                        name: "FK_item_pedido_estoque_estoque_id",
+                        name: "FK_item_venda_estoque_estoque_id",
                         column: x => x.estoque_id,
                         principalTable: "estoque",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_item_pedido_pedido_pedido_id",
-                        column: x => x.pedido_id,
-                        principalTable: "pedido",
-                        principalColumn: "id_pedido",
+                        name: "FK_item_venda_venda_venda_id",
+                        column: x => x.venda_id,
+                        principalTable: "venda",
+                        principalColumn: "id_venda",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_item_pedido_estoque_id",
-                table: "item_pedido",
+                name: "IX_item_venda_estoque_id",
+                table: "item_venda",
                 column: "estoque_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_item_pedido_pedido_id",
-                table: "item_pedido",
-                column: "pedido_id");
+                name: "IX_item_venda_venda_id",
+                table: "item_venda",
+                column: "venda_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_pedido_cliente_id",
-                table: "pedido",
+                name: "IX_venda_cliente_id",
+                table: "venda",
                 column: "cliente_id");
         }
 
@@ -88,10 +88,10 @@ namespace gstok_api.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "item_pedido");
+                name: "item_venda");
 
             migrationBuilder.DropTable(
-                name: "pedido");
+                name: "venda");
         }
     }
 }

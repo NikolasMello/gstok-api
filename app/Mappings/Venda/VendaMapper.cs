@@ -1,15 +1,15 @@
-using gstok_api.DTOs.Pedido;
+using gstok_api.DTOs.Venda;
 using gstok_api.Models;
 
-namespace gstok_api.Mappings.Pedido;
+namespace gstok_api.Mappings.Venda;
 
-public static class PedidoMapper
+public static class VendaMapper
 {
-    public static PedidoResponseDto ParaResposta(PedidoModel p) => new()
+    public static VendaResponseDto ParaResposta(VendaModel p) => new()
     {
-        IdPedido = p.IdPedido,
+        IdVenda = p.IdVenda,
         ClienteId = p.ClienteId,
-        StPedido = p.StPedido,
+        StVenda = p.StVenda,
         StPagamento = p.StPagamento,
         TpPagamento = p.TpPagamento,
         VlSubtotal = p.VlSubtotal,
@@ -21,9 +21,9 @@ public static class PedidoMapper
         Itens = p.Itens.Select(ParaItemResposta).ToList()
     };
 
-    public static ItemPedidoResponseDto ParaItemResposta(ItemPedidoModel i) => new()
+    public static ItemVendaResponseDto ParaItemResposta(VendaItemModel i) => new()
     {
-        IdItemPedido = i.IdItemPedido,
+        IdItemVenda = i.IdItemVenda,
         EstoqueId = i.EstoqueId,
         NmProduto = i.Estoque?.Produto?.NmProduto ?? string.Empty,
         TpTamanho = i.Estoque?.TpTamanho ?? default,

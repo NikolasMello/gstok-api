@@ -14,8 +14,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<TipoProdutoModel> TiposProduto { get; set; }
     public DbSet<FotoPessoaModel> FotosPessoa { get; set; }
     public DbSet<ClienteModel> Clientes { get; set; }
-    public DbSet<PedidoModel> Pedidos { get; set; }
-    public DbSet<ItemPedidoModel> ItensPedido { get; set; }
+    public DbSet<ContaClienteModel> ContasCliente { get; set; }
+    public DbSet<VendaModel> Vendas { get; set; }
+    public DbSet<VendaItemModel> ItensVenda { get; set; }
+    public DbSet<FornecedorModel> Fornecedores { get; set; }
+    public DbSet<ColecaoModel> Colecoes { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -98,37 +101,67 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasIndex(c => c.PessoaId)
             .IsUnique();
 
-        modelBuilder.Entity<PedidoModel>()
-            .Property(p => p.StPedido)
+        modelBuilder.Entity<ContaClienteModel>()
+            .HasOne(cc => cc.Cliente)
+            .WithOne(c => c.ContaCliente)
+            .HasForeignKey<ContaClienteModel>(cc => cc.ClienteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ContaClienteModel>()
+            .HasIndex(cc => cc.ClienteId)
+            .IsUnique();
+
+        modelBuilder.Entity<ContaClienteModel>()
+            .HasIndex(cc => cc.NmEmail)
+            .IsUnique();
+
+        modelBuilder.Entity<VendaModel>()
+            .Property(p => p.StVenda)
             .HasConversion<string>()
             .HasMaxLength(20);
 
-        modelBuilder.Entity<PedidoModel>()
+        modelBuilder.Entity<VendaModel>()
             .Property(p => p.StPagamento)
             .HasConversion<string>()
             .HasMaxLength(20);
 
-        modelBuilder.Entity<PedidoModel>()
+        modelBuilder.Entity<VendaModel>()
             .Property(p => p.TpPagamento)
             .HasConversion<string>()
             .HasMaxLength(10);
 
-        modelBuilder.Entity<PedidoModel>()
+        modelBuilder.Entity<VendaModel>()
             .HasOne(p => p.Cliente)
-            .WithMany(c => c.Pedidos)
+            .WithMany(c => c.Compras)
             .HasForeignKey(p => p.ClienteId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<ItemPedidoModel>()
-            .HasOne(i => i.Pedido)
+        modelBuilder.Entity<VendaItemModel>()
+            .HasOne(i => i.Venda)
             .WithMany(p => p.Itens)
-            .HasForeignKey(i => i.PedidoId)
+            .HasForeignKey(i => i.VendaId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.Entity<ItemPedidoModel>()
+        modelBuilder.Entity<VendaItemModel>()
             .HasOne(i => i.Estoque)
             .WithMany()
             .HasForeignKey(i => i.EstoqueId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<FornecedorModel>()
+            .HasIndex(f => f.CdCnpj)
+            .IsUnique();
+
+        modelBuilder.Entity<ColecaoModel>()
+            .HasOne(c => c.Fornecedor)
+            .WithMany(f => f.Colecoes)
+            .HasForeignKey(c => c.FornecedorId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ProdutoModel>()
+            .HasOne(p => p.Colecao)
+            .WithMany(c => c.Produtos)
+            .HasForeignKey(p => p.ColecaoId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

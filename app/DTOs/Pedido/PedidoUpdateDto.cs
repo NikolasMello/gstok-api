@@ -1,12 +1,12 @@
 using System.ComponentModel.DataAnnotations;
 using gstok_api.Enums;
 
-namespace gstok_api.DTOs.Pedido;
+namespace gstok_api.DTOs.Venda;
 
-public class PedidoUpdateDto
+public class VendaUpdateDto
 {
     [Required]
-    public StatusPedido StPedido { get; set; }
+    public StatusVenda StVenda { get; set; }
 
     [Required]
     public StatusPagamento StPagamento { get; set; }
