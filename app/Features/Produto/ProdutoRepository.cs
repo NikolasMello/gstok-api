@@ -12,7 +12,7 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
     {
         var query = context.Produtos
             .Include(p => p.TipoProduto)
-            .Include(p => p.Colecao)
+            .Include(p => p.Colecao).ThenInclude(c => c.Fornecedor)
             .Include(p => p.Imagens)
             .AsQueryable();
 
@@ -56,7 +56,7 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
     public async Task<ProdutoModel?> ObterPorIdAsync(Guid id) =>
         await context.Produtos
             .Include(p => p.TipoProduto)
-            .Include(p => p.Colecao)
+            .Include(p => p.Colecao).ThenInclude(c => c.Fornecedor)
             .Include(p => p.Imagens)
             .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -71,7 +71,7 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
     {
         var existing = await context.Produtos
             .Include(p => p.TipoProduto)
-            .Include(p => p.Colecao)
+            .Include(p => p.Colecao).ThenInclude(c => c.Fornecedor)
             .Include(p => p.Imagens)
             .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -80,7 +80,6 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
         existing.CdSku = produto.CdSku;
         existing.NmProduto = produto.NmProduto;
         existing.DsProduto = produto.DsProduto;
-        existing.NmMarca = produto.NmMarca;
         existing.VlPreco = produto.VlPreco;
         existing.VlVenda = produto.VlVenda;
         existing.TipoProdutoId = produto.TipoProdutoId;

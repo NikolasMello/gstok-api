@@ -24,10 +24,6 @@ public class ProdutoModel
     [Column("ds_produto")]
     public string? DsProduto { get; set; }
 
-    [MaxLength(100)]
-    [Column("nm_marca")]
-    public string? NmMarca { get; set; }
-
     [Required]
     [Range(0.01, double.MaxValue)]
     [Column("vl_preco")]

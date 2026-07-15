@@ -1,13 +1,16 @@
 using gstok_api.DTOs;
 using gstok_api.DTOs.Fornecedor;
 using gstok_api.Exceptions;
+using gstok_api.Features.Colecao;
 using gstok_api.Mappings.Fornecedor;
 using gstok_api.Models;
 
 namespace gstok_api.Features.Fornecedor;
 
-public class FornecedorService(IFornecedorRepository fornecedorRepository) : IFornecedorService
+public class FornecedorService(IFornecedorRepository fornecedorRepository, IColecaoRepository colecaoRepository) : IFornecedorService
 {
+    private const string NmColecaoAvulsoDefault = "Avulso";
+
     public async Task<PagedResult<FornecedorResponseDto>> ObterTodosAsync(PaginationParams pagination)
     {
         var result = await fornecedorRepository.ObterTodosAsync(pagination);
@@ -41,7 +44,17 @@ public class FornecedorService(IFornecedorRepository fornecedorRepository) : IFo
             TsCriacao = DateTime.UtcNow
         };
 
-        return FornecedorMapper.ParaResposta(await fornecedorRepository.CriarAsync(fornecedor));
+        var criado = await fornecedorRepository.CriarAsync(fornecedor);
+
+        await colecaoRepository.CriarAsync(new ColecaoModel
+        {
+            IdColecao = Guid.CreateVersion7(),
+            FornecedorId = criado.IdFornecedor,
+            NmColecao = NmColecaoAvulsoDefault,
+            TsCriacao = DateTime.UtcNow
+        });
+
+        return FornecedorMapper.ParaResposta(criado);
     }
 
     public async Task<FornecedorResponseDto?> AtualizarAsync(Guid id, FornecedorUpdateDto dto)

@@ -16,9 +16,6 @@ public class ProdutoCreateDto
     [MaxLength(500)]
     public string? DsProduto { get; set; }
 
-    [MaxLength(100)]
-    public string? NmMarca { get; set; }
-
     [Required]
     [Range(0.01, double.MaxValue)]
     public decimal VlPreco { get; set; }

@@ -12,7 +12,7 @@ public static class ProdutoMapper
         CdSku = p.CdSku,
         NmProduto = p.NmProduto,
         DsProduto = p.DsProduto,
-        NmMarca = p.NmMarca,
+        NmMarca = p.Colecao?.Fornecedor?.NmMarca,
         VlPreco = p.VlPreco,
         VlVenda = p.VlVenda,
         TipoProdutoId = p.TipoProdutoId,
@@ -39,7 +39,7 @@ public static class ProdutoMapper
         {
             Id = p.Id,
             NmProduto = p.NmProduto,
-            NmMarca = p.NmMarca,
+            NmMarca = p.Colecao?.Fornecedor?.NmMarca,
             VlVenda = p.VlVenda,
             NmTipo = p.TipoProduto?.NmTipo,
             IdColecao = p.ColecaoId,
