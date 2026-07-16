@@ -8,8 +8,8 @@ public static class ProdutoMapper
 {
     public static ProdutoResponseDto ParaResposta(ProdutoModel p) => new()
     {
-        Id = p.Id,
-        CdSku = p.CdSku,
+        IdProduto = p.IdProduto,
+        CdEan = p.CdEan,
         NmProduto = p.NmProduto,
         DsProduto = p.DsProduto,
         NmMarca = p.Colecao?.Fornecedor?.NmMarca,
@@ -37,7 +37,7 @@ public static class ProdutoMapper
 
         return new ProdutoResumoResponseDto
         {
-            Id = p.Id,
+            IdProduto = p.IdProduto,
             NmProduto = p.NmProduto,
             NmMarca = p.Colecao?.Fornecedor?.NmMarca,
             VlVenda = p.VlVenda,

@@ -95,7 +95,7 @@ All entity properties use a 2-letter semantic prefix (PascalCase). See [README.m
 | `Nr` | Numeric measurement (dimensions, counts) | `int` |
 | `Sq` | Sequence/ordering position | `int` |
 
-Primary keys use `Id` without a prefix. Foreign keys use `<EntityName>Id`. Navigation properties have no prefix.
+Primary keys use `Id<EntityName>` (e.g. `IdProduto`, `IdColecao`). Foreign keys use `<EntityName>Id`. Navigation properties have no prefix.
 
 ## Related project
 

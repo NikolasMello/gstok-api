@@ -7,13 +7,15 @@ namespace gstok_api.Models;
 [Table("produto")]
 public class ProdutoModel
 {
-    [Column("id")]
-    public Guid Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Column("id_produto")]
+    public Guid IdProduto { get; set; }
 
     [Required]
-    [MaxLength(50)]
-    [Column("cd_sku")]
-    public string CdSku { get; set; } = string.Empty;
+    [MaxLength(13)]
+    [Column("cd_ean")]
+    public string CdEan { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(150)]

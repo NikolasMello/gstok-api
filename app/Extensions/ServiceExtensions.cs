@@ -18,6 +18,7 @@ using gstok_api.Features.Estoque;
 using gstok_api.Features.Venda;
 using gstok_api.Features.Fornecedor;
 using gstok_api.Features.Colecao;
+using gstok_api.Common.ModelBinding;
 using gstok_api.Common.Services;
 using gstok_api.Repositories;
 using gstok_api.Services;
@@ -42,7 +43,11 @@ public static class ServiceExtensions
             o.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
-        services.AddControllers(o => o.Conventions.Add(new RotaPrefixoConvencao("api/v1")))
+        services.AddControllers(o =>
+                {
+                    o.Conventions.Add(new RotaPrefixoConvencao("api/v1"));
+                    o.ValueProviderFactories.Add(new SnakeCaseFormValueProviderFactory());
+                })
                 .AddJsonOptions(o =>
                 {
                     o.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower;

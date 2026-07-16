@@ -10,5 +10,5 @@ public class ProdutoFiltroDto
     public Guid? IdFornecedor { get; set; }
     public Estacao? TpEstacao { get; set; }
     public bool? FlAtivo { get; set; }
-    public string? CdSku { get; set; }
+    public string? CdEan { get; set; }
 }

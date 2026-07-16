@@ -34,6 +34,8 @@ public class FornecedorService(IFornecedorRepository fornecedorRepository, ICole
         if (await fornecedorRepository.CnpjExisteAsync(dto.CdCnpj))
             throw new ConflitoException("CNPJ já cadastrado.");
 
+        var nomesColecoes = MontarNomesColecoes(dto.NmColecoes);
+
         var fornecedor = new FornecedorModel
         {
             IdFornecedor = Guid.CreateVersion7(),
@@ -46,15 +48,35 @@ public class FornecedorService(IFornecedorRepository fornecedorRepository, ICole
 
         var criado = await fornecedorRepository.CriarAsync(fornecedor);
 
-        await colecaoRepository.CriarAsync(new ColecaoModel
+        await colecaoRepository.CriarVariosAsync(nomesColecoes.Select(nome => new ColecaoModel
         {
             IdColecao = Guid.CreateVersion7(),
             FornecedorId = criado.IdFornecedor,
-            NmColecao = NmColecaoAvulsoDefault,
+            NmColecao = nome,
             TsCriacao = DateTime.UtcNow
-        });
+        }));
 
         return FornecedorMapper.ParaResposta(criado);
+    }
+
+    private static List<string> MontarNomesColecoes(List<string> nomes)
+    {
+        var nomesTratados = nomes
+            .Select(n => n.Trim())
+            .Where(n => n.Length > 0)
+            .ToList();
+
+        var temDuplicados = nomesTratados
+            .GroupBy(n => n.ToLower())
+            .Any(g => g.Count() > 1);
+
+        if (temDuplicados)
+            throw new ConflitoException("Nomes de coleção não podem se repetir.");
+
+        if (!nomesTratados.Any(n => string.Equals(n, NmColecaoAvulsoDefault, StringComparison.OrdinalIgnoreCase)))
+            nomesTratados.Add(NmColecaoAvulsoDefault);
+
+        return nomesTratados;
     }
 
     public async Task<FornecedorResponseDto?> AtualizarAsync(Guid id, FornecedorUpdateDto dto)

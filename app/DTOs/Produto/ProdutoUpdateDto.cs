@@ -6,8 +6,8 @@ namespace gstok_api.DTOs;
 public class ProdutoUpdateDto
 {
     [Required]
-    [MaxLength(50)]
-    public string CdSku { get; set; } = string.Empty;
+    [MaxLength(13)]
+    public string CdEan { get; set; } = string.Empty;
 
     [Required]
     [MaxLength(150)]

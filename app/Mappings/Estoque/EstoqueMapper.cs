@@ -7,7 +7,7 @@ public static class EstoqueMapper
 {
     public static EstoqueResponseDto ParaResposta(EstoqueModel e) => new()
     {
-        Id = e.Id,
+        IdEstoque = e.IdEstoque,
         ProdutoId = e.ProdutoId,
         QtEstoque = e.QtEstoque,
         TpTamanho = e.TpTamanho,

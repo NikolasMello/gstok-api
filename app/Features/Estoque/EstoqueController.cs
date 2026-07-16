@@ -26,7 +26,7 @@ public class EstoqueController(IEstoqueService estoqueService) : ControllerBase
     public async Task<IActionResult> Criar(Guid produtoId, [FromBody] EstoqueCreateDto dto)
     {
         var result = await estoqueService.CriarAsync(produtoId, dto);
-        return CreatedAtAction(nameof(ObterPorId), new { produtoId, id = result.Id }, result);
+        return CreatedAtAction(nameof(ObterPorId), new { produtoId, id = result.IdEstoque }, result);
     }
 
     [HttpPut("{id:guid}")]

@@ -7,8 +7,10 @@ namespace gstok_api.Models;
 [Table("estoque")]
 public class EstoqueModel
 {
-    [Column("id")]
-    public Guid Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Column("id_estoque")]
+    public Guid IdEstoque { get; set; }
 
     [Column("produto_id")]
     public Guid ProdutoId { get; set; }

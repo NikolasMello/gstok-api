@@ -26,7 +26,7 @@ public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueServ
 
         var estoque = new EstoqueModel
         {
-            Id = Guid.CreateVersion7(),
+            IdEstoque = Guid.CreateVersion7(),
             ProdutoId = produtoId,
             QtEstoque = dto.QtEstoque,
             TpTamanho = dto.TpTamanho,

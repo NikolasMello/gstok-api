@@ -21,12 +21,24 @@ public class ColecaoRepository(AppDbContext context) : IColecaoRepository
     public Task<bool> FornecedorExisteAsync(Guid fornecedorId) =>
         context.Fornecedores.AnyAsync(f => f.IdFornecedor == fornecedorId);
 
+    public Task<bool> NomeExisteAsync(Guid fornecedorId, string nome, Guid? excetoId = null) =>
+        context.Colecoes.AnyAsync(c =>
+            c.FornecedorId == fornecedorId &&
+            c.NmColecao.ToLower() == nome.ToLower() &&
+            c.IdColecao != excetoId);
+
     public async Task<ColecaoModel> CriarAsync(ColecaoModel colecao)
     {
         context.Colecoes.Add(colecao);
         await context.SaveChangesAsync();
         await context.Entry(colecao).Reference(c => c.Fornecedor).LoadAsync();
         return colecao;
+    }
+
+    public async Task CriarVariosAsync(IEnumerable<ColecaoModel> colecoes)
+    {
+        context.Colecoes.AddRange(colecoes);
+        await context.SaveChangesAsync();
     }
 
     public async Task<ColecaoModel?> AtualizarAsync(Guid id, ColecaoModel colecao)

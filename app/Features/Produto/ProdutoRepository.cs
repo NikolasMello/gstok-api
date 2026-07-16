@@ -34,8 +34,8 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
         if (filtro.FlAtivo.HasValue)
             query = query.Where(p => p.FlAtivo == filtro.FlAtivo.Value);
 
-        if (!string.IsNullOrWhiteSpace(filtro.CdSku))
-            query = query.Where(p => p.CdSku.ToLower().Contains(filtro.CdSku.ToLower()));
+        if (!string.IsNullOrWhiteSpace(filtro.CdEan))
+            query = query.Where(p => p.CdEan.ToLower().Contains(filtro.CdEan.ToLower()));
 
         var totalCount = await query.CountAsync();
         var items = await query
@@ -58,7 +58,13 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
             .Include(p => p.TipoProduto)
             .Include(p => p.Colecao).ThenInclude(c => c.Fornecedor)
             .Include(p => p.Imagens)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync(p => p.IdProduto == id);
+
+    public Task<bool> ColecaoExisteAsync(Guid id) =>
+        context.Colecoes.AnyAsync(c => c.IdColecao == id);
+
+    public Task<bool> TipoProdutoExisteAsync(Guid id) =>
+        context.TiposProduto.AnyAsync(t => t.IdTipoProduto == id);
 
     public async Task<ProdutoModel> CriarAsync(ProdutoModel produto)
     {
@@ -73,11 +79,11 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
             .Include(p => p.TipoProduto)
             .Include(p => p.Colecao).ThenInclude(c => c.Fornecedor)
             .Include(p => p.Imagens)
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .FirstOrDefaultAsync(p => p.IdProduto == id);
 
         if (existing is null) return null;
 
-        existing.CdSku = produto.CdSku;
+        existing.CdEan = produto.CdEan;
         existing.NmProduto = produto.NmProduto;
         existing.DsProduto = produto.DsProduto;
         existing.VlPreco = produto.VlPreco;

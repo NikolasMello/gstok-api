@@ -4,8 +4,8 @@ namespace gstok_api.DTOs;
 
 public class ProdutoResponseDto
 {
-    public Guid Id { get; set; }
-    public string CdSku { get; set; } = string.Empty;
+    public Guid IdProduto { get; set; }
+    public string CdEan { get; set; } = string.Empty;
     public string NmProduto { get; set; } = string.Empty;
     public string? DsProduto { get; set; }
     public string? NmMarca { get; set; }

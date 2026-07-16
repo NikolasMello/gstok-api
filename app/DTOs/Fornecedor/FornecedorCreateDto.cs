@@ -19,4 +19,6 @@ public class FornecedorCreateDto
 
     [MaxLength(100)]
     public string? NmMarca { get; set; }
+
+    public List<string> NmColecoes { get; set; } = [];
 }

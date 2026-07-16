@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.OpenApi;
 using Scalar.AspNetCore;
 
@@ -29,10 +30,47 @@ public static class DocsExtensions
                 });
                 return Task.CompletedTask;
             });
+
+            // O gerador de OpenAPI respeita a política snake_case configurada
+            // apenas para corpos JSON. Parâmetros de query e schemas de
+            // form-data (usados nos endpoints com upload de imagem) saem em
+            // PascalCase cru. Este transformer alinha a documentação ao nome
+            // que o SnakeCaseFormValueProvider já aceita em runtime.
+            options.AddOperationTransformer((operation, _, _) =>
+            {
+                if (operation.Parameters is not null)
+                {
+                    foreach (var parametro in operation.Parameters
+                                 .OfType<OpenApiParameter>()
+                                 .Where(p => p.In == ParameterLocation.Query))
+                        parametro.Name = ParaSnakeCase(parametro.Name!);
+                }
+
+                if (operation.RequestBody?.Content is not null)
+                {
+                    foreach (var mediaType in operation.RequestBody.Content.Values)
+                        RenomearPropriedadesParaSnakeCase(mediaType.Schema);
+                }
+
+                return Task.CompletedTask;
+            });
         });
 
         return services;
     }
+
+    private static void RenomearPropriedadesParaSnakeCase(IOpenApiSchema? schema)
+    {
+        if (schema is not OpenApiSchema concreta || concreta.Properties is null) return;
+
+        concreta.Properties = concreta.Properties
+            .ToDictionary(p => ParaSnakeCase(p.Key), p => p.Value);
+
+        if (concreta.Required is { Count: > 0 })
+            concreta.Required = concreta.Required.Select(ParaSnakeCase).ToHashSet();
+    }
+
+    private static string ParaSnakeCase(string nome) => JsonNamingPolicy.SnakeCaseLower.ConvertName(nome);
 
     public static WebApplication MapDocs(this WebApplication app)
     {

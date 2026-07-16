@@ -50,7 +50,7 @@ public class VendaService(IVendaRepository vendaRepository, ILogger<VendaService
             itensModel.Add(new VendaItemModel
             {
                 IdItemVenda = Guid.CreateVersion7(),
-                EstoqueId = estoque.Id,
+                EstoqueId = estoque.IdEstoque,
                 QtQuantidade = itemDto.QtQuantidade,
                 VlUnitario = vlUnitario,
                 VlTotal = vlUnitario * itemDto.QtQuantidade,
@@ -127,7 +127,7 @@ public class VendaService(IVendaRepository vendaRepository, ILogger<VendaService
         {
             IdItemVenda = Guid.CreateVersion7(),
             VendaId = vendaId,
-            EstoqueId = estoque.Id,
+            EstoqueId = estoque.IdEstoque,
             QtQuantidade = dto.QtQuantidade,
             VlUnitario = vlUnitario,
             VlTotal = vlUnitario * dto.QtQuantidade,

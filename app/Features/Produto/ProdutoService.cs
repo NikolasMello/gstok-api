@@ -34,19 +34,16 @@ public class ProdutoService(
         if (dto.Imagens.Count == 0)
             throw new ExcecaoNegocio("Pelo menos uma imagem é obrigatória.");
 
-        var imagensProcessadas = new List<(ImageVariantesResult Variantes, string? Caption, bool FlPrincipal, int Ordem)>();
+        if (!await produtoRepository.ColecaoExisteAsync(dto.ColecaoId))
+            throw new NaoEncontradoException("Coleção não encontrada.");
 
-        for (int i = 0; i < dto.Imagens.Count; i++)
-        {
-            await using var stream = dto.Imagens[i].OpenReadStream();
-            var variantes = await imageProcessingService.ProcessarAsync(stream, "produtos");
-            imagensProcessadas.Add((variantes, dto.Captions.ElementAtOrDefault(i), i == dto.IndiceImagemPrincipal, i));
-        }
+        if (dto.TipoProdutoId.HasValue && !await produtoRepository.TipoProdutoExisteAsync(dto.TipoProdutoId.Value))
+            throw new NaoEncontradoException("Tipo de produto não encontrado.");
 
         var produto = new ProdutoModel
         {
-            Id = Guid.CreateVersion7(),
-            CdSku = dto.CdSku,
+            IdProduto = Guid.CreateVersion7(),
+            CdEan = dto.CdEan,
             NmProduto = dto.NmProduto,
             DsProduto = dto.DsProduto,
             VlPreco = dto.VlPreco,
@@ -58,12 +55,23 @@ public class ProdutoService(
             TsCriacao = DateTime.UtcNow
         };
 
-        foreach (var (variantes, caption, flPrincipal, ordem) in imagensProcessadas)
+        var pastaProduto = $"produtos/{produto.IdProduto}";
+        var imagensProcessadas = new List<(Guid Id, ImageVariantesResult Variantes, string? Caption, bool FlPrincipal, int Ordem)>();
+
+        for (int i = 0; i < dto.Imagens.Count; i++)
+        {
+            var idImagem = Guid.CreateVersion7();
+            await using var stream = dto.Imagens[i].OpenReadStream();
+            var variantes = await imageProcessingService.ProcessarAsync(stream, pastaProduto, idImagem.ToString());
+            imagensProcessadas.Add((idImagem, variantes, dto.Captions.ElementAtOrDefault(i), i == dto.IndiceImagemPrincipal, i));
+        }
+
+        foreach (var (idImagem, variantes, caption, flPrincipal, ordem) in imagensProcessadas)
         {
             produto.Imagens.Add(new ImagemProdutoModel
             {
-                IdImagemProduto = Guid.CreateVersion7(),
-                ProdutoId = produto.Id,
+                IdImagemProduto = idImagem,
+                ProdutoId = produto.IdProduto,
                 NmCaption = caption,
                 SqOrdem = ordem,
                 FlPrincipal = flPrincipal,
@@ -88,15 +96,21 @@ public class ProdutoService(
 
         await produtoRepository.CriarAsync(produto);
 
-        var produtoCompleto = await produtoRepository.ObterPorIdAsync(produto.Id);
+        var produtoCompleto = await produtoRepository.ObterPorIdAsync(produto.IdProduto);
         return ProdutoMapper.ParaResposta(produtoCompleto!);
     }
 
     public async Task<ProdutoResponseDto?> AtualizarAsync(Guid id, ProdutoUpdateDto dto)
     {
+        if (!await produtoRepository.ColecaoExisteAsync(dto.ColecaoId))
+            throw new NaoEncontradoException("Coleção não encontrada.");
+
+        if (dto.TipoProdutoId.HasValue && !await produtoRepository.TipoProdutoExisteAsync(dto.TipoProdutoId.Value))
+            throw new NaoEncontradoException("Tipo de produto não encontrado.");
+
         var produto = new ProdutoModel
         {
-            CdSku = dto.CdSku,
+            CdEan = dto.CdEan,
             NmProduto = dto.NmProduto,
             DsProduto = dto.DsProduto,
             VlPreco = dto.VlPreco,

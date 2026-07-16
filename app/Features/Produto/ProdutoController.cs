@@ -26,7 +26,7 @@ public class ProdutoController(IProdutoService produtoService) : ControllerBase
     public async Task<IActionResult> Criar([FromForm] ProdutoCreateDto dto)
     {
         var produto = await produtoService.CriarAsync(dto);
-        return CreatedAtAction(nameof(ObterPorId), new { id = produto.Id }, produto);
+        return CreatedAtAction(nameof(ObterPorId), new { id = produto.IdProduto }, produto);
     }
 
     [HttpPut("{id:guid}")]

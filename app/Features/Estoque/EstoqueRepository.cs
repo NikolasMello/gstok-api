@@ -15,10 +15,10 @@ public class EstoqueRepository(AppDbContext context) : IEstoqueRepository
             .ToListAsync();
 
     public Task<EstoqueModel?> ObterPorIdAsync(Guid id) =>
-        context.Estoques.FirstOrDefaultAsync(e => e.Id == id);
+        context.Estoques.FirstOrDefaultAsync(e => e.IdEstoque == id);
 
     public Task<bool> ProdutoExisteAsync(Guid produtoId) =>
-        context.Produtos.AnyAsync(p => p.Id == produtoId);
+        context.Produtos.AnyAsync(p => p.IdProduto == produtoId);
 
     public async Task<EstoqueModel> CriarAsync(EstoqueModel estoque)
     {
@@ -30,7 +30,7 @@ public class EstoqueRepository(AppDbContext context) : IEstoqueRepository
     public async Task<EstoqueModel?> AtualizarAsync(Guid id, Guid produtoId, int qtEstoque, TamanhoRoupa tpTamanho, string nmCor)
     {
         var existing = await context.Estoques
-            .FirstOrDefaultAsync(e => e.Id == id && e.ProdutoId == produtoId);
+            .FirstOrDefaultAsync(e => e.IdEstoque == id && e.ProdutoId == produtoId);
 
         if (existing is null) return null;
 
@@ -46,7 +46,7 @@ public class EstoqueRepository(AppDbContext context) : IEstoqueRepository
     public async Task<bool> ExcluirAsync(Guid id, Guid produtoId)
     {
         var existing = await context.Estoques
-            .FirstOrDefaultAsync(e => e.Id == id && e.ProdutoId == produtoId);
+            .FirstOrDefaultAsync(e => e.IdEstoque == id && e.ProdutoId == produtoId);
 
         if (existing is null) return false;
 

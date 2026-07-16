@@ -23,6 +23,9 @@ public class ColecaoService(IColecaoRepository colecaoRepository) : IColecaoServ
         if (!await colecaoRepository.FornecedorExisteAsync(dto.IdFornecedor))
             throw new NaoEncontradoException("Fornecedor não encontrado.");
 
+        if (await colecaoRepository.NomeExisteAsync(dto.IdFornecedor, dto.NmColecao))
+            throw new ConflitoException("Nome de coleção já cadastrado para este fornecedor.");
+
         var colecao = new ColecaoModel
         {
             IdColecao = Guid.CreateVersion7(),
@@ -38,6 +41,9 @@ public class ColecaoService(IColecaoRepository colecaoRepository) : IColecaoServ
     {
         if (!await colecaoRepository.FornecedorExisteAsync(dto.IdFornecedor))
             throw new NaoEncontradoException("Fornecedor não encontrado.");
+
+        if (await colecaoRepository.NomeExisteAsync(dto.IdFornecedor, dto.NmColecao, id))
+            throw new ConflitoException("Nome de coleção já cadastrado para este fornecedor.");
 
         var colecao = new ColecaoModel
         {

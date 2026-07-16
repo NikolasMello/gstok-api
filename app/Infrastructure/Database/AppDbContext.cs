@@ -158,6 +158,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasForeignKey(c => c.FornecedorId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<ColecaoModel>()
+            .HasIndex(c => new { c.FornecedorId, c.NmColecao })
+            .IsUnique();
+
         modelBuilder.Entity<ProdutoModel>()
             .HasOne(p => p.Colecao)
             .WithMany(c => c.Produtos)

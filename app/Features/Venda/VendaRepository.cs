@@ -41,7 +41,7 @@ public class VendaRepository(AppDbContext context) : IVendaRepository
     public Task<EstoqueModel?> ObterEstoqueComProdutoAsync(Guid estoqueId) =>
         context.Estoques
             .Include(e => e.Produto)
-            .FirstOrDefaultAsync(e => e.Id == estoqueId);
+            .FirstOrDefaultAsync(e => e.IdEstoque == estoqueId);
 
     public Task<VendaItemModel?> ObterItemPorIdAsync(Guid vendaId, Guid itemId) =>
         context.ItensVenda

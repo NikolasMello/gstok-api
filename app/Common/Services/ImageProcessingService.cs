@@ -26,7 +26,7 @@ public class ImageProcessingService(IOptions<ConfiguracaoArmazenamento> storageO
     private const int LarguraMinima = 800;
     private const long TamanhoMaximoBytes = 10 * 1024 * 1024;
 
-    public async Task<ImageVariantesResult> ProcessarAsync(Stream inputStream, string pasta)
+    public async Task<ImageVariantesResult> ProcessarAsync(Stream inputStream, string pasta, string? identificador = null)
     {
         if (inputStream.Length > TamanhoMaximoBytes)
             throw new ExcecaoNegocio($"Imagem excede o tamanho máximo de {TamanhoMaximoBytes / 1024 / 1024}MB.");
@@ -36,12 +36,12 @@ public class ImageProcessingService(IOptions<ConfiguracaoArmazenamento> storageO
         if (imagem.Width < LarguraMinima)
             throw new ExcecaoNegocio($"Largura mínima da imagem é {LarguraMinima}px. Enviada: {imagem.Width}px.");
 
-        var nomeBase = Guid.CreateVersion7().ToString();
+        var diretorioImagem = $"{pasta}/{identificador ?? Guid.CreateVersion7().ToString()}";
         var variantes = new Dictionary<string, ImageVariante>();
 
         foreach (var (nome, largura, altura, modo) in Variantes)
         {
-            var variante = await GerarVarianteAsync(imagem, pasta, nomeBase, nome, largura, altura, modo);
+            var variante = await GerarVarianteAsync(imagem, diretorioImagem, nome, largura, altura, modo);
             variantes[nome] = variante;
         }
 
@@ -57,24 +57,22 @@ public class ImageProcessingService(IOptions<ConfiguracaoArmazenamento> storageO
 
     public void Remover(string urlQualquerVariante)
     {
-        var uri = new Uri(urlQualquerVariante);
-        var segmentos = uri.AbsolutePath.TrimStart('/').Split('/');
+        var prefixo = new Uri(_settings.ImageBaseUrl).AbsolutePath.TrimEnd('/');
+        var caminho = new Uri(urlQualquerVariante).AbsolutePath;
 
-        if (segmentos.Length < 3) return;
+        if (caminho.StartsWith(prefixo, StringComparison.OrdinalIgnoreCase))
+            caminho = caminho[prefixo.Length..];
 
-        var pasta = segmentos[^3];
-        var nomeArquivo = segmentos[^1];
+        var segmentos = caminho.Trim('/').Split('/');
+        if (segmentos.Length < 2) return;
 
-        foreach (var (nome, _, _, _) in Variantes)
-        {
-            var caminho = Path.Combine(_settings.ImageBasePath, pasta, nome, nomeArquivo);
-            if (File.Exists(caminho))
-                File.Delete(caminho);
-        }
+        var diretorio = Path.Combine([_settings.ImageBasePath, .. segmentos[..^1]]);
+        if (Directory.Exists(diretorio))
+            Directory.Delete(diretorio, recursive: true);
     }
 
     private async Task<ImageVariante> GerarVarianteAsync(
-        Image imagem, string pasta, string nomeBase, string nomeVariante, int largura, int altura, ResizeMode modo)
+        Image imagem, string diretorioImagem, string nomeVariante, int largura, int altura, ResizeMode modo)
     {
         using var clone = imagem.Clone(ctx => ctx.Resize(new ResizeOptions
         {
@@ -83,17 +81,17 @@ public class ImageProcessingService(IOptions<ConfiguracaoArmazenamento> storageO
             Position = AnchorPositionMode.Center
         }));
 
-        var diretorio = Path.Combine(_settings.ImageBasePath, pasta, nomeVariante);
+        var diretorio = Path.Combine([_settings.ImageBasePath, .. diretorioImagem.Split('/')]);
         Directory.CreateDirectory(diretorio);
 
-        var nomeArquivo = $"{nomeBase}.webp";
+        var nomeArquivo = $"{nomeVariante}.webp";
         var caminhoCompleto = Path.Combine(diretorio, nomeArquivo);
 
         await clone.SaveAsWebpAsync(caminhoCompleto, Encoder);
 
         return new ImageVariante
         {
-            Url = $"{_settings.ImageBaseUrl.TrimEnd('/')}/{pasta}/{nomeVariante}/{nomeArquivo}",
+            Url = $"{_settings.ImageBaseUrl.TrimEnd('/')}/{diretorioImagem}/{nomeArquivo}",
             Largura = clone.Width,
             Altura = clone.Height
         };
