@@ -11,7 +11,7 @@ public class ProdutoResponseDto
     public string? NmMarca { get; set; }
     public decimal VlPreco { get; set; }
     public decimal VlVenda { get; set; }
-    public Guid? TipoProdutoId { get; set; }
+    public Guid TipoProdutoId { get; set; }
     public string? NmTipo { get; set; }
     public Guid ColecaoId { get; set; }
     public string? NmColecao { get; set; }

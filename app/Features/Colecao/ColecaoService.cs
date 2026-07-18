@@ -1,3 +1,4 @@
+using gstok_api.Common.Utils;
 using gstok_api.DTOs.Colecao;
 using gstok_api.Exceptions;
 using gstok_api.Mappings.Colecao;
@@ -23,14 +24,16 @@ public class ColecaoService(IColecaoRepository colecaoRepository) : IColecaoServ
         if (!await colecaoRepository.FornecedorExisteAsync(dto.IdFornecedor))
             throw new NaoEncontradoException("Fornecedor não encontrado.");
 
-        if (await colecaoRepository.NomeExisteAsync(dto.IdFornecedor, dto.NmColecao))
+        var nmColecao = TextoUtils.CapitalizarPrimeiraLetra(dto.NmColecao)!;
+
+        if (await colecaoRepository.NomeExisteAsync(dto.IdFornecedor, nmColecao))
             throw new ConflitoException("Nome de coleção já cadastrado para este fornecedor.");
 
         var colecao = new ColecaoModel
         {
             IdColecao = Guid.CreateVersion7(),
             FornecedorId = dto.IdFornecedor,
-            NmColecao = dto.NmColecao,
+            NmColecao = nmColecao,
             TsCriacao = DateTime.UtcNow
         };
 
@@ -42,13 +45,15 @@ public class ColecaoService(IColecaoRepository colecaoRepository) : IColecaoServ
         if (!await colecaoRepository.FornecedorExisteAsync(dto.IdFornecedor))
             throw new NaoEncontradoException("Fornecedor não encontrado.");
 
-        if (await colecaoRepository.NomeExisteAsync(dto.IdFornecedor, dto.NmColecao, id))
+        var nmColecao = TextoUtils.CapitalizarPrimeiraLetra(dto.NmColecao)!;
+
+        if (await colecaoRepository.NomeExisteAsync(dto.IdFornecedor, nmColecao, id))
             throw new ConflitoException("Nome de coleção já cadastrado para este fornecedor.");
 
         var colecao = new ColecaoModel
         {
             FornecedorId = dto.IdFornecedor,
-            NmColecao = dto.NmColecao
+            NmColecao = nmColecao
         };
 
         var updated = await colecaoRepository.AtualizarAsync(id, colecao);

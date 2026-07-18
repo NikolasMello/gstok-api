@@ -20,7 +20,7 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
             query = query.Where(p => p.NmProduto.ToLower().Contains(filtro.NmProduto.ToLower()));
 
         if (!string.IsNullOrWhiteSpace(filtro.NmTipo))
-            query = query.Where(p => p.TipoProduto != null && p.TipoProduto.NmTipo.ToLower().Contains(filtro.NmTipo.ToLower()));
+            query = query.Where(p => p.TipoProduto.NmTipo.ToLower().Contains(filtro.NmTipo.ToLower()));
 
         if (filtro.IdColecao.HasValue)
             query = query.Where(p => p.ColecaoId == filtro.IdColecao.Value);

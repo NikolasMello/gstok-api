@@ -1,3 +1,4 @@
+using gstok_api.Common.Utils;
 using gstok_api.DTOs;
 using gstok_api.Features.Pessoa;
 using gstok_api.Models;
@@ -19,8 +20,8 @@ public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
             IdPessoa = Guid.CreateVersion7(),
             TpPessoa = dto.TpPessoa,
             CdInscricaoNacional = dto.CdInscricaoNacional,
-            NmPessoa = dto.NmPessoa,
-            NmSobrenome = dto.NmSobrenome,
+            NmPessoa = TextoUtils.CapitalizarNomeProprio(dto.NmPessoa)!,
+            NmSobrenome = TextoUtils.CapitalizarNomeProprio(dto.NmSobrenome)!,
             NmTelefone = dto.NmTelefone,
             NmEmailContato = dto.NmEmailContato,
             TsCriacao = DateTime.UtcNow
@@ -34,8 +35,8 @@ public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
         {
             TpPessoa = dto.TpPessoa,
             CdInscricaoNacional = dto.CdInscricaoNacional,
-            NmPessoa = dto.NmPessoa,
-            NmSobrenome = dto.NmSobrenome,
+            NmPessoa = TextoUtils.CapitalizarNomeProprio(dto.NmPessoa)!,
+            NmSobrenome = TextoUtils.CapitalizarNomeProprio(dto.NmSobrenome)!,
             NmTelefone = dto.NmTelefone,
             NmEmailContato = dto.NmEmailContato
         };

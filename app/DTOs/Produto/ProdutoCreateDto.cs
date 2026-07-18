@@ -24,7 +24,8 @@ public class ProdutoCreateDto
     [Range(0.01, double.MaxValue)]
     public decimal VlVenda { get; set; }
 
-    public Guid? TipoProdutoId { get; set; }
+    [Required]
+    public Guid TipoProdutoId { get; set; }
 
     [Required]
     public Guid ColecaoId { get; set; }

@@ -1,3 +1,4 @@
+using gstok_api.Common.Utils;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Fornecedor;
 using gstok_api.Exceptions;
@@ -40,9 +41,9 @@ public class FornecedorService(IFornecedorRepository fornecedorRepository, ICole
         {
             IdFornecedor = Guid.CreateVersion7(),
             CdCnpj = dto.CdCnpj,
-            NmEmpresa = dto.NmEmpresa,
-            NmFantasia = dto.NmFantasia,
-            NmMarca = dto.NmMarca,
+            NmEmpresa = TextoUtils.CapitalizarNomeProprio(dto.NmEmpresa)!,
+            NmFantasia = TextoUtils.CapitalizarNomeProprio(dto.NmFantasia),
+            NmMarca = TextoUtils.CapitalizarNomeProprio(dto.NmMarca),
             TsCriacao = DateTime.UtcNow
         };
 
@@ -64,6 +65,7 @@ public class FornecedorService(IFornecedorRepository fornecedorRepository, ICole
         var nomesTratados = nomes
             .Select(n => n.Trim())
             .Where(n => n.Length > 0)
+            .Select(n => TextoUtils.CapitalizarPrimeiraLetra(n)!)
             .ToList();
 
         var temDuplicados = nomesTratados
@@ -87,9 +89,9 @@ public class FornecedorService(IFornecedorRepository fornecedorRepository, ICole
         var fornecedor = new FornecedorModel
         {
             CdCnpj = dto.CdCnpj,
-            NmEmpresa = dto.NmEmpresa,
-            NmFantasia = dto.NmFantasia,
-            NmMarca = dto.NmMarca
+            NmEmpresa = TextoUtils.CapitalizarNomeProprio(dto.NmEmpresa)!,
+            NmFantasia = TextoUtils.CapitalizarNomeProprio(dto.NmFantasia),
+            NmMarca = TextoUtils.CapitalizarNomeProprio(dto.NmMarca)
         };
 
         var updated = await fornecedorRepository.AtualizarAsync(id, fornecedor);

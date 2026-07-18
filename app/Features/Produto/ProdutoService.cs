@@ -37,7 +37,7 @@ public class ProdutoService(
         if (!await produtoRepository.ColecaoExisteAsync(dto.ColecaoId))
             throw new NaoEncontradoException("Coleção não encontrada.");
 
-        if (dto.TipoProdutoId.HasValue && !await produtoRepository.TipoProdutoExisteAsync(dto.TipoProdutoId.Value))
+        if (!await produtoRepository.TipoProdutoExisteAsync(dto.TipoProdutoId))
             throw new NaoEncontradoException("Tipo de produto não encontrado.");
 
         var produto = new ProdutoModel
@@ -105,7 +105,7 @@ public class ProdutoService(
         if (!await produtoRepository.ColecaoExisteAsync(dto.ColecaoId))
             throw new NaoEncontradoException("Coleção não encontrada.");
 
-        if (dto.TipoProdutoId.HasValue && !await produtoRepository.TipoProdutoExisteAsync(dto.TipoProdutoId.Value))
+        if (!await produtoRepository.TipoProdutoExisteAsync(dto.TipoProdutoId))
             throw new NaoEncontradoException("Tipo de produto não encontrado.");
 
         var produto = new ProdutoModel

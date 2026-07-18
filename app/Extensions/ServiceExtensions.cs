@@ -18,6 +18,7 @@ using gstok_api.Features.Estoque;
 using gstok_api.Features.Venda;
 using gstok_api.Features.Fornecedor;
 using gstok_api.Features.Colecao;
+using gstok_api.Features.TipoProduto;
 using gstok_api.Common.ModelBinding;
 using gstok_api.Common.Services;
 using gstok_api.Repositories;
@@ -94,6 +95,8 @@ public static class ServiceExtensions
         services.AddScoped<IFornecedorService, FornecedorService>();
         services.AddScoped<IColecaoRepository, ColecaoRepository>();
         services.AddScoped<IColecaoService, ColecaoService>();
+        services.AddScoped<ITipoProdutoRepository, TipoProdutoRepository>();
+        services.AddScoped<ITipoProdutoService, TipoProdutoService>();
         return services;
     }
 

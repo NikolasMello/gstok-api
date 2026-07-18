@@ -78,8 +78,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(p => p.TipoProduto)
             .WithMany(t => t.Produtos)
             .HasForeignKey(p => p.TipoProdutoId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<PessoaModel>()
             .HasIndex(p => p.CdInscricaoNacional)
