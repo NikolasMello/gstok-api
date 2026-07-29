@@ -1,4 +1,5 @@
 using gstok_api.DTOs;
+using gstok_api.Mappings.CorProduto;
 using gstok_api.Mappings.ImagemProduto;
 using gstok_api.Models;
 
@@ -26,6 +27,10 @@ public static class ProdutoMapper
         Imagens = p.Imagens
             .OrderBy(i => i.SqOrdem)
             .Select(ImagemProdutoMapper.ParaResposta)
+            .ToList(),
+        Cores = p.CoresProduto
+            .OrderBy(c => c.NmCor)
+            .Select(CorProdutoMapper.ParaResposta)
             .ToList()
     };
 

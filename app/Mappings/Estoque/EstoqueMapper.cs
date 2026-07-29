@@ -11,7 +11,9 @@ public static class EstoqueMapper
         ProdutoId = e.ProdutoId,
         QtEstoque = e.QtEstoque,
         TpTamanho = e.TpTamanho,
-        NmCor = e.NmCor,
+        CorProdutoId = e.CorProdutoId,
+        NmCor = e.CorProduto?.NmCor,
+        CdHex = e.CorProduto?.CdHex,
         TsCriacao = e.TsCriacao,
         TsEdicao = e.TsEdicao
     };

@@ -8,7 +8,9 @@ public class EstoqueResponseDto
     public Guid ProdutoId { get; set; }
     public int QtEstoque { get; set; }
     public TamanhoRoupa TpTamanho { get; set; }
-    public string NmCor { get; set; } = string.Empty;
+    public Guid CorProdutoId { get; set; }
+    public string? NmCor { get; set; }
+    public string? CdHex { get; set; }
     public DateTime TsCriacao { get; set; }
     public DateTime? TsEdicao { get; set; }
 }

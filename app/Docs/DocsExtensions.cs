@@ -59,15 +59,29 @@ public static class DocsExtensions
         return services;
     }
 
-    private static void RenomearPropriedadesParaSnakeCase(IOpenApiSchema? schema)
+    private static void RenomearPropriedadesParaSnakeCase(IOpenApiSchema? schema, HashSet<OpenApiSchema>? visitados = null)
     {
-        if (schema is not OpenApiSchema concreta || concreta.Properties is null) return;
+        if (schema is not OpenApiSchema concreta) return;
 
-        concreta.Properties = concreta.Properties
-            .ToDictionary(p => ParaSnakeCase(p.Key), p => p.Value);
+        // Schemas complexos (ex.: o item de uma lista aninhada como Cores) podem ser
+        // compartilhados/referenciados mais de uma vez; evita reprocessar e recursão infinita.
+        visitados ??= new HashSet<OpenApiSchema>(ReferenceEqualityComparer.Instance);
+        if (!visitados.Add(concreta)) return;
 
-        if (concreta.Required is { Count: > 0 })
-            concreta.Required = concreta.Required.Select(ParaSnakeCase).ToHashSet();
+        if (concreta.Properties is not null)
+        {
+            concreta.Properties = concreta.Properties
+                .ToDictionary(p => ParaSnakeCase(p.Key), p => p.Value);
+
+            if (concreta.Required is { Count: > 0 })
+                concreta.Required = concreta.Required.Select(ParaSnakeCase).ToHashSet();
+
+            foreach (var propriedade in concreta.Properties.Values)
+                RenomearPropriedadesParaSnakeCase(propriedade, visitados);
+        }
+
+        if (concreta.Items is not null)
+            RenomearPropriedadesParaSnakeCase(concreta.Items, visitados);
     }
 
     private static string ParaSnakeCase(string nome) => JsonNamingPolicy.SnakeCaseLower.ConvertName(nome);

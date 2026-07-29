@@ -41,7 +41,7 @@ public class VendaService(IVendaRepository vendaRepository, ILogger<VendaService
 
             if (estoque.QtEstoque < itemDto.QtQuantidade)
                 throw new ConflitoException(
-                    $"Estoque insuficiente para '{estoque.Produto.NmProduto}' ({estoque.TpTamanho}/{estoque.NmCor}). " +
+                    $"Estoque insuficiente para '{estoque.Produto.NmProduto}' ({estoque.TpTamanho}/{estoque.CorProduto.NmCor}). " +
                     $"Disponível: {estoque.QtEstoque}, Solicitado: {itemDto.QtQuantidade}.");
 
             estoque.QtEstoque -= itemDto.QtQuantidade;
@@ -117,7 +117,7 @@ public class VendaService(IVendaRepository vendaRepository, ILogger<VendaService
 
         if (estoque.QtEstoque < dto.QtQuantidade)
             throw new ConflitoException(
-                $"Estoque insuficiente para '{estoque.Produto.NmProduto}' ({estoque.TpTamanho}/{estoque.NmCor}). " +
+                $"Estoque insuficiente para '{estoque.Produto.NmProduto}' ({estoque.TpTamanho}/{estoque.CorProduto.NmCor}). " +
                 $"Disponível: {estoque.QtEstoque}, Solicitado: {dto.QtQuantidade}.");
 
         estoque.QtEstoque -= dto.QtQuantidade;
@@ -161,7 +161,7 @@ public class VendaService(IVendaRepository vendaRepository, ILogger<VendaService
 
         if (diferenca > 0 && estoque.QtEstoque < diferenca)
             throw new ConflitoException(
-                $"Estoque insuficiente para '{estoque.Produto.NmProduto}' ({estoque.TpTamanho}/{estoque.NmCor}). " +
+                $"Estoque insuficiente para '{estoque.Produto.NmProduto}' ({estoque.TpTamanho}/{estoque.CorProduto.NmCor}). " +
                 $"Disponível: {estoque.QtEstoque}, Adicional solicitado: {diferenca}.");
 
         estoque.QtEstoque -= diferenca;

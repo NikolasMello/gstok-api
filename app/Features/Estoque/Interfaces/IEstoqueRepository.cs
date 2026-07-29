@@ -8,7 +8,8 @@ public interface IEstoqueRepository
     Task<List<EstoqueModel>> ObterPorProdutoIdAsync(Guid produtoId);
     Task<EstoqueModel?> ObterPorIdAsync(Guid id);
     Task<bool> ProdutoExisteAsync(Guid produtoId);
+    Task<bool> CorProdutoExisteAsync(Guid corProdutoId, Guid produtoId);
     Task<EstoqueModel> CriarAsync(EstoqueModel estoque);
-    Task<EstoqueModel?> AtualizarAsync(Guid id, Guid produtoId, int qtEstoque, TamanhoRoupa tpTamanho, string nmCor);
+    Task<EstoqueModel?> AtualizarAsync(Guid id, Guid produtoId, int qtEstoque, TamanhoRoupa tpTamanho, Guid corProdutoId);
     Task<bool> ExcluirAsync(Guid id, Guid produtoId);
 }

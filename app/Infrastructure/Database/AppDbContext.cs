@@ -19,6 +19,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<VendaItemModel> ItensVenda { get; set; }
     public DbSet<FornecedorModel> Fornecedores { get; set; }
     public DbSet<ColecaoModel> Colecoes { get; set; }
+    public DbSet<CorProdutoModel> CoresProduto { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -165,6 +166,22 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .HasOne(p => p.Colecao)
             .WithMany(c => c.Produtos)
             .HasForeignKey(p => p.ColecaoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CorProdutoModel>()
+            .HasOne(c => c.Produto)
+            .WithMany(p => p.CoresProduto)
+            .HasForeignKey(c => c.ProdutoId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CorProdutoModel>()
+            .HasIndex(c => new { c.ProdutoId, c.NmCor })
+            .IsUnique();
+
+        modelBuilder.Entity<EstoqueModel>()
+            .HasOne(e => e.CorProduto)
+            .WithMany()
+            .HasForeignKey(e => e.CorProdutoId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -1,3 +1,4 @@
+using gstok_api.DTOs.CorProduto;
 using gstok_api.Enums;
 
 namespace gstok_api.DTOs;
@@ -20,6 +21,7 @@ public class ProdutoResponseDto
     public DateTime TsCriacao { get; set; }
     public DateTime? TsEdicao { get; set; }
     public List<ImagemProdutoResponseDto> Imagens { get; set; } = [];
+    public List<CorProdutoResponseDto> Cores { get; set; } = [];
 }
 
 public class ImagemProdutoResponseDto

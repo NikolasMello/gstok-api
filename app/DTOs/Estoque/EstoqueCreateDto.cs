@@ -13,6 +13,5 @@ public class EstoqueCreateDto
     public TamanhoRoupa TpTamanho { get; set; }
 
     [Required]
-    [MaxLength(50)]
-    public string NmCor { get; set; } = string.Empty;
+    public Guid CorProdutoId { get; set; }
 }

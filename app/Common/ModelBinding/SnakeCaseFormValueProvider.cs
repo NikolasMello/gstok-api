@@ -25,11 +25,16 @@ public class SnakeCaseFormValueProvider(IFormCollection form) : IValueProvider, 
         return ValueProviderResult.None;
     }
 
-    private static string ParaSnakeCase(string key)
+    // Converte cada segmento separado por '.' (ex.: "Cores[0].NmCor" -> "cores[0].nm_cor"),
+    // preservando os índices entre colchetes, que não fazem parte do nome da propriedade.
+    private static string ParaSnakeCase(string key) =>
+        string.Join('.', key.Split('.').Select(ConverterSegmento));
+
+    private static string ConverterSegmento(string segmento)
     {
-        var indice = key.IndexOfAny(['.', '[']);
-        return indice < 0
-            ? JsonNamingPolicy.SnakeCaseLower.ConvertName(key)
-            : JsonNamingPolicy.SnakeCaseLower.ConvertName(key[..indice]) + key[indice..];
+        var indiceColchete = segmento.IndexOf('[');
+        return indiceColchete < 0
+            ? JsonNamingPolicy.SnakeCaseLower.ConvertName(segmento)
+            : JsonNamingPolicy.SnakeCaseLower.ConvertName(segmento[..indiceColchete]) + segmento[indiceColchete..];
     }
 }

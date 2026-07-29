@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using gstok_api.Enums;
 
@@ -41,4 +42,8 @@ public class ProdutoCreateDto
 
     // Índice (base 0) da imagem principal dentro do array Imagens
     public int IndiceImagemPrincipal { get; set; } = 0;
+
+    [Description("Array de cores serializado como JSON — form-data não representa arrays de " +
+                 "objetos nativamente. Ex.: [{\"nm_cor\":\"Azul\",\"cd_hex\":\"#0000FF\"}]")]
+    public string? Cores { get; set; }
 }

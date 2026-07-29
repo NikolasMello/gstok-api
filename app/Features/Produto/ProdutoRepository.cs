@@ -58,6 +58,7 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
             .Include(p => p.TipoProduto)
             .Include(p => p.Colecao).ThenInclude(c => c.Fornecedor)
             .Include(p => p.Imagens)
+            .Include(p => p.CoresProduto)
             .FirstOrDefaultAsync(p => p.IdProduto == id);
 
     public Task<bool> ColecaoExisteAsync(Guid id) =>
@@ -79,6 +80,7 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
             .Include(p => p.TipoProduto)
             .Include(p => p.Colecao).ThenInclude(c => c.Fornecedor)
             .Include(p => p.Imagens)
+            .Include(p => p.CoresProduto)
             .FirstOrDefaultAsync(p => p.IdProduto == id);
 
         if (existing is null) return null;

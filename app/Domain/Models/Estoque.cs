@@ -26,9 +26,9 @@ public class EstoqueModel
     public TamanhoRoupa TpTamanho { get; set; }
 
     [Required]
-    [MaxLength(50)]
-    [Column("nm_cor")]
-    public string NmCor { get; set; } = string.Empty;
+    [Column("cor_produto_id")]
+    public Guid CorProdutoId { get; set; }
+    public CorProdutoModel CorProduto { get; set; } = null!;
 
     [Column("ts_criacao")]
     public DateTime TsCriacao { get; set; }

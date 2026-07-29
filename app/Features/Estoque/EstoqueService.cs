@@ -24,13 +24,16 @@ public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueServ
         if (!await estoqueRepository.ProdutoExisteAsync(produtoId))
             throw new NaoEncontradoException("Produto não encontrado.");
 
+        if (!await estoqueRepository.CorProdutoExisteAsync(dto.CorProdutoId, produtoId))
+            throw new NaoEncontradoException("Cor não encontrada para este produto.");
+
         var estoque = new EstoqueModel
         {
             IdEstoque = Guid.CreateVersion7(),
             ProdutoId = produtoId,
             QtEstoque = dto.QtEstoque,
             TpTamanho = dto.TpTamanho,
-            NmCor = dto.NmCor.Trim(),
+            CorProdutoId = dto.CorProdutoId,
             TsCriacao = DateTime.UtcNow
         };
 
@@ -39,7 +42,10 @@ public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueServ
 
     public async Task<EstoqueResponseDto?> AtualizarAsync(Guid id, Guid produtoId, EstoqueUpdateDto dto)
     {
-        var updated = await estoqueRepository.AtualizarAsync(id, produtoId, dto.QtEstoque, dto.TpTamanho, dto.NmCor.Trim());
+        if (!await estoqueRepository.CorProdutoExisteAsync(dto.CorProdutoId, produtoId))
+            throw new NaoEncontradoException("Cor não encontrada para este produto.");
+
+        var updated = await estoqueRepository.AtualizarAsync(id, produtoId, dto.QtEstoque, dto.TpTamanho, dto.CorProdutoId);
         return updated is null ? null : EstoqueMapper.ParaResposta(updated);
     }
 

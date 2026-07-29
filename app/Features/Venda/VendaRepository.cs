@@ -33,6 +33,9 @@ public class VendaRepository(AppDbContext context) : IVendaRepository
             .Include(p => p.Itens)
                 .ThenInclude(i => i.Estoque)
                     .ThenInclude(e => e.Produto)
+            .Include(p => p.Itens)
+                .ThenInclude(i => i.Estoque)
+                    .ThenInclude(e => e.CorProduto)
             .FirstOrDefaultAsync(p => p.IdVenda == id);
 
     public Task<bool> ClienteExisteAsync(Guid clienteId) =>
@@ -41,12 +44,15 @@ public class VendaRepository(AppDbContext context) : IVendaRepository
     public Task<EstoqueModel?> ObterEstoqueComProdutoAsync(Guid estoqueId) =>
         context.Estoques
             .Include(e => e.Produto)
+            .Include(e => e.CorProduto)
             .FirstOrDefaultAsync(e => e.IdEstoque == estoqueId);
 
     public Task<VendaItemModel?> ObterItemPorIdAsync(Guid vendaId, Guid itemId) =>
         context.ItensVenda
             .Include(i => i.Estoque)
                 .ThenInclude(e => e.Produto)
+            .Include(i => i.Estoque)
+                .ThenInclude(e => e.CorProduto)
             .FirstOrDefaultAsync(i => i.IdItemVenda == itemId && i.VendaId == vendaId);
 
     public async Task<VendaModel> CriarAsync(VendaModel venda)
