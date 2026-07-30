@@ -1,14 +1,23 @@
 using Microsoft.AspNetCore.Mvc;
+using gstok_api.DTOs;
 using gstok_api.DTOs.Estoque;
 using gstok_api.Features.Estoque;
 
 namespace gstok_api.Controllers;
 
 [ApiController]
-[Route("produto/{produtoId:guid}/estoque")]
+[Route("estoque")]
 public class EstoqueController(IEstoqueService estoqueService) : ControllerBase
 {
     [HttpGet]
+    public async Task<IActionResult> ObterTodosPaginado([FromQuery] PaginationParams pagination)
+    {
+        var result = await estoqueService.ObterTodosPaginadoAsync(pagination);
+        return Ok(result);
+    }
+
+    [HttpGet]
+    [Route("produto/{produtoId:guid}")]
     public async Task<IActionResult> ObterPorProduto(Guid produtoId)
     {
         var result = await estoqueService.ObterPorProdutoIdAsync(produtoId);
@@ -23,6 +32,7 @@ public class EstoqueController(IEstoqueService estoqueService) : ControllerBase
     }
 
     [HttpPost]
+    [Route("produto/{produtoId:guid}")]
     public async Task<IActionResult> Criar(Guid produtoId, [FromBody] EstoqueCreateDto dto)
     {
         var result = await estoqueService.CriarAsync(produtoId, dto);
@@ -30,16 +40,24 @@ public class EstoqueController(IEstoqueService estoqueService) : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Atualizar(Guid produtoId, Guid id, [FromBody] EstoqueUpdateDto dto)
+    public async Task<IActionResult> Atualizar(Guid id, [FromBody] EstoqueUpdateDto dto)
     {
-        var result = await estoqueService.AtualizarAsync(id, produtoId, dto);
+        var result = await estoqueService.AtualizarAsync(id, dto);
         return result is null ? NotFound() : Ok(result);
     }
 
     [HttpDelete("{id:guid}")]
-    public async Task<IActionResult> Excluir(Guid produtoId, Guid id)
+    public async Task<IActionResult> Excluir(Guid id)
     {
-        var deleted = await estoqueService.ExcluirAsync(id, produtoId);
+        var deleted = await estoqueService.ExcluirAsync(id);
+        return deleted ? NoContent() : NotFound();
+    }
+
+    [HttpDelete]
+    [Route("produto/{produtoId:guid}")]
+    public async Task<IActionResult> ExcluirPorProduto(Guid produtoId)
+    {
+        var deleted = await estoqueService.ExcluirPorProdutoAsync(produtoId);
         return deleted ? NoContent() : NotFound();
     }
 }

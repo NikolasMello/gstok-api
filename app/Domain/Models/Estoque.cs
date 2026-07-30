@@ -12,10 +12,6 @@ public class EstoqueModel
     [Column("id_estoque")]
     public Guid IdEstoque { get; set; }
 
-    [Column("produto_id")]
-    public Guid ProdutoId { get; set; }
-    public ProdutoModel Produto { get; set; } = null!;
-
     [Required]
     [Range(0, int.MaxValue)]
     [Column("qt_estoque")]

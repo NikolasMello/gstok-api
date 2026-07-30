@@ -183,5 +183,9 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             .WithMany()
             .HasForeignKey(e => e.CorProdutoId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<EstoqueModel>()
+            .HasIndex(e => new { e.CorProdutoId, e.TpTamanho })
+            .IsUnique();
     }
 }

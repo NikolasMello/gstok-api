@@ -25,7 +25,7 @@ public static class VendaMapper
     {
         IdItemVenda = i.IdItemVenda,
         EstoqueId = i.EstoqueId,
-        NmProduto = i.Estoque?.Produto?.NmProduto ?? string.Empty,
+        NmProduto = i.Estoque?.CorProduto?.Produto?.NmProduto ?? string.Empty,
         TpTamanho = i.Estoque?.TpTamanho ?? default,
         NmCor = i.Estoque?.CorProduto?.NmCor ?? string.Empty,
         QtQuantidade = i.QtQuantidade,

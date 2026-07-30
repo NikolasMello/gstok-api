@@ -1,3 +1,4 @@
+using gstok_api.DTOs;
 using gstok_api.DTOs.Estoque;
 using gstok_api.Exceptions;
 using gstok_api.Mappings.Estoque;
@@ -7,6 +8,18 @@ namespace gstok_api.Features.Estoque;
 
 public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueService
 {
+    public async Task<PagedResult<EstoqueProdutoResponseDto>> ObterTodosPaginadoAsync(PaginationParams pagination)
+    {
+        var result = await estoqueRepository.ObterTodosPaginadoAsync(pagination);
+        return new PagedResult<EstoqueProdutoResponseDto>
+        {
+            Items = result.Items.Select(EstoqueMapper.ParaProdutoResumo).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalCount = result.TotalCount
+        };
+    }
+
     public async Task<List<EstoqueResponseDto>> ObterPorProdutoIdAsync(Guid produtoId) =>
         (await estoqueRepository.ObterPorProdutoIdAsync(produtoId))
             .Select(EstoqueMapper.ParaResposta)
@@ -15,7 +28,7 @@ public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueServ
     public async Task<EstoqueResponseDto?> ObterPorIdAsync(Guid id, Guid produtoId)
     {
         var estoque = await estoqueRepository.ObterPorIdAsync(id);
-        if (estoque is null || estoque.ProdutoId != produtoId) return null;
+        if (estoque is null || estoque.CorProduto.ProdutoId != produtoId) return null;
         return EstoqueMapper.ParaResposta(estoque);
     }
 
@@ -30,7 +43,6 @@ public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueServ
         var estoque = new EstoqueModel
         {
             IdEstoque = Guid.CreateVersion7(),
-            ProdutoId = produtoId,
             QtEstoque = dto.QtEstoque,
             TpTamanho = dto.TpTamanho,
             CorProdutoId = dto.CorProdutoId,
@@ -40,15 +52,21 @@ public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueServ
         return EstoqueMapper.ParaResposta(await estoqueRepository.CriarAsync(estoque));
     }
 
-    public async Task<EstoqueResponseDto?> AtualizarAsync(Guid id, Guid produtoId, EstoqueUpdateDto dto)
+    public async Task<EstoqueResponseDto?> AtualizarAsync(Guid id, EstoqueUpdateDto dto)
     {
-        if (!await estoqueRepository.CorProdutoExisteAsync(dto.CorProdutoId, produtoId))
-            throw new NaoEncontradoException("Cor não encontrada para este produto.");
+        var existing = await estoqueRepository.ObterPorIdAsync(id);
+        if (existing is null) return null;
 
-        var updated = await estoqueRepository.AtualizarAsync(id, produtoId, dto.QtEstoque, dto.TpTamanho, dto.CorProdutoId);
+        if (await estoqueRepository.ExisteVarianteAsync(existing.CorProdutoId, dto.TpTamanho, id))
+            throw new ConflitoException($"Já existe estoque cadastrado para o tamanho '{dto.TpTamanho}' nesta cor.");
+
+        var updated = await estoqueRepository.AtualizarAsync(id, dto.QtEstoque, dto.TpTamanho);
         return updated is null ? null : EstoqueMapper.ParaResposta(updated);
     }
 
-    public Task<bool> ExcluirAsync(Guid id, Guid produtoId) =>
-        estoqueRepository.ExcluirAsync(id, produtoId);
+    public Task<bool> ExcluirAsync(Guid id) =>
+        estoqueRepository.ExcluirAsync(id);
+
+    public Task<bool> ExcluirPorProdutoAsync(Guid produtoId) =>
+        estoqueRepository.ExcluirPorProdutoAsync(produtoId);
 }

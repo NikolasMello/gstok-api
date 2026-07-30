@@ -59,7 +59,6 @@ public class ProdutoModel
 
     public TipoProdutoModel TipoProduto { get; set; } = null!;
     public ColecaoModel Colecao { get; set; } = null!;
-    public ICollection<EstoqueModel> Estoques { get; set; } = [];
     public ICollection<ImagemProdutoModel> Imagens { get; set; } = [];
     public ICollection<CorProdutoModel> CoresProduto { get; set; } = [];
 }

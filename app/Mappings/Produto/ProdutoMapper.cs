@@ -34,11 +34,18 @@ public static class ProdutoMapper
             .ToList()
     };
 
+    public static ImagemProdutoModel? ObterImagemPrincipal(ProdutoModel p) =>
+        p.Imagens.OrderBy(i => i.SqOrdem).FirstOrDefault(i => i.FlPrincipal)
+            ?? p.Imagens.OrderBy(i => i.SqOrdem).FirstOrDefault();
+
+    public static ImageVariante? ParaAvatar(ImagemProdutoModel? imagem) =>
+        imagem is null
+            ? null
+            : new ImageVariante { Url = imagem.UrAvatar, Largura = imagem.NrLarguraAvatar, Altura = imagem.NrAlturaAvatar };
+
     public static ProdutoResumoResponseDto ParaResumo(ProdutoModel p)
     {
-        var principal = p.Imagens
-            .OrderBy(i => i.SqOrdem)
-            .FirstOrDefault(i => i.FlPrincipal) ?? p.Imagens.OrderBy(i => i.SqOrdem).FirstOrDefault();
+        var principal = ObterImagemPrincipal(p);
 
         return new ProdutoResumoResponseDto
         {
@@ -52,9 +59,7 @@ public static class ProdutoMapper
             IdFornecedor = p.Colecao?.FornecedorId ?? Guid.Empty,
             TpEstacao = p.TpEstacao,
             TsCriacao = p.TsCriacao,
-            Avatar = principal is null
-                ? null!
-                : new ImageVariante { Url = principal.UrAvatar, Largura = principal.NrLarguraAvatar, Altura = principal.NrAlturaAvatar }
+            Avatar = ParaAvatar(principal)!
         };
     }
 }

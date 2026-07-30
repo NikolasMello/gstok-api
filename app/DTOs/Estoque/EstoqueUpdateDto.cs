@@ -11,7 +11,4 @@ public class EstoqueUpdateDto
 
     [Required]
     public TamanhoRoupa TpTamanho { get; set; }
-
-    [Required]
-    public Guid CorProdutoId { get; set; }
 }
