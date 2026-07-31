@@ -67,6 +67,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 - Controllers should only call service methods — no direct DB access.
 - Return DTOs from controller endpoints, never raw EF entities.
 - Use `[ApiController]` and `[Route("api/[controller]")]` on all controllers.
+- **Every controller action that returns a response body must declare `ActionResult<T>`** (e.g. `Task<ActionResult<ProdutoResponseDto>>`), never bare `IActionResult`. The Scalar/OpenAPI doc generator infers response schemas from the return type — `IActionResult` has no generic parameter, so the DTO won't show up typed in the docs. Actions with no body (`NoContent()`/`NotFound()` only, e.g. `DELETE`) may keep `IActionResult`. Keeping this current is required whenever a controller is added or changed — never let the docs fall behind the code.
 
 ### JSON serialization
 

@@ -12,14 +12,11 @@ namespace gstok_api.Controllers;
 public class UsuarioController(IUsuarioService usuarioService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> ObterTodos([FromQuery] PaginationParams pagination)
-    {
-        var result = await usuarioService.ObterTodosAsync(pagination);
-        return Ok(result);
-    }
+    public async Task<ActionResult<PagedResult<UsuarioResponseDto>>> ObterTodos([FromQuery] PaginationParams pagination) =>
+        Ok(await usuarioService.ObterTodosAsync(pagination));
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> ObterPorId(Guid id)
+    public async Task<ActionResult<UsuarioResponseDto>> ObterPorId(Guid id)
     {
         var result = await usuarioService.ObterPorIdAsync(id);
         if (result is null) return NotFound();
@@ -27,21 +24,21 @@ public class UsuarioController(IUsuarioService usuarioService) : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Criar([FromBody] UsuarioCreateDto dto)
+    public async Task<ActionResult<UsuarioResponseDto>> Criar([FromBody] UsuarioCreateDto dto)
     {
         var result = await usuarioService.CriarAsync(dto);
         return CreatedAtAction(nameof(ObterPorId), new { id = result.IdUsuario }, result);
     }
 
     [HttpPost("admin")]
-    public async Task<IActionResult> CriarAdministrativo([FromForm] UsuarioAdminCreateDto dto)
+    public async Task<ActionResult<UsuarioResponseDto>> CriarAdministrativo([FromForm] UsuarioAdminCreateDto dto)
     {
         var result = await usuarioService.CriarAdministrativoAsync(dto);
         return CreatedAtAction(nameof(ObterPorId), new { id = result.IdUsuario }, result);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Atualizar(Guid id, [FromForm] UsuarioUpdateDto dto)
+    public async Task<ActionResult<UsuarioResponseDto>> Atualizar(Guid id, [FromForm] UsuarioUpdateDto dto)
     {
         var result = await usuarioService.AtualizarAsync(id, dto);
         if (result is null) return NotFound();

@@ -9,28 +9,25 @@ namespace gstok_api.Controllers;
 public class ProdutoController(IProdutoService produtoService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> ObterTodos([FromQuery] PaginationParams pagination, [FromQuery] ProdutoFiltroDto filtro)
-    {
-        var result = await produtoService.ObterTodosAsync(pagination, filtro);
-        return Ok(result);
-    }
+    public async Task<ActionResult<PagedResult<ProdutoResumoResponseDto>>> ObterTodos([FromQuery] PaginationParams pagination, [FromQuery] ProdutoFiltroDto filtro) =>
+        Ok(await produtoService.ObterTodosAsync(pagination, filtro));
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> ObterPorId(Guid id)
+    public async Task<ActionResult<ProdutoResponseDto>> ObterPorId(Guid id)
     {
         var produto = await produtoService.ObterPorIdAsync(id);
         return produto is null ? NotFound() : Ok(produto);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Criar([FromForm] ProdutoCreateDto dto)
+    public async Task<ActionResult<ProdutoResponseDto>> Criar([FromForm] ProdutoCreateDto dto)
     {
         var produto = await produtoService.CriarAsync(dto);
         return CreatedAtAction(nameof(ObterPorId), new { id = produto.IdProduto }, produto);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Atualizar(Guid id, [FromBody] ProdutoUpdateDto dto)
+    public async Task<ActionResult<ProdutoResponseDto>> Atualizar(Guid id, [FromBody] ProdutoUpdateDto dto)
     {
         var produto = await produtoService.AtualizarAsync(id, dto);
         return produto is null ? NotFound() : Ok(produto);

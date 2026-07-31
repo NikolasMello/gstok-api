@@ -44,6 +44,7 @@ public class ProdutoCreateDto
     public int IndiceImagemPrincipal { get; set; } = 0;
 
     [Description("Array de cores serializado como JSON — form-data não representa arrays de " +
-                 "objetos nativamente. Ex.: [{\"nm_cor\":\"Azul\",\"cd_hex\":\"#0000FF\"}]")]
+                 "objetos nativamente. Obrigatório, pelo menos uma cor. " +
+                 "Ex.: [{\"nm_cor\":\"Azul\",\"cd_hex\":\"#0000FF\"}]")]
     public string? Cores { get; set; }
 }

@@ -9,18 +9,12 @@ namespace gstok_api.Controllers;
 public class ImagemProdutoController(IImagemProdutoService imagemService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> ObterPorProduto(Guid produtoId)
-    {
-        var imagens = await imagemService.ObterPorProdutoIdAsync(produtoId);
-        return Ok(imagens);
-    }
+    public async Task<ActionResult<List<ImagemProdutoResponseDto>>> ObterPorProduto(Guid produtoId) =>
+        Ok(await imagemService.ObterPorProdutoIdAsync(produtoId));
 
     [HttpPut("reordenar")]
-    public async Task<IActionResult> Reordenar(Guid produtoId, [FromBody] ReordenarImagensDto dto)
-    {
-        var imagens = await imagemService.ReordenarAsync(produtoId, dto);
-        return Ok(imagens);
-    }
+    public async Task<ActionResult<List<ImagemProdutoResponseDto>>> Reordenar(Guid produtoId, [FromBody] ReordenarImagensDto dto) =>
+        Ok(await imagemService.ReordenarAsync(produtoId, dto));
 
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Excluir(Guid produtoId, Guid id)

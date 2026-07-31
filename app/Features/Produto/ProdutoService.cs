@@ -38,14 +38,17 @@ public class ProdutoService(
         if (dto.Imagens.Count == 0)
             throw new ExcecaoNegocio("Pelo menos uma imagem é obrigatória.");
 
+        var coresDto = DesserializarCores(dto.Cores);
+        if (coresDto.Count == 0)
+            throw new ExcecaoNegocio("Pelo menos uma cor é obrigatória.");
+
+        var cores = ConstruirCores(coresDto);
+
         if (!await produtoRepository.ColecaoExisteAsync(dto.ColecaoId))
             throw new NaoEncontradoException("Coleção não encontrada.");
 
         if (!await produtoRepository.TipoProdutoExisteAsync(dto.TipoProdutoId))
             throw new NaoEncontradoException("Tipo de produto não encontrado.");
-
-        var coresDto = DesserializarCores(dto.Cores);
-        var cores = ConstruirCores(coresDto);
 
         var produto = new ProdutoModel
         {

@@ -3,7 +3,7 @@ using gstok_api.Enums;
 
 namespace gstok_api.DTOs.Estoque;
 
-public class EstoqueCreateDto
+public class  EstoqueCreateDto
 {
     [Required]
     [Range(0, int.MaxValue)]

@@ -19,7 +19,7 @@ public class AuthController(
     private readonly ConfiguracaoCookie _cookieSettings = authOptions.Value.Cookie;
 
     [HttpPost("register")]
-    public async Task<IActionResult> Registrar([FromBody] RegisterRequestDto dto)
+    public async Task<ActionResult<RegisterResponseDto>> Registrar([FromBody] RegisterRequestDto dto)
     {
         var result = await authService.RegistrarAsync(dto);
         if (result is null) return Conflict(new { message = "E-mail já cadastrado." });
@@ -28,7 +28,7 @@ public class AuthController(
 
     [HttpPost("login")]
     [EnableRateLimiting("login")]
-    public async Task<IActionResult> Entrar([FromBody] LoginRequestDto dto)
+    public async Task<ActionResult<AuthResponseDto>> Entrar([FromBody] LoginRequestDto dto)
     {
         var result = await authService.EntrarAsync(dto);
         if (result is null) return Unauthorized();

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs.Sessao;
+using gstok_api.DTOs.Usuario;
 using gstok_api.Features.Sessao;
 using gstok_api.Middleware;
 
@@ -10,7 +11,7 @@ namespace gstok_api.Controllers;
 public class SessaoController(ISessaoService sessaoService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> Obter()
+    public async Task<ActionResult<UsuarioSessaoDto>> Obter()
     {
         var userId = (Guid)HttpContext.Items[MiddlewareSessao.UserIdKey]!;
         var result = await sessaoService.ObterAsync(userId);
@@ -19,7 +20,7 @@ public class SessaoController(ISessaoService sessaoService) : ControllerBase
     }
 
     [HttpGet("dados-pessoais")]
-    public async Task<IActionResult> ObterDadosPessoais()
+    public async Task<ActionResult<SessaoDadosPessoaisDto>> ObterDadosPessoais()
     {
         var userId = (Guid)HttpContext.Items[MiddlewareSessao.UserIdKey]!;
         var result = await sessaoService.ObterDadosPessoaisAsync(userId);
@@ -28,7 +29,7 @@ public class SessaoController(ISessaoService sessaoService) : ControllerBase
     }
 
     [HttpPut("dados-pessoais")]
-    public async Task<IActionResult> AtualizarDadosPessoais([FromForm] SessaoAtualizarDadosPessoaisDto dto)
+    public async Task<ActionResult<SessaoDadosPessoaisDto>> AtualizarDadosPessoais([FromForm] SessaoAtualizarDadosPessoaisDto dto)
     {
         var userId = (Guid)HttpContext.Items[MiddlewareSessao.UserIdKey]!;
         var result = await sessaoService.AtualizarDadosPessoaisAsync(userId, dto);

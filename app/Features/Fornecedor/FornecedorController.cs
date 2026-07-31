@@ -10,28 +10,25 @@ namespace gstok_api.Controllers;
 public class FornecedorController(IFornecedorService fornecedorService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> ObterTodos([FromQuery] PaginationParams pagination)
-    {
-        var result = await fornecedorService.ObterTodosAsync(pagination);
-        return Ok(result);
-    }
+    public async Task<ActionResult<PagedResult<FornecedorResponseDto>>> ObterTodos([FromQuery] PaginationParams pagination) =>
+        Ok(await fornecedorService.ObterTodosAsync(pagination));
 
     [HttpGet("{id:guid}")]
-    public async Task<IActionResult> ObterPorId(Guid id)
+    public async Task<ActionResult<FornecedorDetalheResponseDto>> ObterPorId(Guid id)
     {
         var fornecedor = await fornecedorService.ObterPorIdAsync(id);
         return fornecedor is null ? NotFound() : Ok(fornecedor);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Criar([FromBody] FornecedorCreateDto dto)
+    public async Task<ActionResult<FornecedorResponseDto>> Criar([FromBody] FornecedorCreateDto dto)
     {
         var fornecedor = await fornecedorService.CriarAsync(dto);
         return CreatedAtAction(nameof(ObterPorId), new { id = fornecedor.IdFornecedor }, fornecedor);
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<IActionResult> Atualizar(Guid id, [FromBody] FornecedorUpdateDto dto)
+    public async Task<ActionResult<FornecedorResponseDto>> Atualizar(Guid id, [FromBody] FornecedorUpdateDto dto)
     {
         var fornecedor = await fornecedorService.AtualizarAsync(id, dto);
         return fornecedor is null ? NotFound() : Ok(fornecedor);
