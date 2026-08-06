@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using gstok_api.Database;
@@ -11,9 +12,11 @@ using gstok_api.Database;
 namespace gstok_api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260803214433_AdicionarCompra")]
+    partial class AdicionarCompra
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -631,81 +634,6 @@ namespace gstok_api.Migrations
                     b.ToTable("produto");
                 });
 
-            modelBuilder.Entity("gstok_api.Models.PromocaoModel", b =>
-                {
-                    b.Property<Guid>("IdPromocao")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id_promocao");
-
-                    b.Property<DateOnly>("DtInicio")
-                        .HasColumnType("date")
-                        .HasColumnName("dt_inicio");
-
-                    b.Property<DateOnly>("DtTermino")
-                        .HasColumnType("date")
-                        .HasColumnName("dt_termino");
-
-                    b.Property<bool>("FlAtivo")
-                        .HasColumnType("boolean")
-                        .HasColumnName("fl_ativo");
-
-                    b.Property<string>("NmPromocao")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("nm_promocao");
-
-                    b.Property<DateTime>("TsCriacao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ts_criacao");
-
-                    b.Property<DateTime?>("TsEdicao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ts_edicao");
-
-                    b.HasKey("IdPromocao");
-
-                    b.ToTable("promocao");
-                });
-
-            modelBuilder.Entity("gstok_api.Models.PromocaoProdutoModel", b =>
-                {
-                    b.Property<Guid>("IdPromocaoProduto")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id_promocao_produto");
-
-                    b.Property<decimal>("PcDesconto")
-                        .HasColumnType("numeric")
-                        .HasColumnName("pc_desconto");
-
-                    b.Property<Guid>("ProdutoId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("produto_id");
-
-                    b.Property<Guid>("PromocaoId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("promocao_id");
-
-                    b.Property<DateTime>("TsCriacao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ts_criacao");
-
-                    b.Property<DateTime?>("TsEdicao")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("ts_edicao");
-
-                    b.HasKey("IdPromocaoProduto");
-
-                    b.HasIndex("ProdutoId");
-
-                    b.HasIndex("PromocaoId", "ProdutoId")
-                        .IsUnique();
-
-                    b.ToTable("promocao_produto");
-                });
-
             modelBuilder.Entity("gstok_api.Models.SessaoModel", b =>
                 {
                     b.Property<Guid>("IdSessao")
@@ -1053,25 +981,6 @@ namespace gstok_api.Migrations
                     b.Navigation("TipoProduto");
                 });
 
-            modelBuilder.Entity("gstok_api.Models.PromocaoProdutoModel", b =>
-                {
-                    b.HasOne("gstok_api.Models.ProdutoModel", "Produto")
-                        .WithMany("Promocoes")
-                        .HasForeignKey("ProdutoId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("gstok_api.Models.PromocaoModel", "Promocao")
-                        .WithMany("Produtos")
-                        .HasForeignKey("PromocaoId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Produto");
-
-                    b.Navigation("Promocao");
-                });
-
             modelBuilder.Entity("gstok_api.Models.SessaoModel", b =>
                 {
                     b.HasOne("gstok_api.Models.UsuarioModel", "Usuario")
@@ -1159,13 +1068,6 @@ namespace gstok_api.Migrations
                     b.Navigation("CoresProduto");
 
                     b.Navigation("Imagens");
-
-                    b.Navigation("Promocoes");
-                });
-
-            modelBuilder.Entity("gstok_api.Models.PromocaoModel", b =>
-                {
-                    b.Navigation("Produtos");
                 });
 
             modelBuilder.Entity("gstok_api.Models.TipoProdutoModel", b =>

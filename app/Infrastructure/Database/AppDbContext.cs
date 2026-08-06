@@ -20,6 +20,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<FornecedorModel> Fornecedores { get; set; }
     public DbSet<ColecaoModel> Colecoes { get; set; }
     public DbSet<CorProdutoModel> CoresProduto { get; set; }
+    public DbSet<CompraModel> Compras { get; set; }
+    public DbSet<CompraItemModel> ItensCompra { get; set; }
+    public DbSet<PromocaoModel> Promocoes { get; set; }
+    public DbSet<PromocaoProdutoModel> ProdutosPromocao { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -186,6 +190,55 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<EstoqueModel>()
             .HasIndex(e => new { e.CorProdutoId, e.TpTamanho })
+            .IsUnique();
+
+        modelBuilder.Entity<CompraModel>()
+            .Property(c => c.StCompra)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        modelBuilder.Entity<CompraModel>()
+            .HasOne(c => c.Fornecedor)
+            .WithMany(f => f.Compras)
+            .HasForeignKey(c => c.FornecedorId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CompraItemModel>()
+            .Property(i => i.TpTamanho)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<CompraItemModel>()
+            .HasOne(i => i.Compra)
+            .WithMany(c => c.Itens)
+            .HasForeignKey(i => i.CompraId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CompraItemModel>()
+            .HasOne(i => i.CorProduto)
+            .WithMany()
+            .HasForeignKey(i => i.CorProdutoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CompraItemModel>()
+            .HasOne(i => i.Estoque)
+            .WithMany()
+            .HasForeignKey(i => i.EstoqueId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PromocaoProdutoModel>()
+            .HasOne(pp => pp.Promocao)
+            .WithMany(p => p.Produtos)
+            .HasForeignKey(pp => pp.PromocaoId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PromocaoProdutoModel>()
+            .HasOne(pp => pp.Produto)
+            .WithMany(p => p.Promocoes)
+            .HasForeignKey(pp => pp.ProdutoId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PromocaoProdutoModel>()
+            .HasIndex(pp => new { pp.PromocaoId, pp.ProdutoId })
             .IsUnique();
     }
 }

@@ -61,4 +61,5 @@ public class ProdutoModel
     public ColecaoModel Colecao { get; set; } = null!;
     public ICollection<ImagemProdutoModel> Imagens { get; set; } = [];
     public ICollection<CorProdutoModel> CoresProduto { get; set; } = [];
+    public ICollection<PromocaoProdutoModel> Promocoes { get; set; } = [];
 }

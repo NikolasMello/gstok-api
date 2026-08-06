@@ -36,4 +36,5 @@ public class FornecedorModel
     public DateTime? TsEdicao { get; set; }
 
     public ICollection<ColecaoModel> Colecoes { get; set; } = [];
+    public ICollection<CompraModel> Compras { get; set; } = [];
 }

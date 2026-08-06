@@ -1,19 +1,32 @@
 using gstok_api.Common.Utils;
 using gstok_api.DTOs;
 using gstok_api.Features.Pessoa;
+using gstok_api.Mappings.Pessoa;
 using gstok_api.Models;
 
 namespace gstok_api.Services;
 
 public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
 {
-    public async Task<PagedResult<PessoaModel>> ObterTodosAsync(PaginationParams pagination) =>
-        await pessoaRepository.ObterTodosAsync(pagination);
+    public async Task<PagedResult<PessoaResponseDto>> ObterTodosAsync(PaginationParams pagination)
+    {
+        var result = await pessoaRepository.ObterTodosAsync(pagination);
+        return new PagedResult<PessoaResponseDto>
+        {
+            Items = result.Items.Select(PessoaMapper.ParaResposta).ToList(),
+            Page = result.Page,
+            PageSize = result.PageSize,
+            TotalCount = result.TotalCount
+        };
+    }
 
-    public async Task<PessoaModel?> ObterPorIdAsync(Guid id) =>
-        await pessoaRepository.ObterPorIdAsync(id);
+    public async Task<PessoaResponseDto?> ObterPorIdAsync(Guid id)
+    {
+        var pessoa = await pessoaRepository.ObterPorIdAsync(id);
+        return pessoa is null ? null : PessoaMapper.ParaResposta(pessoa);
+    }
 
-    public async Task<PessoaModel> CriarAsync(PessoaRequestDto dto)
+    public async Task<PessoaResponseDto> CriarAsync(PessoaRequestDto dto)
     {
         var pessoa = new PessoaModel
         {
@@ -26,10 +39,10 @@ public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
             NmEmailContato = dto.NmEmailContato,
             TsCriacao = DateTime.UtcNow
         };
-        return await pessoaRepository.CriarAsync(pessoa);
+        return PessoaMapper.ParaResposta(await pessoaRepository.CriarAsync(pessoa));
     }
 
-    public async Task<PessoaModel?> AtualizarAsync(Guid id, PessoaRequestDto dto)
+    public async Task<PessoaResponseDto?> AtualizarAsync(Guid id, PessoaRequestDto dto)
     {
         var pessoa = new PessoaModel
         {
@@ -40,7 +53,8 @@ public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
             NmTelefone = dto.NmTelefone,
             NmEmailContato = dto.NmEmailContato
         };
-        return await pessoaRepository.AtualizarAsync(id, pessoa);
+        var updated = await pessoaRepository.AtualizarAsync(id, pessoa);
+        return updated is null ? null : PessoaMapper.ParaResposta(updated);
     }
 
     public async Task<bool> ExcluirAsync(Guid id) =>
