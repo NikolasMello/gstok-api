@@ -24,4 +24,6 @@ public class ClienteModel
     public PessoaModel Pessoa { get; set; } = null!;
     public ContaClienteModel? ContaCliente { get; set; }
     public ICollection<VendaModel> Compras { get; set; } = [];
+    public ICollection<EnderecoModel> Enderecos { get; set; } = [];
+    public CarrinhoModel? Carrinho { get; set; }
 }

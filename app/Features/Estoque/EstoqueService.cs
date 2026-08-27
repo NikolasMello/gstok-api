@@ -1,3 +1,4 @@
+using gstok_api.Common.Extensions;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Estoque;
 using gstok_api.Exceptions;
@@ -11,13 +12,7 @@ public class EstoqueService(IEstoqueRepository estoqueRepository) : IEstoqueServ
     public async Task<PagedResult<EstoqueProdutoResponseDto>> ObterTodosPaginadoAsync(PaginationParams pagination)
     {
         var result = await estoqueRepository.ObterTodosPaginadoAsync(pagination);
-        return new PagedResult<EstoqueProdutoResponseDto>
-        {
-            Items = result.Items.Select(EstoqueMapper.ParaProdutoResumo).ToList(),
-            Page = result.Page,
-            PageSize = result.PageSize,
-            TotalCount = result.TotalCount
-        };
+        return result.Mapear(EstoqueMapper.ParaProdutoResumo);
     }
 
     public async Task<List<EstoqueResponseDto>> ObterPorProdutoIdAsync(Guid produtoId) =>

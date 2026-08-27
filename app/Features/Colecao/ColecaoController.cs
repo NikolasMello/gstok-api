@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs.Colecao;
-using gstok_api.Features.Colecao;
 
-namespace gstok_api.Controllers;
+namespace gstok_api.Features.Colecao;
 
 [ApiController]
 [Route("colecao")]

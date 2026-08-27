@@ -2,11 +2,10 @@ using System.Security.Cryptography;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using gstok_api.DTOs.Auth;
-using gstok_api.Features.Auth;
 using gstok_api.Models;
 using gstok_api.Settings;
 
-namespace gstok_api.Services;
+namespace gstok_api.Features.Auth;
 
 public class AuthService(
     IAuthRepository authRepository,

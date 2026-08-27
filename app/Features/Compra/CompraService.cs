@@ -1,3 +1,4 @@
+using gstok_api.Common.Extensions;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Compra;
 using gstok_api.Enums;
@@ -21,13 +22,7 @@ public class CompraService(ICompraRepository compraRepository, ILogger<CompraSer
     public async Task<PagedResult<CompraResponseDto>> ObterTodosAsync(PaginationParams pagination)
     {
         var result = await compraRepository.ObterTodosAsync(pagination);
-        return new PagedResult<CompraResponseDto>
-        {
-            Items = result.Items.Select(CompraMapper.ParaResposta).ToList(),
-            TotalCount = result.TotalCount,
-            Page = result.Page,
-            PageSize = result.PageSize
-        };
+        return result.Mapear(CompraMapper.ParaResposta);
     }
 
     public async Task<CompraResponseDto?> ObterPorIdAsync(Guid id)

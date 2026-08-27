@@ -1,3 +1,4 @@
+using gstok_api.Common.Extensions;
 using gstok_api.Common.Utils;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Fornecedor;
@@ -15,13 +16,7 @@ public class FornecedorService(IFornecedorRepository fornecedorRepository, ICole
     public async Task<PagedResult<FornecedorResponseDto>> ObterTodosAsync(PaginationParams pagination)
     {
         var result = await fornecedorRepository.ObterTodosAsync(pagination);
-        return new PagedResult<FornecedorResponseDto>
-        {
-            Items = result.Items.Select(FornecedorMapper.ParaResposta).ToList(),
-            Page = result.Page,
-            PageSize = result.PageSize,
-            TotalCount = result.TotalCount
-        };
+        return result.Mapear(FornecedorMapper.ParaResposta);
     }
 
     public async Task<FornecedorDetalheResponseDto?> ObterPorIdAsync(Guid id)

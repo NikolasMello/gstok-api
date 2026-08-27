@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using gstok_api.Enums;
 using gstok_api.Common.Validators;
 
-namespace gstok_api.DTOs;
+namespace gstok_api.DTOs.Pessoa;
 
 public class PessoaRequestDto
 {

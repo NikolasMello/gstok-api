@@ -44,6 +44,13 @@ public class VendaModel
     [Column("vl_total")]
     public decimal VlTotal { get; set; }
 
+    [Required]
+    [Column("tp_origem")]
+    public TipoOrigemVenda TpOrigem { get; set; } = TipoOrigemVenda.Loja;
+
+    [Column("endereco_entrega_id")]
+    public Guid? EnderecoEntregaId { get; set; }
+
     [Column("ts_criacao")]
     public DateTime TsCriacao { get; set; }
 
@@ -51,5 +58,6 @@ public class VendaModel
     public DateTime? TsEdicao { get; set; }
 
     public ClienteModel Cliente { get; set; } = null!;
+    public EnderecoModel? EnderecoEntrega { get; set; }
     public ICollection<VendaItemModel> Itens { get; set; } = [];
 }

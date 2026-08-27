@@ -1,10 +1,9 @@
 using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs.Sessao;
 using gstok_api.DTOs.Usuario;
-using gstok_api.Features.Sessao;
 using gstok_api.Middleware;
 
-namespace gstok_api.Controllers;
+namespace gstok_api.Features.Sessao;
 
 [ApiController]
 [Route("sessao")]

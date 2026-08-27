@@ -1,3 +1,4 @@
+using gstok_api.DTOs.Pessoa;
 using gstok_api.DTOs;
 
 namespace gstok_api.Features.Pessoa;

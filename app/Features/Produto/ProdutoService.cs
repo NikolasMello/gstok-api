@@ -1,15 +1,16 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
+using gstok_api.DTOs.Produto;
+using gstok_api.Common.Extensions;
 using gstok_api.Common.Services;
 using gstok_api.Common.Utils;
 using gstok_api.DTOs;
 using gstok_api.DTOs.CorProduto;
 using gstok_api.Exceptions;
-using gstok_api.Features.Produto;
 using gstok_api.Mappings.Produto;
 using gstok_api.Models;
 
-namespace gstok_api.Services;
+namespace gstok_api.Features.Produto;
 
 public class ProdutoService(
     IProdutoRepository produtoRepository,
@@ -18,13 +19,7 @@ public class ProdutoService(
     public async Task<PagedResult<ProdutoResumoResponseDto>> ObterTodosAsync(PaginationParams pagination, ProdutoFiltroDto filtro)
     {
         var result = await produtoRepository.ObterTodosAsync(pagination, filtro);
-        return new PagedResult<ProdutoResumoResponseDto>
-        {
-            Items = result.Items.Select(ProdutoMapper.ParaResumo),
-            Page = result.Page,
-            PageSize = result.PageSize,
-            TotalCount = result.TotalCount
-        };
+        return result.Mapear(ProdutoMapper.ParaResumo);
     }
 
     public async Task<ProdutoResponseDto?> ObterPorIdAsync(Guid id)
@@ -61,6 +56,7 @@ public class ProdutoService(
             TipoProdutoId = dto.TipoProdutoId,
             ColecaoId = dto.ColecaoId,
             TpEstacao = dto.TpEstacao,
+            TpGenero = dto.TpGenero,
             FlAtivo = true,
             TsCriacao = DateTime.UtcNow
         };
@@ -136,6 +132,7 @@ public class ProdutoService(
             TipoProdutoId = dto.TipoProdutoId,
             ColecaoId = dto.ColecaoId,
             TpEstacao = dto.TpEstacao,
+            TpGenero = dto.TpGenero,
             FlAtivo = dto.FlAtivo
         };
 

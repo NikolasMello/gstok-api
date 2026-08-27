@@ -1,30 +1,19 @@
 using Microsoft.EntityFrameworkCore;
+using gstok_api.Common.Extensions;
 using gstok_api.Database;
 using gstok_api.DTOs;
-using gstok_api.Features.Pessoa;
 using gstok_api.Models;
 
-namespace gstok_api.Repositories;
+namespace gstok_api.Features.Pessoa;
 
 public class PessoaRepository(AppDbContext context) : IPessoaRepository
 {
     public async Task<PagedResult<PessoaModel>> ObterTodosAsync(PaginationParams pagination)
     {
         var query = context.Pessoas.AsQueryable();
-        var totalCount = await query.CountAsync();
-        var items = await query
+        return await query
             .OrderBy(p => p.NmPessoa)
-            .Skip((pagination.Page - 1) * pagination.PageSize)
-            .Take(pagination.PageSize)
-            .ToListAsync();
-
-        return new PagedResult<PessoaModel>
-        {
-            Items = items,
-            Page = pagination.Page,
-            PageSize = pagination.PageSize,
-            TotalCount = totalCount
-        };
+            .ParaPaginaAsync(pagination);
     }
 
     public async Task<PessoaModel?> ObterPorIdAsync(Guid id) =>

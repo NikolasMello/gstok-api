@@ -3,11 +3,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Options;
 using gstok_api.DTOs.Auth;
-using gstok_api.Features.Auth;
 using gstok_api.Middleware;
 using gstok_api.Settings;
 
-namespace gstok_api.Controllers;
+namespace gstok_api.Features.Auth;
 
 [AllowAnonymous]
 [ApiController]

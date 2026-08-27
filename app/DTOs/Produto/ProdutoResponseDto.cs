@@ -1,7 +1,7 @@
 using gstok_api.DTOs.CorProduto;
 using gstok_api.Enums;
 
-namespace gstok_api.DTOs;
+namespace gstok_api.DTOs.Produto;
 
 public class ProdutoResponseDto
 {
@@ -17,6 +17,7 @@ public class ProdutoResponseDto
     public Guid ColecaoId { get; set; }
     public string? NmColecao { get; set; }
     public Estacao TpEstacao { get; set; }
+    public Genero? TpGenero { get; set; }
     public bool FlAtivo { get; set; }
     public DateTime TsCriacao { get; set; }
     public DateTime? TsEdicao { get; set; }

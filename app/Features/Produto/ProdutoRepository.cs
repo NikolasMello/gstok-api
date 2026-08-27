@@ -1,10 +1,11 @@
 using Microsoft.EntityFrameworkCore;
+using gstok_api.DTOs.Produto;
+using gstok_api.Common.Extensions;
 using gstok_api.Database;
 using gstok_api.DTOs;
-using gstok_api.Features.Produto;
 using gstok_api.Models;
 
-namespace gstok_api.Repositories;
+namespace gstok_api.Features.Produto;
 
 public class ProdutoRepository(AppDbContext context) : IProdutoRepository
 {
@@ -31,26 +32,20 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
         if (filtro.TpEstacao.HasValue)
             query = query.Where(p => p.TpEstacao == filtro.TpEstacao.Value);
 
+        // Admin: correspondência exata — lista o que está classificado naquele gênero.
+        // Produtos com TpGenero nulo (unissex/não se aplica) ficam de fora de propósito.
+        if (filtro.TpGenero.HasValue)
+            query = query.Where(p => p.TpGenero == filtro.TpGenero.Value);
+
         if (filtro.FlAtivo.HasValue)
             query = query.Where(p => p.FlAtivo == filtro.FlAtivo.Value);
 
         if (!string.IsNullOrWhiteSpace(filtro.CdEan))
             query = query.Where(p => p.CdEan.ToLower().Contains(filtro.CdEan.ToLower()));
 
-        var totalCount = await query.CountAsync();
-        var items = await query
+        return await query
             .OrderBy(p => p.NmProduto)
-            .Skip((pagination.Page - 1) * pagination.PageSize)
-            .Take(pagination.PageSize)
-            .ToListAsync();
-
-        return new PagedResult<ProdutoModel>
-        {
-            Items = items,
-            Page = pagination.Page,
-            PageSize = pagination.PageSize,
-            TotalCount = totalCount
-        };
+            .ParaPaginaAsync(pagination);
     }
 
     public async Task<ProdutoModel?> ObterPorIdAsync(Guid id) =>
@@ -93,6 +88,7 @@ public class ProdutoRepository(AppDbContext context) : IProdutoRepository
         existing.TipoProdutoId = produto.TipoProdutoId;
         existing.ColecaoId = produto.ColecaoId;
         existing.TpEstacao = produto.TpEstacao;
+        existing.TpGenero = produto.TpGenero;
         existing.FlAtivo = produto.FlAtivo;
         existing.TsEdicao = DateTime.UtcNow;
 

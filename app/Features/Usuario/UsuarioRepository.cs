@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using gstok_api.Common.Extensions;
 using gstok_api.Database;
 using gstok_api.DTOs;
 using gstok_api.Models;
@@ -13,20 +14,9 @@ public class UsuarioRepository(AppDbContext context) : IUsuarioRepository
             .Include(u => u.Pessoa)
                 .ThenInclude(p => p!.Foto)
             .AsQueryable();
-        var totalCount = await query.CountAsync();
-        var items = await query
+        return await query
             .OrderBy(u => u.NmEmail)
-            .Skip((pagination.Page - 1) * pagination.PageSize)
-            .Take(pagination.PageSize)
-            .ToListAsync();
-
-        return new PagedResult<UsuarioModel>
-        {
-            Items = items,
-            Page = pagination.Page,
-            PageSize = pagination.PageSize,
-            TotalCount = totalCount
-        };
+            .ParaPaginaAsync(pagination);
     }
 
     public Task<UsuarioModel?> ObterPorIdAsync(Guid id) =>

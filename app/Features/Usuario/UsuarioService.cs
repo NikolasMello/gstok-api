@@ -1,3 +1,4 @@
+using gstok_api.Common.Extensions;
 using gstok_api.Common.Services;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Usuario;
@@ -18,13 +19,7 @@ public class UsuarioService(
     public async Task<PagedResult<UsuarioResponseDto>> ObterTodosAsync(PaginationParams pagination)
     {
         var result = await usuarioRepository.ObterTodosAsync(pagination);
-        return new PagedResult<UsuarioResponseDto>
-        {
-            Items = result.Items.Select(UsuarioMapper.ParaResposta).ToList(),
-            Page = result.Page,
-            PageSize = result.PageSize,
-            TotalCount = result.TotalCount
-        };
+        return result.Mapear(UsuarioMapper.ParaResposta);
     }
 
     public async Task<UsuarioResponseDto?> ObterPorIdAsync(Guid id)

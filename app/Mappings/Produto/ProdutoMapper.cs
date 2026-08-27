@@ -1,3 +1,4 @@
+using gstok_api.DTOs.Produto;
 using gstok_api.DTOs;
 using gstok_api.Mappings.CorProduto;
 using gstok_api.Mappings.ImagemProduto;
@@ -21,6 +22,7 @@ public static class ProdutoMapper
         ColecaoId = p.ColecaoId,
         NmColecao = p.Colecao?.NmColecao,
         TpEstacao = p.TpEstacao,
+        TpGenero = p.TpGenero,
         FlAtivo = p.FlAtivo,
         TsCriacao = p.TsCriacao,
         TsEdicao = p.TsEdicao,
@@ -43,6 +45,11 @@ public static class ProdutoMapper
             ? null
             : new ImageVariante { Url = imagem.UrAvatar, Largura = imagem.NrLarguraAvatar, Altura = imagem.NrAlturaAvatar };
 
+    public static ImageVariante? ParaThumbnail(ImagemProdutoModel? imagem) =>
+        imagem is null
+            ? null
+            : new ImageVariante { Url = imagem.UrThumbnail, Largura = imagem.NrLarguraThumbnail, Altura = imagem.NrAlturaThumbnail };
+
     public static ProdutoResumoResponseDto ParaResumo(ProdutoModel p)
     {
         var principal = ObterImagemPrincipal(p);
@@ -58,6 +65,7 @@ public static class ProdutoMapper
             NmColecao = p.Colecao?.NmColecao,
             IdFornecedor = p.Colecao?.FornecedorId ?? Guid.Empty,
             TpEstacao = p.TpEstacao,
+            TpGenero = p.TpGenero,
             TsCriacao = p.TsCriacao,
             Avatar = ParaAvatar(principal)!
         };

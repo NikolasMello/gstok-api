@@ -1,3 +1,5 @@
+using gstok_api.DTOs.Pessoa;
+
 namespace gstok_api.DTOs.Sessao;
 
 public class SessaoDadosPessoaisDto

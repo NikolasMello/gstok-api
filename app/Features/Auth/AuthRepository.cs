@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using gstok_api.Database;
-using gstok_api.Features.Auth;
 using gstok_api.Models;
 
-namespace gstok_api.Repositories;
+namespace gstok_api.Features.Auth;
 
 public class AuthRepository(AppDbContext context) : IAuthRepository
 {

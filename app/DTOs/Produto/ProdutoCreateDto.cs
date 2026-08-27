@@ -2,7 +2,7 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using gstok_api.Enums;
 
-namespace gstok_api.DTOs;
+namespace gstok_api.DTOs.Produto;
 
 public class ProdutoCreateDto
 {
@@ -33,6 +33,9 @@ public class ProdutoCreateDto
 
     [Required]
     public Estacao TpEstacao { get; set; }
+
+    // Público-alvo. Omitir/enviar vazio quando for unissex ou quando gênero não se aplica.
+    public Genero? TpGenero { get; set; }
 
     // Arquivos das imagens (multipart/form-data)
     public List<IFormFile> Imagens { get; set; } = [];

@@ -17,15 +17,22 @@ using gstok_api.Features.Usuario;
 using gstok_api.Features.Estoque;
 using gstok_api.Features.Venda;
 using gstok_api.Features.Compra;
+using gstok_api.Features.Devolucao;
+using gstok_api.Features.Troca;
 using gstok_api.Features.Promocao;
 using gstok_api.Features.Fornecedor;
 using gstok_api.Features.Colecao;
 using gstok_api.Features.TipoProduto;
 using gstok_api.Features.CorProduto;
+using gstok_api.Features.Cliente;
+using gstok_api.Features.Store.Auth;
+using gstok_api.Features.Store.Cliente;
+using gstok_api.Features.Store.Colecao;
+using gstok_api.Features.Store.Produto;
+using gstok_api.Features.Store.Carrinho;
+using gstok_api.Features.Store.Pedido;
 using gstok_api.Common.ModelBinding;
 using gstok_api.Common.Services;
-using gstok_api.Repositories;
-using gstok_api.Services;
 using gstok_api.Settings;
 
 namespace gstok_api.Extensions;
@@ -96,6 +103,10 @@ public static class ServiceExtensions
         services.AddScoped<IVendaService, VendaService>();
         services.AddScoped<ICompraRepository, CompraRepository>();
         services.AddScoped<ICompraService, CompraService>();
+        services.AddScoped<IDevolucaoRepository, DevolucaoRepository>();
+        services.AddScoped<IDevolucaoService, DevolucaoService>();
+        services.AddScoped<ITrocaRepository, TrocaRepository>();
+        services.AddScoped<ITrocaService, TrocaService>();
         services.AddScoped<IPromocaoRepository, PromocaoRepository>();
         services.AddScoped<IPromocaoService, PromocaoService>();
         services.AddScoped<IFornecedorRepository, FornecedorRepository>();
@@ -106,6 +117,18 @@ public static class ServiceExtensions
         services.AddScoped<ITipoProdutoService, TipoProdutoService>();
         services.AddScoped<ICorProdutoRepository, CorProdutoRepository>();
         services.AddScoped<ICorProdutoService, CorProdutoService>();
+        services.AddScoped<IClienteRepository, ClienteRepository>();
+        services.AddScoped<IClienteService, ClienteService>();
+        services.AddScoped<IStoreClienteRepository, StoreClienteRepository>();
+        services.AddScoped<IStoreClienteService, StoreClienteService>();
+        services.AddScoped<IStoreProdutoRepository, StoreProdutoRepository>();
+        services.AddScoped<IStoreProdutoService, StoreProdutoService>();
+        services.AddScoped<IStoreColecaoRepository, StoreColecaoRepository>();
+        services.AddScoped<IStoreColecaoService, StoreColecaoService>();
+        services.AddScoped<IStoreCarrinhoRepository, StoreCarrinhoRepository>();
+        services.AddScoped<IStoreCarrinhoService, StoreCarrinhoService>();
+        services.AddScoped<IStorePedidoRepository, StorePedidoRepository>();
+        services.AddScoped<IStorePedidoService, StorePedidoService>();
         return services;
     }
 
@@ -147,6 +170,8 @@ public static class ServiceExtensions
         services.Configure<ConfiguracaoAuth>(configuration.GetSection("Auth"));
         services.AddScoped<IAuthRepository, AuthRepository>();
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IStoreAuthRepository, StoreAuthRepository>();
+        services.AddScoped<IStoreAuthService, StoreAuthService>();
         services.AddMemoryCache();
         return services;
     }
@@ -158,10 +183,26 @@ public static class ServiceExtensions
         public void Apply(ApplicationModel application)
         {
             foreach (var controller in application.Controllers)
-            foreach (var selector in controller.Selectors)
-                selector.AttributeRouteModel = selector.AttributeRouteModel is not null
-                    ? AttributeRouteModel.CombineAttributeRouteModel(_prefix, selector.AttributeRouteModel)
-                    : _prefix;
+            {
+                foreach (var selector in controller.Selectors)
+                    selector.AttributeRouteModel = selector.AttributeRouteModel is not null
+                        ? AttributeRouteModel.CombineAttributeRouteModel(_prefix, selector.AttributeRouteModel)
+                        : _prefix;
+
+                // Um [Route] de action com barra inicial é template absoluto: ele descarta a
+                // rota do controller e, junto, o prefixo aplicado acima — o endpoint sai fora
+                // de /api/v1 sem erro nenhum, e só se descobre chamando. Já aconteceu com
+                // ColecaoController.ObterPorFornecedor, que ficou em /fornecedor/{id}/colecao
+                // e obrigou o gstok-web a furar o baseURL. Aqui o prefixo é reaplicado
+                // mantendo o template absoluto, para a rota aninhada continuar valendo.
+                foreach (var selector in controller.Actions.SelectMany(a => a.Selectors))
+                {
+                    var rota = selector.AttributeRouteModel;
+                    if (rota?.Template is null || !rota.IsAbsoluteTemplate) continue;
+
+                    rota.Template = $"/{prefix}/{rota.Template.TrimStart('/')}";
+                }
+            }
         }
     }
 }

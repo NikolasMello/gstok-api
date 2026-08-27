@@ -1,23 +1,18 @@
+using gstok_api.DTOs.Pessoa;
+using gstok_api.Common.Extensions;
 using gstok_api.Common.Utils;
 using gstok_api.DTOs;
-using gstok_api.Features.Pessoa;
 using gstok_api.Mappings.Pessoa;
 using gstok_api.Models;
 
-namespace gstok_api.Services;
+namespace gstok_api.Features.Pessoa;
 
 public class PessoaService(IPessoaRepository pessoaRepository) : IPessoaService
 {
     public async Task<PagedResult<PessoaResponseDto>> ObterTodosAsync(PaginationParams pagination)
     {
         var result = await pessoaRepository.ObterTodosAsync(pagination);
-        return new PagedResult<PessoaResponseDto>
-        {
-            Items = result.Items.Select(PessoaMapper.ParaResposta).ToList(),
-            Page = result.Page,
-            PageSize = result.PageSize,
-            TotalCount = result.TotalCount
-        };
+        return result.Mapear(PessoaMapper.ParaResposta);
     }
 
     public async Task<PessoaResponseDto?> ObterPorIdAsync(Guid id)

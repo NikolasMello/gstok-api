@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Fornecedor;
-using gstok_api.Features.Fornecedor;
 
-namespace gstok_api.Controllers;
+namespace gstok_api.Features.Fornecedor;
 
 [ApiController]
 [Route("fornecedor")]

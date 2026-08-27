@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using gstok_api.DTOs.Produto;
 using gstok_api.DTOs;
-using gstok_api.Features.Produto;
 
-namespace gstok_api.Controllers;
+namespace gstok_api.Features.Produto;
 
 [ApiController]
 [Route("produto")]

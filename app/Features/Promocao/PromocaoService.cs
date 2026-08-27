@@ -1,3 +1,4 @@
+using gstok_api.Common.Extensions;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Promocao;
 using gstok_api.Exceptions;
@@ -11,13 +12,7 @@ public class PromocaoService(IPromocaoRepository promocaoRepository) : IPromocao
     public async Task<PagedResult<PromocaoResponseDto>> ObterTodosAsync(PaginationParams pagination)
     {
         var result = await promocaoRepository.ObterTodosAsync(pagination);
-        return new PagedResult<PromocaoResponseDto>
-        {
-            Items = result.Items.Select(PromocaoMapper.ParaResposta).ToList(),
-            TotalCount = result.TotalCount,
-            Page = result.Page,
-            PageSize = result.PageSize
-        };
+        return result.Mapear(PromocaoMapper.ParaResposta);
     }
 
     public async Task<PromocaoResponseDto?> ObterPorIdAsync(Guid id)

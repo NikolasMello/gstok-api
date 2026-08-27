@@ -1,6 +1,6 @@
 using gstok_api.Enums;
 
-namespace gstok_api.DTOs;
+namespace gstok_api.DTOs.Pessoa;
 
 public class PessoaResponseDto
 {

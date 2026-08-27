@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Estoque;
-using gstok_api.Features.Estoque;
 
-namespace gstok_api.Controllers;
+namespace gstok_api.Features.Estoque;
 
 [ApiController]
 [Route("estoque")]

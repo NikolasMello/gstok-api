@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using gstok_api.Common.Extensions;
 using gstok_api.Database;
 using gstok_api.DTOs;
 using gstok_api.Models;
@@ -11,20 +12,9 @@ public class FornecedorRepository(AppDbContext context) : IFornecedorRepository
     {
         var query = context.Fornecedores.AsQueryable();
 
-        var totalCount = await query.CountAsync();
-        var items = await query
+        return await query
             .OrderBy(f => f.NmEmpresa)
-            .Skip((pagination.Page - 1) * pagination.PageSize)
-            .Take(pagination.PageSize)
-            .ToListAsync();
-
-        return new PagedResult<FornecedorModel>
-        {
-            Items = items,
-            Page = pagination.Page,
-            PageSize = pagination.PageSize,
-            TotalCount = totalCount
-        };
+            .ParaPaginaAsync(pagination);
     }
 
     public async Task<FornecedorModel?> ObterPorIdAsync(Guid id) =>

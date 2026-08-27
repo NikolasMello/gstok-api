@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using gstok_api.Enums;
 using gstok_api.Models;
 
 namespace gstok_api.Database;
@@ -23,7 +24,16 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     public DbSet<CompraModel> Compras { get; set; }
     public DbSet<CompraItemModel> ItensCompra { get; set; }
     public DbSet<PromocaoModel> Promocoes { get; set; }
+    public DbSet<DevolucaoModel> Devolucoes { get; set; }
+    public DbSet<DevolucaoItemModel> ItensDevolucao { get; set; }
+    public DbSet<TrocaModel> Trocas { get; set; }
+    public DbSet<TrocaItemSaidaModel> ItensTrocaSaida { get; set; }
+    public DbSet<TrocaItemEntradaModel> ItensTrocaEntrada { get; set; }
     public DbSet<PromocaoProdutoModel> ProdutosPromocao { get; set; }
+    public DbSet<EnderecoModel> Enderecos { get; set; }
+    public DbSet<CarrinhoModel> Carrinhos { get; set; }
+    public DbSet<CarrinhoItemModel> ItensCarrinho { get; set; }
+    public DbSet<SessaoClienteModel> SessoesCliente { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -40,6 +50,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<ProdutoModel>()
             .Property(p => p.TpEstacao)
+            .HasConversion<string>()
+            .HasMaxLength(10);
+
+        modelBuilder.Entity<ProdutoModel>()
+            .Property(p => p.TpGenero)
             .HasConversion<string>()
             .HasMaxLength(10);
 
@@ -240,5 +255,137 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<PromocaoProdutoModel>()
             .HasIndex(pp => new { pp.PromocaoId, pp.ProdutoId })
             .IsUnique();
+
+        modelBuilder.Entity<DevolucaoModel>()
+            .Property(d => d.StDevolucao)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        modelBuilder.Entity<DevolucaoModel>()
+            .Property(d => d.TpReembolso)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        modelBuilder.Entity<DevolucaoModel>()
+            .HasOne(d => d.Venda)
+            .WithMany()
+            .HasForeignKey(d => d.VendaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DevolucaoItemModel>()
+            .HasOne(i => i.Devolucao)
+            .WithMany(d => d.Itens)
+            .HasForeignKey(i => i.DevolucaoId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<DevolucaoItemModel>()
+            .HasOne(i => i.VendaItem)
+            .WithMany()
+            .HasForeignKey(i => i.VendaItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TrocaModel>()
+            .Property(t => t.StTroca)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        modelBuilder.Entity<TrocaModel>()
+            .Property(t => t.TpPagamento)
+            .HasConversion<string>()
+            .HasMaxLength(10);
+
+        modelBuilder.Entity<TrocaModel>()
+            .Property(t => t.TpReembolso)
+            .HasConversion<string>()
+            .HasMaxLength(20);
+
+        modelBuilder.Entity<TrocaModel>()
+            .HasOne(t => t.Venda)
+            .WithMany()
+            .HasForeignKey(t => t.VendaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TrocaItemSaidaModel>()
+            .HasOne(i => i.Troca)
+            .WithMany(t => t.ItensSaida)
+            .HasForeignKey(i => i.TrocaId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TrocaItemSaidaModel>()
+            .HasOne(i => i.VendaItem)
+            .WithMany()
+            .HasForeignKey(i => i.VendaItemId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<TrocaItemEntradaModel>()
+            .HasOne(i => i.Troca)
+            .WithMany(t => t.ItensEntrada)
+            .HasForeignKey(i => i.TrocaId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<TrocaItemEntradaModel>()
+            .HasOne(i => i.Estoque)
+            .WithMany()
+            .HasForeignKey(i => i.EstoqueId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<EnderecoModel>()
+            .HasOne(e => e.Cliente)
+            .WithMany(c => c.Enderecos)
+            .HasForeignKey(e => e.ClienteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<EnderecoModel>()
+            .HasIndex(e => e.ClienteId)
+            .HasFilter("fl_principal = true")
+            .IsUnique();
+
+        modelBuilder.Entity<CarrinhoModel>()
+            .HasOne(c => c.Cliente)
+            .WithOne(cl => cl.Carrinho)
+            .HasForeignKey<CarrinhoModel>(c => c.ClienteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CarrinhoModel>()
+            .HasIndex(c => c.ClienteId)
+            .IsUnique();
+
+        modelBuilder.Entity<CarrinhoItemModel>()
+            .HasOne(i => i.Carrinho)
+            .WithMany(c => c.Itens)
+            .HasForeignKey(i => i.CarrinhoId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<CarrinhoItemModel>()
+            .HasOne(i => i.Estoque)
+            .WithMany()
+            .HasForeignKey(i => i.EstoqueId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<CarrinhoItemModel>()
+            .HasIndex(i => new { i.CarrinhoId, i.EstoqueId })
+            .IsUnique();
+
+        modelBuilder.Entity<SessaoClienteModel>()
+            .HasIndex(s => s.CdToken)
+            .IsUnique();
+
+        modelBuilder.Entity<SessaoClienteModel>()
+            .HasOne(s => s.Cliente)
+            .WithMany()
+            .HasForeignKey(s => s.ClienteId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<VendaModel>()
+            .Property(p => p.TpOrigem)
+            .HasConversion<string>()
+            .HasMaxLength(10)
+            .HasDefaultValue(TipoOrigemVenda.Loja);
+
+        modelBuilder.Entity<VendaModel>()
+            .HasOne(v => v.EnderecoEntrega)
+            .WithMany()
+            .HasForeignKey(v => v.EnderecoEntregaId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

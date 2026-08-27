@@ -1,6 +1,6 @@
 using gstok_api.Enums;
 
-namespace gstok_api.DTOs;
+namespace gstok_api.DTOs.Produto;
 
 public class ProdutoResumoResponseDto
 {
@@ -13,6 +13,7 @@ public class ProdutoResumoResponseDto
     public string? NmColecao { get; set; }
     public Guid IdFornecedor { get; set; }
     public Estacao TpEstacao { get; set; }
+    public Genero? TpGenero { get; set; }
     public DateTime TsCriacao { get; set; }
     public ImageVariante Avatar { get; set; } = null!;
 }

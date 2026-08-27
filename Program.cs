@@ -26,5 +26,6 @@ app.UseRateLimiter();
 app.UseRouting();
 app.UseCors();
 app.UseMiddleware<MiddlewareSessao>();
+app.UseMiddleware<MiddlewareSessaoCliente>();
 app.MapControllers();
 app.Run();

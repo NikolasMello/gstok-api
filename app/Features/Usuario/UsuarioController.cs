@@ -2,10 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Usuario;
 using gstok_api.Exceptions;
-using gstok_api.Features.Usuario;
 using gstok_api.Middleware;
 
-namespace gstok_api.Controllers;
+namespace gstok_api.Features.Usuario;
 
 [ApiController]
 [Route("usuario")]

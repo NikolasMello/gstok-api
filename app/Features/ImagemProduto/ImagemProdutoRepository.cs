@@ -1,9 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using gstok_api.Database;
-using gstok_api.Features.ImagemProduto;
 using gstok_api.Models;
 
-namespace gstok_api.Repositories;
+namespace gstok_api.Features.ImagemProduto;
 
 public class ImagemProdutoRepository(AppDbContext context) : IImagemProdutoRepository
 {

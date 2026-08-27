@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using gstok_api.DTOs.Pessoa;
 using gstok_api.DTOs;
-using gstok_api.Features.Pessoa;
 
-namespace gstok_api.Controllers;
+namespace gstok_api.Features.Pessoa;
 
 [ApiController]
 [Route("pessoa")]

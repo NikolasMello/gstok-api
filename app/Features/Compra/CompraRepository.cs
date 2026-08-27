@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using gstok_api.Common.Extensions;
 using gstok_api.Database;
 using gstok_api.DTOs;
 using gstok_api.Enums;
@@ -15,19 +16,7 @@ public class CompraRepository(AppDbContext context) : ICompraRepository
             .OrderByDescending(c => c.TsCriacao)
             .AsQueryable();
 
-        var total = await query.CountAsync();
-        var items = await query
-            .Skip((pagination.Page - 1) * pagination.PageSize)
-            .Take(pagination.PageSize)
-            .ToListAsync();
-
-        return new PagedResult<CompraModel>
-        {
-            Items = items,
-            TotalCount = total,
-            Page = pagination.Page,
-            PageSize = pagination.PageSize
-        };
+        return await query.ParaPaginaAsync(pagination);
     }
 
     public Task<CompraModel?> ObterPorIdAsync(Guid id) =>

@@ -41,7 +41,7 @@ public class VendaController(IVendaService vendaService) : ControllerBase
     }
 
     [HttpGet("{vendaId:guid}/itens")]
-    public async Task<ActionResult<VendaResponseDto>> ObterItens(Guid vendaId)
+    public async Task<ActionResult<List<ItemVendaResponseDto>>> ObterItens(Guid vendaId)
     {
         var venda = await vendaService.ObterPorIdAsync(vendaId);
         return venda is null ? NotFound() : Ok(venda.Itens);

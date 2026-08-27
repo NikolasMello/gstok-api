@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace gstok_api.DTOs;
+namespace gstok_api.DTOs.Produto;
 
 public class DeleteManyImagensDto
 {

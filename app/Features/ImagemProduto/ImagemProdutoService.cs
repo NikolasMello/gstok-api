@@ -1,10 +1,10 @@
+using gstok_api.DTOs.Produto;
 using gstok_api.Common.Services;
 using gstok_api.DTOs;
 using gstok_api.Exceptions;
-using gstok_api.Features.ImagemProduto;
 using gstok_api.Mappings.ImagemProduto;
 
-namespace gstok_api.Services;
+namespace gstok_api.Features.ImagemProduto;
 
 public class ImagemProdutoService(
     IImagemProdutoRepository imagemRepository,

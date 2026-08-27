@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs.TipoProduto;
-using gstok_api.Features.TipoProduto;
 
-namespace gstok_api.Controllers;
+namespace gstok_api.Features.TipoProduto;
 
 [ApiController]
 [Route("tipo-produto")]

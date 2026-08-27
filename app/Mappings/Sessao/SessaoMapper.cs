@@ -1,3 +1,4 @@
+using gstok_api.DTOs.Pessoa;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Sessao;
 using gstok_api.Models;

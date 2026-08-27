@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using gstok_api.Common.Extensions;
 using gstok_api.Database;
 using gstok_api.DTOs;
 using gstok_api.Enums;
@@ -16,22 +17,11 @@ public class EstoqueRepository(AppDbContext context) : IEstoqueRepository
                     .ThenInclude(p => p.Imagens)
             .AsQueryable();
 
-        var totalCount = await query.CountAsync();
-        var items = await query
+        return await query
             .OrderBy(e => e.CorProduto.Produto.NmProduto)
             .ThenBy(e => e.CorProduto.NmCor)
             .ThenBy(e => e.TpTamanho)
-            .Skip((pagination.Page - 1) * pagination.PageSize)
-            .Take(pagination.PageSize)
-            .ToListAsync();
-
-        return new PagedResult<EstoqueModel>
-        {
-            Items = items,
-            Page = pagination.Page,
-            PageSize = pagination.PageSize,
-            TotalCount = totalCount
-        };
+            .ParaPaginaAsync(pagination);
     }
 
     public Task<List<EstoqueModel>> ObterPorProdutoIdAsync(Guid produtoId) =>

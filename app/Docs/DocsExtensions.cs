@@ -31,21 +31,19 @@ public static class DocsExtensions
                 return Task.CompletedTask;
             });
 
-            // O gerador de OpenAPI respeita a política snake_case configurada
-            // apenas para corpos JSON. Parâmetros de query e schemas de
-            // form-data (usados nos endpoints com upload de imagem) saem em
-            // PascalCase cru. Este transformer alinha a documentação ao nome
-            // que o SnakeCaseFormValueProvider já aceita em runtime.
+            // O gerador de OpenAPI respeita a política snake_case configurada apenas para
+            // corpos JSON; schemas de form-data (endpoints com upload de imagem) saem em
+            // PascalCase cru. Este transformer alinha a documentação ao nome que o
+            // SnakeCaseFormValueProvider realmente aceita em runtime.
+            //
+            // NÃO renomeie parâmetros de query aqui. O SnakeCaseFormValueProvider só atua
+            // sobre BindingSource.Form (e a factory sai cedo quando não há form content-type),
+            // então query string não passa por tradutor nenhum: o model binding exige
+            // PascalCase. Renomear para snake_case fazia o doc anunciar `page_size`/`nm_pessoa`,
+            // e quem seguisse o doc tinha o filtro ignorado em silêncio — HTTP 200, valor default,
+            // sem erro de validação. Query param documentado = nome da propriedade C#.
             options.AddOperationTransformer((operation, _, _) =>
             {
-                if (operation.Parameters is not null)
-                {
-                    foreach (var parametro in operation.Parameters
-                                 .OfType<OpenApiParameter>()
-                                 .Where(p => p.In == ParameterLocation.Query))
-                        parametro.Name = ParaSnakeCase(parametro.Name!);
-                }
-
                 if (operation.RequestBody?.Content is not null)
                 {
                     foreach (var mediaType in operation.RequestBody.Content.Values)

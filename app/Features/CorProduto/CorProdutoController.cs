@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using gstok_api.DTOs.CorProduto;
-using gstok_api.Features.CorProduto;
 
-namespace gstok_api.Controllers;
+namespace gstok_api.Features.CorProduto;
 
 [ApiController]
 [Route("produto/{produtoId:guid}/cor")]

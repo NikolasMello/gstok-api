@@ -1,3 +1,4 @@
+using gstok_api.DTOs.Produto;
 using gstok_api.DTOs;
 using gstok_api.Models;
 

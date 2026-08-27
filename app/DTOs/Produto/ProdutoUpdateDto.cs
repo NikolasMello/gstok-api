@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using gstok_api.Enums;
 
-namespace gstok_api.DTOs;
+namespace gstok_api.DTOs.Produto;
 
 public class ProdutoUpdateDto
 {
@@ -32,6 +32,9 @@ public class ProdutoUpdateDto
 
     [Required]
     public Estacao TpEstacao { get; set; }
+
+    // Público-alvo. Omitir/enviar vazio quando for unissex ou quando gênero não se aplica.
+    public Genero? TpGenero { get; set; }
 
     public bool FlAtivo { get; set; } = true;
 }

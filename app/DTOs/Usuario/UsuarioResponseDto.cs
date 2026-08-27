@@ -1,3 +1,5 @@
+using gstok_api.DTOs.Pessoa;
+
 namespace gstok_api.DTOs.Usuario;
 
 public class UsuarioResponseDto

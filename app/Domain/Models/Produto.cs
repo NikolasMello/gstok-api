@@ -48,6 +48,9 @@ public class ProdutoModel
     [Column("tp_estacao")]
     public Estacao TpEstacao { get; set; }
 
+    [Column("tp_genero")]
+    public Genero? TpGenero { get; set; }
+
     [Column("fl_ativo")]
     public bool FlAtivo { get; set; } = true;
 

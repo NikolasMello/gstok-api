@@ -1,3 +1,4 @@
+using gstok_api.Common.Extensions;
 using gstok_api.DTOs;
 using gstok_api.DTOs.Venda;
 using gstok_api.Enums;
@@ -12,13 +13,7 @@ public class VendaService(IVendaRepository vendaRepository, ILogger<VendaService
     public async Task<PagedResult<VendaResponseDto>> ObterTodosAsync(PaginationParams pagination)
     {
         var result = await vendaRepository.ObterTodosAsync(pagination);
-        return new PagedResult<VendaResponseDto>
-        {
-            Items = result.Items.Select(VendaMapper.ParaResposta).ToList(),
-            TotalCount = result.TotalCount,
-            Page = result.Page,
-            PageSize = result.PageSize
-        };
+        return result.Mapear(VendaMapper.ParaResposta);
     }
 
     public async Task<VendaResponseDto?> ObterPorIdAsync(Guid id)
